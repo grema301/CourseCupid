@@ -1,0 +1,4 @@
+body { font-family: system-ui, Arial, sans-serif; margin: 2rem; color: #222 }
+header h1 { color: #0b5; }
+button { padding: 0.5rem 1rem; margin-top: 1rem }
+pre { background: #f6f6f6; padding: 1rem; border-radius: 4px }

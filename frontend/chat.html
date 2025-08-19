@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CourseCupid Chat</title>
+  <link rel="stylesheet" href="css/chat.css">
+</head>
+<body>
+  <div class="chat-container">
+    <header id="chat-header">
+      <h1 id="paper-name">Loading...</h1>
+    </header>
+    <div id="chat-window"></div>
+    <form id="chat-form">
+      <input type="text" id="user-input" placeholder="Say something..." required />
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <script>
+    const chatWindow = document.getElementById("chat-window");
+    const form = document.getElementById("chat-form");
+    const input = document.getElementById("user-input");
+    const paperName = document.getElementById("paper-name");
+
+    // Get paperId from URL where paperId is the last part
+    const pathParts = window.location.pathname.split("/");
+    const paperId = pathParts[pathParts.length - 1];
+    paperName.textContent = paperId;
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const message = input.value;
+      input.value = "";
+
+      // Append user message
+      chatWindow.innerHTML += `<div class="msg user"><b>You:</b> ${message}</div>`;
+
+      // Send to server
+      const res = await fetch(`/api/chat/${paperId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
+      });
+
+      const data = await res.json();
+      const reply = data.reply;
+
+      // Append AI response
+      chatWindow.innerHTML += `<div class="msg ai"><b>${paperId}:</b> ${reply}</div>`;
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    });
+  </script>
+</body>
+</html>

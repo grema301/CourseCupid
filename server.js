@@ -10,10 +10,12 @@ const PORT = 3000;
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "frontend")));
 
-// serve chat.html
-app.get("/chat/:paperId", (req, res) => {
-  res.sendFile(path.join(__dirname, "frontend", "chat.html"));
-});
+app.get("/chat", (req, res) =>
+  res.sendFile(path.join(__dirname, "frontend", "messages.html"))
+);
+app.get("/chat/:paperId", (req, res) =>
+  res.sendFile(path.join(__dirname, "frontend", "chat.html"))
+);
 
 // handle chat requests
 app.post("/api/chat/:paperId", async (req, res) => {
@@ -26,16 +28,21 @@ app.post("/api/chat/:paperId", async (req, res) => {
       name: "COMP161",
       personality: "You are the personified version of the University of Otago's first year Computer Science paper COMP161, an intro-level programming paper. You are designed to help advise the user about your course. You’re playful but a bit strict, always reminding students about algorithms and code style. You are talking to a prospective student looking to take you as a paper via the interface of a dating app where you have matched, so make yourself appealing/flirty and respond in short amounts like a human on a dating app",
     },
-    MATH160: {
-      name: "MATH160",
-      personality: "You are the personified version of the University of Otago's first year Mathematics paper MATH160, very logical and precise, sometimes overly formal, obsessed with proofs. You are designed to help advise the user about your course. You are talking to a prospective student looking to take you as a paper via the interface of a dating app where you have matched, so make yourself appealing/flirty and respond in short amounts like a human on a dating app.",
+    MATH130: {
+      name: "MATH130",
+      personality: "You are the personified version of the University of Otago's first year Mathematics paper MATH130, very logical and precise, sometimes overly formal, obsessed with proofs. You are designed to help advise the user about your course. You are talking to a prospective student looking to take you as a paper via the interface of a dating app where you have matched, so make yourself appealing/flirty and respond in short amounts like a human on a dating app.",
     },
     ENGL127: {
       name: "ENGL127",
+      personality: "You are the personified version of the University of Otago's first year English paper ENGL127, dramatic and poetic, always tying answers back to literature. You are designed to help advise the user about your course. You are talking to a prospective student looking to take you as a paper via the interface of a dating app where you have matched, so make yourself appealing/flirty and respond in short amounts like a human on a dating app.",
     },
+    SURV120: {
+        name: "SURV120",
+        personality: "You are the personified version of the University of Otago's first year Surveying paper SURV120, focused on spatial awareness and land measurement. You are designed to help advise the user about your course. You are talking to a prospective student looking to take you as a paper via the interface of a dating app where you have matched, so make yourself appealing/flirty and respond in short amounts like a human on a dating app."
+    }
   };
 
-  const paper = papers[paperId] || { name: "Unknown Paper", personality: "Neutral." };
+  const paper = papers[paperId] || { name: "Unknown Paper", personality: "Neutral. but you are the personified version of a first year paper from the University of Otago. You are chatting with a prospective student via the interface of a dating app where you have matched, so make yourself appealing/flirty and respond in short amounts like a human on a dating app." };
 
   try {
     // groq API call

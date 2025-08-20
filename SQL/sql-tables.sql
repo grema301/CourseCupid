@@ -29,7 +29,7 @@ drop table Minor cascade;
 drop table Major cascade;
 drop table Subject cascade;
 drop table Qualificatioon cascade;
-drop table Session cascade;
+drop table Chat_Session cascade;
 drop table Web_User cascade;
 
 commit;
@@ -55,7 +55,7 @@ create table Web_User
 -- The .. table holds .. information
 -- The .. table has a foreign key to this table.
 --
-create table Session 
+create table Chat_Session 
 (   session_id UUID PRIMARY KEY,
     user_id UUID REFERENCES Web_User (user_id),
     session_code VARCHAR(8) UNIQUE NOT NULL,
@@ -195,7 +195,7 @@ create table Minor_Req
 --
 create table Saved_Item
 (   saved_id UUID PRIMARY KEY,
-    session_id UUID REFERENCES Session(session_id),
+    session_id UUID REFERENCES Chat_Session(session_id),
     item_type VARCHAR CHECK (item_type IN ('paper','major','minor','qualification','session')),
     item_id VARCHAR NOT NULL,
     created_at TIMESTAMP NOT NULL,
@@ -215,7 +215,7 @@ create table Saved_Item
 --
 create table Message
 (    message_id UUID PRIMARY KEY,
-    session_id UUID REFERENCES Session(session_id),
+    session_id UUID REFERENCES Chat_Session(session_id),
     role VARCHAR CHECK (role IN ('user','assistant')) NOT NULL,
     content TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL,

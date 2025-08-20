@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
+const { spawn } = require('child_process');
 require("dotenv").config();
 
 const app = express();
@@ -16,6 +17,50 @@ app.get("/chat", (req, res) =>
 app.get("/chat/:paperId", (req, res) =>
   res.sendFile(path.join(__dirname, "frontend", "chat.html"))
 );
+
+app.get("/quiz", (req, res) =>
+  res.sendFile(path.join(__dirname, "frontend", "quiz.html"))
+);
+
+app.post("/api/quiz-recommendations", async (req, res) => {
+  console.log("Received a request for course recommendations."); // ADDED
+  const { answers } = req.body;
+  const userProfile = answers.join(" ");
+  console.log("User profile string:", userProfile); // ADDED
+
+  // We are going to execute the Python script as a separate child process
+  const pythonProcess = spawn('python', ['course_matcher.py', userProfile]);
+  let dataToSend = '';
+
+  // Listen for data from the python script
+  pythonProcess.stdout.on('data', (data) => {
+    console.log(`Python script output: ${data.toString()}`); // ADDED
+    dataToSend += data.toString();
+  });
+
+  // Listen for errors from the python script
+  pythonProcess.stderr.on('data', (data) => {
+    console.error(`stderr: ${data}`);
+  });
+
+  // When the Python process exits
+  pythonProcess.on('close', (code) => {
+    console.log(`Python process exited with code ${code}`); // ADDED
+    if (code === 0) {
+      try {
+        const recommendations = JSON.parse(dataToSend);
+        console.log("Recommendations parsed successfully."); // ADDED
+        res.json({ recommendedCourses: recommendations });
+      } catch (e) {
+        console.error("Failed to parse JSON from Python script:", e);
+        res.status(500).json({ error: "Invalid response from the server." });
+      }
+    } else {
+      console.error(`Python script exited with code ${code}`);
+      res.status(500).json({ error: "Failed to get course recommendations." });
+    }
+  });
+});
 
 // handle chat requests
 app.post("/api/chat/:paperId", async (req, res) => {

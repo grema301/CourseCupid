@@ -135,7 +135,7 @@ app.use(session({
 }));
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL, // Set this in your .env
+  connectionString: process.env.DATABASE_URL, // ENV
   
 });
 

@@ -4,14 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Course Cupid Quiz</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+      <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cupidPink: '#C05A66',
+            cupidCream: '#FAF5EF',
+          },
+          fontFamily: {
+            script: ['"Great Vibes"', 'cursive'],
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/frontend/style.css" />
 </head>
-<body class="bg-gray-100 p-8">
+<body class="bg-cupidCream text-brown-800">
     <div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
-        <h1 class="text-2xl font-bold mb-4">Find Your Perfect Course Match!</h1>
+        <h1 class="text-2xl font-script text-cupidPink mb-4">Find Your Perfect Course Match!</h1>
         <form id="quizForm">
             <div class="mb-4">
-                <p class="font-semibold">What area are you most interested in?</p>
+                <p class="font-sans semibold">What area are you most interested in?</p>
                 <div class="mt-2">
                     <label class="block"><input type="radio" name="q1" value="Computer Science" required> Computer Science</label>
                     <label class="block"><input type="radio" name="q1" value="Business" required> Business</label>
@@ -19,7 +40,25 @@
                     <label class="block"><input type="radio" name="q1" value="Humanities" required> Humanities</label>
                 </div>
             </div>
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Get Recommendations</button>
+            <div class="mb-4">
+                <p class="font-sans semibold">What type of learning do you prefer?</p>
+                <div class="mt-2">
+                    <label class="block"><input type="radio" name="q2" value="Hands-on / Practical" required> Hands-on / Practical</label>
+                    <label class="block"><input type="radio" name="q2" value="Theoretical" required> Theoretical</label>
+                    <label class="block"><input type="radio" name="q2" value="Research-based" required> Research-based</label>
+                    <label class="block"><input type="radio" name="q2" value="Creative projects" required> Creative projects</label>
+                </div>
+            </div>
+            <div class="mb-4">
+                <p class="font-sans semibold">What is your career goal?</p>
+                <div class="mt-2">
+                    <label class="block"><input type="radio" name="q3" value="Industry job" required> Industry job</label>
+                    <label class="block"><input type="radio" name="q3" value="Academic research" required> Academic research</label>
+                    <label class="block"><input type="radio" name="q3" value="Entrepreneurship" required> Entrepreneurship</label>
+                    <label class="block"><input type="radio" name="q3" value="Government/NGO work" required> Government/NGO work</label>
+                </div>
+            </div>
+            <button type="submit" class="mt-4 px-5 py-2 rounded-full bg-cupidPink hover:bg-cupidPink/90 text-white font-semibold">Get Recommendations</button>
         </form>
         <div id="results" class="mt-8 hidden">
             <h2 class="text-xl font-bold mb-4">Your Top Matches:</h2>

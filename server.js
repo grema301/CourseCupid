@@ -162,7 +162,7 @@ app.post("/api/signup", async (req, res) => {
   }
 });
 
-// Login endpoint
+// Login 
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) return res.json({ success: false, message: "Missing fields" });

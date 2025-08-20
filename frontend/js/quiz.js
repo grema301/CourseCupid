@@ -4,7 +4,8 @@ document.getElementById('quizForm').addEventListener('submit', async (e) => {
     const form = e.target;
     const answers = [
         form.querySelector('input[name="q1"]:checked')?.value,
-        // Add more answers for additional questions
+        form.querySelector('input[name="q2"]:checked')?.value,
+        form.querySelector('input[name="q3"]:checked')?.value
     ];
 
     try {

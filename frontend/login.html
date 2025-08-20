@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login • Course Cupid</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cupidPink: '#C05A66',
+            cupidCream: '#FAF5EF',
+          },
+          fontFamily: {
+            script: ['"Great Vibes"', 'cursive'],
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+</head>
+<body class="bg-cupidCream min-h-screen flex flex-col">
+  <header class="flex items-center justify-between px-10 py-6">
+    <img src="images/cupid_logo.png" alt="Course Cupid Logo" class="h-8">
+    <nav class="flex gap-10 text-sm">
+      <a href="index.html" class="hover:text-cupidPink">Home</a>
+      <a href="#" class="hover:text-cupidPink">About Us</a>
+      <a href="#" class="hover:text-cupidPink">Contact</a>
+    </nav>
+    <div class="flex gap-4">
+      <a href="login.html" class="px-5 py-2 rounded-full bg-cupidPink/30 hover:bg-cupidPink text-cupidPink hover:text-white font-semibold">Log In</a>
+      <a href="signup.html" class="px-5 py-2 rounded-full bg-cupidPink hover:bg-cupidPink/90 text-white font-semibold">Register</a>
+    </div>
+  </header>
+  <main class="flex flex-1 items-center justify-center">
+    <div class="bg-white rounded-xl shadow-lg p-10 w-full max-w-md">
+      <h2 class="text-3xl font-script text-cupidPink mb-6 text-center" style="font-family: 'Great Vibes', cursive;">Log In</h2>
+      <form id="login-form" class="flex flex-col gap-4">
+        <input type="text" name="username" placeholder="Username" required class="border rounded px-4 py-2" />
+        <input type="password" name="password" placeholder="Password" required class="border rounded px-4 py-2" />
+        <button type="submit" class="bg-cupidPink text-white rounded-full py-2 font-semibold hover:bg-cupidPink/90">Login</button>
+      </form>
+      <div id="login-error" class="text-red-600 mt-2 text-center"></div>
+      <p class="mt-4 text-center text-sm">Don't have an account? <a href="signup.html" class="text-cupidPink hover:underline">Sign up</a></p>
+    </div>
+  </main>
+  <script>
+    document.getElementById('login-form').onsubmit = async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          username: form.username.value,
+          password: form.password.value
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        window.location = '/chat';
+      } else {
+        document.getElementById('login-error').textContent = data.message;
+      }
+    };
+  </script>
+</body>
+</html>

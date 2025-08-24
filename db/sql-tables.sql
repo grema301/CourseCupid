@@ -7,7 +7,7 @@
 -- Katrina Hogg
 -- Benjamin Hunt
 -- Shyamalima Das
--- Ned Redmon
+-- Ned Redmond
 -- Matthew Greer
 --
 -- Created by Katrina Hogg, 2025-08-21.
@@ -37,22 +37,21 @@ commit;
 
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Web_User table holds .. information
 -- The .. table has a foreign key to this table.
 --
 create table Web_User
 (   user_id UUID PRIMARY KEY,
     username VARCHAR,
-    email VARCHAR UNIQUE,
-    password_hash VARCHAR,
+    email VARCHAR(255) UNIQUE ,
+    password_hash VARCHAR(255),
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
 );
 
-
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Chat_Session table holds .. information
 -- The .. table has a foreign key to this table.
 --
 create table Chat_Session 
@@ -71,7 +70,7 @@ create table Chat_Session
 
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Qualification table holds .. information
 -- The .. table has a foreign key to this table.
 --
 create table Qualification
@@ -84,7 +83,7 @@ create table Qualification
 
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Subject table holds .. information
 -- The .. table has a foreign key to this table.
 --
 create table Subject
@@ -101,7 +100,7 @@ create table Subject
 
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Major table holds .. information
 -- The .. table has a foreign key to this table.
 --
 create table Major
@@ -117,7 +116,7 @@ create table Major
 
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Minor table holds .. information
 -- The .. table has a foreign key to this table.
 --
 create table Minor
@@ -133,7 +132,7 @@ create table Minor
 
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Paper table holds .. information
 -- The .. table has a foreign key to this table.
 --
 create table Paper
@@ -156,7 +155,7 @@ create table Paper
 
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Major_Req table holds .. information
 -- The .. table has a foreign key to this table.
 --
 --
@@ -171,7 +170,7 @@ create table Major_Req
 
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Minor_Req table holds .. information
 -- The .. table has a foreign key to this table.
 --
 --
@@ -189,7 +188,7 @@ create table Minor_Req
 
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Saved_Item table holds .. information
 -- The .. table has a foreign key to this table.
 --
 --
@@ -210,7 +209,7 @@ create table Saved_Item
 
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Message table holds .. information
 -- The .. table has a foreign key to this table.
 --
 create table Message
@@ -225,7 +224,7 @@ create table Message
 
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Recommendation table holds .. information
 -- The .. table has a foreign key to this table.
 --
 create table Recommendation
@@ -241,7 +240,7 @@ create table Recommendation
 
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Recommendation_FB table holds .. information
 -- The .. table has a foreign key to this table.
 --
 create table Recommendation_FB

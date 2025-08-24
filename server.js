@@ -11,10 +11,10 @@ const PORT = 3000;
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "frontend")));
 
-app.get("/chat", requireAuth, (req, res) =>
+app.get("/chat", (req, res) =>
   res.sendFile(path.join(__dirname, "frontend", "messages.html"))
 );
-app.get("/chat/:paperId", requireAuth, (req, res) =>
+app.get("/chat/:paperId", (req, res) =>
   res.sendFile(path.join(__dirname, "frontend", "chat.html"))
 );
 
@@ -63,7 +63,7 @@ app.post("/api/quiz-recommendations", async (req, res) => {
 });
 
 // handle chat requests
-app.post("/api/chat/:paperId", requireAuth, async (req, res) => {
+app.post("/api/chat/:paperId", async (req, res) => {
   const { message } = req.body;
   const { paperId } = req.params;
 
@@ -115,14 +115,6 @@ app.post("/api/chat/:paperId", requireAuth, async (req, res) => {
     res.status(500).json({ reply: "Error: could not connect to AI." });
   }
 });
-
-function requireAuth(req, res, next) {
-  if (req.session && req.session.userId) {
-    next();
-  } else {
-    res.status(401).json({ success: false, message: "Unauthorized" });
-  }
-}
 
 const session = require("express-session");
 const bcrypt = require("bcryptjs");

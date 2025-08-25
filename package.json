@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "express-session": "^1.18.2",
@@ -8,5 +9,12 @@
   },
   "scripts": {
     "start": "node server.js"
-  }
+  },
+  "name": "course-cupid",
+  "version": "1.0.0",
+  "description": "Group_13 ===============",
+  "main": "server.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }

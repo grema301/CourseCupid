@@ -7,7 +7,7 @@
 -- Katrina Hogg
 -- Benjamin Hunt
 -- Shyamalima Das
--- Ned Redmon
+-- Ned Redmond
 -- Matthew Greer
 --
 -- Created by Katrina Hogg, 2025-08-21.
@@ -18,41 +18,40 @@
 /*
 begin;
 
-drop table Reccomendation_FB cascade;
-drop table Reccomendation cascade;
-drop table Message cascade;
-drop table Saved_Item cascade;
-drop table Minor_Req cascade;
-drop table Major_Req cascade;
-drop table Paper cascade;
-drop table Minor cascade;
-drop table Major cascade;
-drop table Subject cascade;
-drop table Qualificatioon cascade;
-drop table Chat_Session cascade;
-drop table Web_User cascade;
+drop table if exists Recommendation_FB cascade;
+drop table if exists Recommendation cascade;
+drop table if exists Message cascade;
+drop table if exists Saved_Item cascade;
+drop table if exists Minor_Req cascade;
+drop table if exists Major_Req cascade;
+drop table if exists Paper cascade;
+drop table if exists Minor cascade;
+drop table if exists Major cascade;
+drop table if exists Subject cascade;
+drop table if exists Qualification cascade;
+drop table if exists Chat_Session cascade;
+drop table if exists Web_User cascade;
 
 commit;
 */
 
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Web_User table holds .. information
 -- The .. table has a foreign key to this table.
 --
 create table Web_User
 (   user_id UUID PRIMARY KEY,
     username VARCHAR,
-    email VARCHAR UNIQUE,
-    password_hash VARCHAR,
+    email VARCHAR(255) UNIQUE ,
+    password_hash VARCHAR(255),
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
 );
 
-
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Chat_Session table holds .. information
 -- The .. table has a foreign key to this table.
 --
 create table Chat_Session 
@@ -71,7 +70,7 @@ create table Chat_Session
 
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Qualification table holds .. information
 -- The .. table has a foreign key to this table.
 --
 create table Qualification
@@ -84,7 +83,7 @@ create table Qualification
 
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Subject table holds .. information
 -- The .. table has a foreign key to this table.
 --
 create table Subject
@@ -101,7 +100,7 @@ create table Subject
 
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Major table holds .. information
 -- The .. table has a foreign key to this table.
 --
 create table Major
@@ -117,7 +116,7 @@ create table Major
 
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Minor table holds .. information
 -- The .. table has a foreign key to this table.
 --
 create table Minor
@@ -133,7 +132,7 @@ create table Minor
 
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Paper table holds .. information
 -- The .. table has a foreign key to this table.
 --
 create table Paper
@@ -156,7 +155,7 @@ create table Paper
 
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Major_Req table holds .. information
 -- The .. table has a foreign key to this table.
 --
 --
@@ -171,7 +170,7 @@ create table Major_Req
 
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Minor_Req table holds .. information
 -- The .. table has a foreign key to this table.
 --
 --
@@ -189,7 +188,7 @@ create table Minor_Req
 
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Saved_Item table holds .. information
 -- The .. table has a foreign key to this table.
 --
 --
@@ -210,7 +209,7 @@ create table Saved_Item
 
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Message table holds .. information
 -- The .. table has a foreign key to this table.
 --
 create table Message
@@ -225,10 +224,10 @@ create table Message
 
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Recommendation table holds .. information
 -- The .. table has a foreign key to this table.
 --
-create table Reccomendation
+create table Recommendation
 (   recommendation_id UUID PRIMARY KEY,
     message_id UUID REFERENCES Message(message_id),
     paper_code VARCHAR REFERENCES Paper(paper_code),
@@ -241,10 +240,10 @@ create table Reccomendation
 
 --------------------------------------------------------------------------------
 --
--- The .. table holds .. information
+-- The Recommendation_FB table holds .. information
 -- The .. table has a foreign key to this table.
 --
-create table Reccomendation_FB
+create table Recommendation_FB
 (   feedback_id UUID PRIMARY KEY,
     recommendation_id UUID REFERENCES Recommendation(recommendation_id),
     feedback_type VARCHAR CHECK (feedback_type IN ('swipe_right','swipe_left','super_like','saved','skip')),

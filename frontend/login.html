@@ -24,13 +24,23 @@
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
 </head>
 <body class="bg-cupidCream min-h-screen flex flex-col">
+  <script>
+    // If already logged in, go to home
+    (async () => {
+      try {
+        const r = await fetch('/api/me', { credentials: 'same-origin' });
+        const d = await r.json();
+        if (d.loggedIn) window.location = '/';
+      } catch (e) { }
+    })();
+  </script>
+
   <header class="flex items-center justify-between px-10 py-6">
     <a href="index.html" class="text-cupidPink hover:text-cupidPink/80 font-semibold transition-colors duration-300 text-lg">
       ← Home
     </a>
     <nav class="flex gap-10 text-sm">
       <a href="#" class="hover:text-cupidPink">About Us</a>
-      <a href="#" class="hover:text-cupidPink">Your Profile</a>
       <a href="/chat/default" class="hover:text-cupidPink">Chatbot</a>
       <a href="#" class="hover:text-cupidPink">Contact</a>
     </nav>
@@ -57,6 +67,7 @@
       const form = e.target;
       const res = await fetch('/api/login', {
         method: 'POST',
+        credentials: 'same-origin',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
           username: form.username.value,
@@ -65,7 +76,7 @@
       });
       const data = await res.json();
       if (data.success) {
-        window.location = '/chat';
+        window.location = '/';
       } else {
         document.getElementById('login-error').textContent = data.message;
       }

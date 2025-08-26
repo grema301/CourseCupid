@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Course Cupid</title>
 
-  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -24,32 +23,40 @@
     }
   </script>
 
-  <!-- Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
 
-  <!-- External stylesheet from your placeholder code -->
   <link rel="stylesheet" href="/frontend/style.css" />
 </head>
-<body class="bg-cupidCream text-brown-800">
-
-  <!-- Navbar -->
+<body class="bg-cupidCream min-h-screen flex flex-col">
   <header class="flex items-center justify-between px-10 py-6">
-    <img src="images/cupid_logo.png" alt="Course Cupid Logo" class="h-8">
+    <a id="home-link" href="index.html" class="flex items-center gap-3">
+      <img src="images/cupid_logo.png" alt="Course Cupid" class="h-8">
+      <span class="text-lg font-semibold text-cupidPink">Course Cupid</span>
+    </a>
+
     <nav class="flex gap-10 text-sm">
+      <a href="index.html" class="hover:text-cupidPink">Home</a>
       <a href="#" class="hover:text-cupidPink">About Us</a>
-      <a href="#" class="hover:text-cupidPink">Your Profile</a>
-      <a href="/chat/default" class="hover:text-cupidPink">Chatbot</a>
       <a href="#" class="hover:text-cupidPink">Contact</a>
     </nav>
-    <div class="flex gap-4">
-      <a href="login.html" class="px-5 py-2 rounded-full bg-cupidPink/30 hover:bg-cupidPink text-cupidPink hover:text-white font-semibold">Log In</a>
-      <a href="signup.html" class="px-5 py-2 rounded-full bg-cupidPink hover:bg-cupidPink/90 text-white font-semibold">Register</a>
+
+    <div id="auth-controls" class="flex items-center gap-4">
+      <div id="auth-guest" class="flex gap-3 items-center">
+        <a id="login-link" href="login.html" class="px-4 py-2 rounded-full bg-cupidPink/10 text-cupidPink hover:bg-cupidPink/20 font-medium">Log In</a>
+        <a id="signup-link" href="signup.html" class="px-4 py-2 rounded-full bg-cupidPink text-white font-semibold">Register</a>
+      </div>
+
+      <div id="auth-user" class="hidden flex items-center gap-2">
+        <div class="flex items-center gap-2 bg-white border border-cupidPink/20 rounded-full px-2 py-1 shadow-sm">
+          <div id="user-avatar" class="w-8 h-8 rounded-full bg-cupidPink text-white flex items-center justify-center font-semibold text-sm"></div>
+          <span id="user-name" class="text-cupidPink font-medium text-sm max-w-[120px] truncate"></span>
+        </div>
+        <button id="logout-btn" class="ml-1 px-3 py-1 rounded-full bg-transparent border border-cupidPink/20 text-cupidPink hover:bg-cupidPink/10 text-sm">Logout</button>
+      </div>
     </div>
   </header>
 
-  <!-- Hero Section -->
   <section class="flex flex-col lg:flex-row items-center justify-between px-10 py-20">
-    <!-- Left side -->
     <div class="max-w-xl">
       <h1 class="font-script text-7xl text-cupidPink">Course Cupid</h1>
       <p class="mt-4 text-lg text-gray-800">Flirt with Options,<br>Commit to the Right Course</p>
@@ -57,19 +64,59 @@
           <a href="chat/default" class="inline-block rounded-full bg-cupidPink text-white px-8 py-3 font-semibold hover:bg-cupidPink/80">
             Start Chatting Now →
           </a>
-          <!-- ADDED: The new button to link to the quiz page -->
           <a href="quiz.html" class="inline-block rounded-full bg-cupidPink/30 text-cupidPink px-8 py-3 font-semibold hover:bg-cupidPink hover:text-white transition-colors duration-300">
             Take the Quiz
           </a>
       </div>
     </div>
-    <!-- Right side (Cupid image) -->
     <div class="mt-10 lg:mt-0 lg:w-1/2 flex justify-center">
       <img src="images/cupid_big_picture.png" alt="Cupid illustration" class="max-h-[400px]">
     </div>
   </section>
 
-  <!-- External JS from your placeholder code -->
   <script src="/frontend/app.js"></script>
+  <script>
+    async function refreshAuthUI() {
+      try {
+        const res = await fetch('/api/me', { credentials: 'same-origin' });
+        const d = await res.json();
+        const guest = document.getElementById('auth-guest');
+        const userBox = document.getElementById('auth-user');
+        if (d.loggedIn) {
+          guest.classList.add('hidden');
+          userBox.classList.remove('hidden');
+          const name = d.user?.username || 'User';
+          const userNameEl = document.getElementById('user-name');
+          userNameEl.textContent = name;
+          userNameEl.title = name;
+          const avatar = document.getElementById('user-avatar');
+          avatar.textContent = name.charAt(0).toUpperCase();
+        } else {
+          guest.classList.remove('hidden');
+          userBox.classList.add('hidden');
+        }
+      } catch (e) {
+        console.error('Auth UI error', e);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      refreshAuthUI();
+      document.getElementById('logout-btn')?.addEventListener('click', async () => {
+        try {
+          const r = await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
+          const j = await r.json();
+          if (j.success) {
+            await refreshAuthUI();
+            window.location = '/';
+          } else {
+            alert('Logout failed');
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      });
+    });
+  </script>
 </body>
 </html>

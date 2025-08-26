@@ -1,15 +1,29 @@
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
-const { spawn } = require('child_process');
 require("dotenv").config();
+
+const session = require("express-session"); 
 
 const app = express();
 const PORT = 3000;
 
-// middleware
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "frontend")));
+
+// session middleware (add before mounting api routes)
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "dev_secret_change_me",
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 1000 * 60 * 60 * 24 } // 1 day
+  })
+);
+
+// Mount API routes from api-server.js
+const apiRouter = require("./db/api-server");
+app.use("/api", apiRouter);
 
 app.get("/chat", (req, res) =>
   res.sendFile(path.join(__dirname, "frontend", "messages.html"))
@@ -116,70 +130,6 @@ app.post("/api/chat/:paperId", async (req, res) => {
   }
 });
 
-const session = require("express-session");
-const bcrypt = require("bcryptjs");
-const { Pool } = require("pg");
-
-app.use(session({
-  secret: process.env.SESSION_SECRET || "secret",
-  resave: false,
-  saveUninitialized: false,
-}));
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL, // ENV
-  
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
-
-// Signup 
-app.post("/api/signup", async (req, res) => {
-  const { username, password, email } = req.body;
-  if (!username || !password || !email)
-    return res.json({ success: false, message: "Missing fields" });
-  if (password.length < 8)
-    return res.json({ success: false, message: "Password must be at least 8 characters long" });
-  try {
-    const hash = await bcrypt.hash(password, 10);
-    await pool.query(
-      "INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3)",
-      [username, email, hash]
-    );
-    res.json({ success: true, message: "Signup successful!" });
-  } catch (err) {
-    if (err.code === "23505") {
-      res.json({ success: false, message: "Username or email already exists" });
-    } else {
-      res.json({ success: false, message: "Signup failed" });
-    }
-  }
-});
-
-// Login 
-app.post("/api/login", async (req, res) => {
-  const { username, password } = req.body;
-  if (!username || !password) return res.json({ success: false, message: "Missing fields" });
-  try {
-    const result = await pool.query(
-      "SELECT * FROM users WHERE username = $1",
-      [username]
-    );
-    if (result.rows.length === 0) return res.json({ success: false, message: "Invalid credentials" });
-    const user = result.rows[0];
-    const match = await bcrypt.compare(password, user.password_hash);
-    if (!match) return res.json({ success: false, message: "Invalid credentials" });
-    req.session.userId = user.id;
-    res.json({ success: true, message: "Login successful!" });
-  } catch (err) {
-    res.json({ success: false, message: "Login failed" });
-  }
-});
-
-app.get("/api/me", (req, res) => {
-  if (req.session && req.session.userId) {
-    res.json({ loggedIn: true, userId: req.session.userId });
-  } else {
-    res.json({ loggedIn: false });
-  }
-});
-
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

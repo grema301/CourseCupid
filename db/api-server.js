@@ -3,6 +3,7 @@ const cors = require('cors');
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
 const router = express.Router();
+const app = express();
 
 router.use(cors());
 router.use(express.json());
@@ -20,10 +21,11 @@ const dbConfig = process.env.DATABASE_URL
 const pool = new Pool(dbConfig);
 
 // ensure users table exists
+/*
 (async () => {
   try {
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS users (
+      CREATE TABLE IF NOT EXISTS Web_User (
         id SERIAL PRIMARY KEY,
         username VARCHAR(50) UNIQUE NOT NULL,
         email VARCHAR(255) UNIQUE NOT NULL,
@@ -34,7 +36,7 @@ const pool = new Pool(dbConfig);
   } catch (err) {
     console.error('Database error (creating tables):', err);
   }
-})();
+})();*/
 
 router.get('/test', async (req, res) => {
   try {
@@ -45,7 +47,7 @@ router.get('/test', async (req, res) => {
   }
 });
 
-// Sign Up
+//Sign Up
 router.post('/signup', async (req, res) => {
   const { username, email, password } = req.body;
   if (!username || !email || !password)
@@ -74,7 +76,7 @@ router.post('/signup', async (req, res) => {
   }
 });
 
-// Login
+//Login
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password)
@@ -96,7 +98,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// return session info
+//return session info
 router.get('/me', (req, res) => {
   if (req && req.session && req.session.userId) {
     res.json({ loggedIn: true, user: { id: req.session.userId, username: req.session.username } });
@@ -105,7 +107,7 @@ router.get('/me', (req, res) => {
   }
 });
 
-// logout
+//logout
 router.post('/logout', (req, res) => {
   if (!req || !req.session) return res.json({ success: true });
   req.session.destroy(err => {
@@ -118,7 +120,24 @@ router.post('/logout', (req, res) => {
   });
 });
 
+
+//Quiz and Preference endpoints
+
+
+
+
+
+
+
+
+
 module.exports = router;
+
+
+
+
+
+
 
 /*
 //API server on port 3001 

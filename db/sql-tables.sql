@@ -37,8 +37,8 @@ commit;
 
 --------------------------------------------------------------------------------
 --
--- The Web_User table holds .. information
--- The .. table has a foreign key to this table.
+-- The Web_User table holds all regisetered website user information
+-- The Chat_Session table has a foreign key to this table
 --
 create table Web_User
 (   user_id UUID PRIMARY KEY,
@@ -51,8 +51,7 @@ create table Web_User
 
 --------------------------------------------------------------------------------
 --
--- The Chat_Session table holds .. information
--- The .. table has a foreign key to this table.
+-- The Chat_Session table holds AI chat session information for each user
 --
 create table Chat_Session 
 (   session_id UUID PRIMARY KEY,
@@ -70,27 +69,30 @@ create table Chat_Session
 
 --------------------------------------------------------------------------------
 --
--- The Qualification table holds .. information
--- The .. table has a foreign key to this table.
+-- The Qualification table holds University "degree" information
+-- The Major table has a FK that references this table
+-- The Minor table has a FK that references this table
 --
 create table Qualification
 (   qualification_id UUID PRIMARY KEY,
-    code VARCHAR NOT NULL,
+    qual_code VARCHAR NOT NULL,
     qual_name VARCHAR NOT NULL,
-    description TEXT,
+    qual_description TEXT,
     keywords TEXT[]
 );
 
 --------------------------------------------------------------------------------
 --
--- The Subject table holds .. information
--- The .. table has a foreign key to this table.
+-- The Subject table holds all information about University offered subjects
+-- The Major table has a FK that references this table
+-- The Minor table has a FK that references this table
+-- The Paper table has a FK that references this table
 --
 create table Subject
 (   subject_id UUID PRIMARY KEY,
-    code VARCHAR NOT NULL,
+    sub_code VARCHAR NOT NULL,
     sub_name VARCHAR NOT NULL,
-    description TEXT,
+    sub_description TEXT,
     keywords TEXT[],
     available_as_major BOOLEAN,
     available_as_minor BOOLEAN,
@@ -100,15 +102,14 @@ create table Subject
 
 --------------------------------------------------------------------------------
 --
--- The Major table holds .. information
--- The .. table has a foreign key to this table.
+-- The Major table holds information about subjects you can take as Majors
 --
 create table Major
 (   major_id UUID PRIMARY KEY,
     qualification_id UUID REFERENCES Qualification(qualification_id),
     subject_id UUID REFERENCES Subject(subject_id),
     major_name VARCHAR NOT NULL,
-    description TEXT,
+    major_description TEXT,
     keywords TEXT[],
     min_points INT
 );
@@ -116,15 +117,14 @@ create table Major
 
 --------------------------------------------------------------------------------
 --
--- The Minor table holds .. information
--- The .. table has a foreign key to this table.
+-- The Minor table holds information about subjects you can take as Minors
 --
 create table Minor
 (   minor_id UUID PRIMARY KEY,
     qualification_id UUID REFERENCES Qualification(qualification_id),
     subject_id UUID REFERENCES Subject(subject_id),
     minor_name VARCHAR NOT NULL,
-    description TEXT,
+    minor_description TEXT,
     keywords TEXT[],
     min_points INT
 );
@@ -132,15 +132,14 @@ create table Minor
 
 --------------------------------------------------------------------------------
 --
--- The Paper table holds .. information
--- The .. table has a foreign key to this table.
+-- The Paper table holds information about individual course papers
 --
 create table Paper
 (   paper_code VARCHAR PRIMARY KEY,
     subject_id UUID REFERENCES Subject(subject_id),
     title VARCHAR NOT NULL,
     points INT NOT NULL,
-    description TEXT,
+    paper_description TEXT,
     teaching_periods TEXT[],
     prerequisites TEXT[],
     restrictions TEXT,
@@ -155,9 +154,7 @@ create table Paper
 
 --------------------------------------------------------------------------------
 --
--- The Major_Req table holds .. information
--- The .. table has a foreign key to this table.
---
+-- The Major_Req is a join table holds between the Paper table and the Major table
 --
 create table Major_Req
 (   major_id UUID REFERENCES Major(major_id),
@@ -170,9 +167,7 @@ create table Major_Req
 
 --------------------------------------------------------------------------------
 --
--- The Minor_Req table holds .. information
--- The .. table has a foreign key to this table.
---
+-- The Minor_Req is a join table holds between the Paper table and the Minor table--
 --
 create table Minor_Req
 (   minor_id UUID REFERENCES Minor(minor_id),
@@ -188,9 +183,7 @@ create table Minor_Req
 
 --------------------------------------------------------------------------------
 --
--- The Saved_Item table holds .. information
--- The .. table has a foreign key to this table.
---
+-- The Saved_Item table holds information about chat entities a user may want to bookmark
 --
 create table Saved_Item
 (   saved_id UUID PRIMARY KEY,
@@ -209,11 +202,10 @@ create table Saved_Item
 
 --------------------------------------------------------------------------------
 --
--- The Message table holds .. information
--- The .. table has a foreign key to this table.
+-- The Message table holds information about individual message between AI and user
 --
 create table Message
-(    message_id UUID PRIMARY KEY,
+(   message_id UUID PRIMARY KEY,
     session_id UUID REFERENCES Chat_Session(session_id),
     role VARCHAR CHECK (role IN ('user','assistant')) NOT NULL,
     content TEXT NOT NULL,
@@ -224,8 +216,8 @@ create table Message
 
 --------------------------------------------------------------------------------
 --
--- The Recommendation table holds .. information
--- The .. table has a foreign key to this table.
+-- The Recommendation table holds information regarding papers or courses that
+-- course cupid will reccomend to the user
 --
 create table Recommendation
 (   recommendation_id UUID PRIMARY KEY,
@@ -240,8 +232,8 @@ create table Recommendation
 
 --------------------------------------------------------------------------------
 --
--- The Recommendation_FB table holds .. information
--- The .. table has a foreign key to this table.
+-- The Recommendation_FB table holds information regarding feedback user may
+-- suggest to the chatbot in the form of swiping on reccomendations
 --
 create table Recommendation_FB
 (   feedback_id UUID PRIMARY KEY,

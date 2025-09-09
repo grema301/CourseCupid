@@ -53,7 +53,9 @@
         </div>
         <button id="logout-btn" class="ml-1 px-3 py-1 rounded-full bg-transparent border border-cupidPink/20 text-cupidPink hover:bg-cupidPink/10 text-sm">Logout</button>
       </div>
+      <button onclick="testCreateSession()">Test: Create Chat Session</button>
     </div>
+    
   </header>
 
   <section class="flex flex-col lg:flex-row items-center justify-between px-10 py-20">
@@ -117,6 +119,32 @@
         }
       });
     });
+  
+  
+
+    async function testCreateSession() {
+      try {
+        console.log('Creating chat session...');
+        
+        const response = await fetch('/api/chat-sessions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        const data = await response.json();
+        console.log('Created session:', data);
+        
+        if (data.session_id) {
+          alert(`Success! Created session: ${data.session_id}`);
+          // Later: window.location.href = `/chat/${data.session_id}`;
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to create session');
+      }
+    }
+  
   </script>
+
 </body>
 </html>

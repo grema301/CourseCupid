@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Settings • Course Cupid</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { cupidPink: '#C05A66', cupidCream: '#FAF5EF' },
+          fontFamily: { script: ['"Great Vibes"', 'cursive'], sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+</head>
+<body class="bg-cupidCream min-h-screen flex flex-col">
+  <header class="flex items-center justify-between px-10 py-6">
+    <a id="home-link" href="index.html" class="flex items-center gap-3">
+      <img src="images/cupid_logo.png" alt="Course Cupid" class="h-8">
+      <span class="text-lg font-semibold text-cupidPink">Course Cupid</span>
+    </a>
+
+    <nav class="flex gap-10 text-sm">
+      <a href="index.html" class="hover:text-cupidPink">Home</a>
+      <a href="#" class="hover:text-cupidPink">About Us</a>
+      <a href="settings.html" class="hover:text-cupidPink">Settings</a>
+      <a href="#" class="hover:text-cupidPink">Contact</a>
+    </nav>
+
+    <div id="auth-controls" class="flex items-center gap-4">
+      <div id="auth-guest" class="flex gap-3 items-center">
+        <a id="login-link" href="login.html" class="px-4 py-2 rounded-full bg-cupidPink/10 text-cupidPink hover:bg-cupidPink/20 font-medium">Log In</a>
+        <a id="signup-link" href="signup.html" class="px-4 py-2 rounded-full bg-cupidPink text-white font-semibold">Register</a>
+      </div>
+      <div id="auth-user" class="hidden flex items-center gap-2">
+        <div class="flex items-center gap-2 bg-white border border-cupidPink/20 rounded-full px-2 py-1 shadow-sm">
+          <div id="user-avatar" class="w-8 h-8 rounded-full bg-cupidPink text-white flex items-center justify-center font-semibold text-sm"></div>
+          <span id="user-name" class="text-cupidPink font-medium text-sm max-w-[140px] truncate"></span>
+        </div>
+        <button id="logout-btn" class="ml-1 px-3 py-1 rounded-full bg-transparent border border-cupidPink/20 text-cupidPink hover:bg-cupidPink/10 text-sm">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 flex items-start justify-center px-6 py-12">
+    <div class="w-full max-w-2xl">
+      <h1 class="text-2xl font-semibold text-cupidPink mb-6">Settings</h1>
+
+      <section class="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <h2 class="text-lg font-medium mb-2">Account</h2>
+        <p class="text-sm text-gray-600 mb-4">Manage your account information and security.</p>
+
+        <div class="flex items-center justify-between gap-4 mb-4">
+          <div>
+            <div id="settings-username" class="text-sm font-medium text-cupidPink"></div>
+            <div id="settings-email" class="text-xs text-gray-500"></div>
+          </div>
+          <a href="chat.html" class="px-3 py-1 rounded-full bg-cupidPink text-white text-sm">Open Chat</a>
+        </div>
+
+        <hr class="my-4">
+
+        <div>
+          <h3 class="text-sm font-medium mb-2 text-red-600">Delete account</h3>
+          <p class="text-xs text-gray-600 mb-3">This will permanently remove your account and data. This action cannot be undone.</p>
+          <button id="delete-account-btn" class="px-4 py-2 rounded-full bg-red-600 text-white hover:bg-red-700 font-semibold">Delete my account</button>
+        </div>
+      </section>
+
+      <section class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="text-lg font-medium mb-2">Preferences</h2>
+        <p class="text-sm text-gray-600">(placeholders for future settings)</p>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    async function refreshAuthUI() {
+      try {
+        const res = await fetch('/api/me', { credentials: 'same-origin' });
+        const d = await res.json();
+        const guest = document.getElementById('auth-guest');
+        const userBox = document.getElementById('auth-user');
+        if (d.loggedIn) {
+          guest.classList.add('hidden');
+          userBox.classList.remove('hidden');
+          const name = d.user?.username || 'User';
+          document.getElementById('user-name').textContent = name;
+          document.getElementById('settings-username').textContent = name;
+          document.getElementById('settings-email').textContent = d.user?.email || '';
+          const parts = name.trim().split(/\s+/).filter(Boolean);
+          const initials = parts.length === 1 ? (/[A-Za-z]/.test(parts[0][0]) ? parts[0][0].toUpperCase() : '#') : (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+          document.getElementById('user-avatar').textContent = initials;
+        } else {
+          // if not logged in, redirect to login
+          window.location = '/login.html';
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      refreshAuthUI();
+
+      document.getElementById('logout-btn')?.addEventListener('click', async () => {
+        try {
+          const r = await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
+          const j = await r.json();
+          if (j.success) {
+            window.location = '/';
+          }
+        } catch (err) { console.error(err); }
+      });
+
+      document.getElementById('delete-account-btn')?.addEventListener('click', async () => {
+        const ok = confirm('Delete your account? This cannot be undone.');
+        if (!ok) return;
+        try {
+          const r = await fetch('/api/delete-account', { method: 'POST', credentials: 'same-origin' });
+          const j = await r.json();
+          if (j.success) {
+            alert('Account deleted.');
+            window.location = '/';
+          } else {
+            alert(j.message || 'Delete failed');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Delete failed');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

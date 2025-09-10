@@ -120,16 +120,29 @@ router.post('/logout', (req, res) => {
   });
 });
 
+// Delete account for currently authenticated user
+router.post('/delete-account', async (req, res) => {
+  if (!req || !req.session || !req.session.userId) {
+    return res.status(401).json({ success: false, message: 'Not authenticated' });
+  }
+  const userId = req.session.userId;
+  try {
+    await pool.query('DELETE FROM users WHERE id = $1', [userId]);
+    req.session.destroy(err => {
+      if (err) {
+        console.error('Delete account - session destroy failed:', err);
+        return res.status(500).json({ success: false, message: 'Account deleted but session could not be cleared' });
+      }
+      res.clearCookie('connect.sid');
+      res.json({ success: true, message: 'Account deleted' });
+    });
+  } catch (err) {
+    console.error('Delete account error:', err);
+    res.status(500).json({ success: false, message: 'Delete failed' });
+  }
+});
 
 //Quiz and Preference endpoints
-
-
-
-
-
-
-
-
 
 module.exports = router;
 

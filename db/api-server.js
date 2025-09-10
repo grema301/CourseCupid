@@ -17,7 +17,7 @@ const dbConfig = process.env.DATABASE_URL
       database: 'cosc345'
     };
 
-const pool = new Pool(dbConfig);
+const pool = new Pool({ connectionString: process.env.DATABASE_URL, options: "-c search_path=hogka652" });
 
 // ensure users table exists
 (async () => {

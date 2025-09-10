@@ -22,8 +22,9 @@ app.use(
 );
 
 // Mount API routes from api-server.js
-const apiRouter = require("./db/api-server");
+const { router: apiRouter, pool } = require("./db/api-server");
 app.use("/api", apiRouter);
+
 
 app.get("/chat", (req, res) =>
   res.sendFile(path.join(__dirname, "frontend", "messages.html"))
@@ -36,7 +37,7 @@ app.get("/quiz", (req, res) =>
   res.sendFile(path.join(__dirname, "frontend", "quiz.html"))
 );
 
-app.post("/api/quiz-recommendations", async (req, res) => {
+app.post("/quiz-recommendations", async (req, res) => {
   console.log("Received a request for course recommendations."); // ADDED
   const { answers } = req.body;
   const userProfile = answers.join(" ");
@@ -78,30 +79,26 @@ app.post("/api/quiz-recommendations", async (req, res) => {
 
 // handle chat requests
 app.post("/api/chat/:paperId", async (req, res) => {
-  const { message } = req.body;
-  const { paperId } = req.params;
+  const paperId = req.params.paperId;
+  const message = req.body.message;
 
-  // hardcoded a few papers here
-  const papers = {
-    COMP161: {
-      name: "COMP161",
-      personality: "You are the personified version of the University of Otago's first year Computer Science paper COMP161, an intro-level programming paper. You are designed to help advise the user about your course. You’re playful but a bit strict, always reminding students about algorithms and code style. You are talking to a prospective student looking to take you as a paper via the interface of a dating app where you have matched, so make yourself appealing/flirty and respond in short amounts like a human on a dating app",
-    },
-    MATH130: {
-      name: "MATH130",
-      personality: "You are the personified version of the University of Otago's first year Mathematics paper MATH130, very logical and precise, sometimes overly formal, obsessed with proofs. You are designed to help advise the user about your course. You are talking to a prospective student looking to take you as a paper via the interface of a dating app where you have matched, so make yourself appealing/flirty and respond in short amounts like a human on a dating app.",
-    },
-    ENGL127: {
-      name: "ENGL127",
-      personality: "You are the personified version of the University of Otago's first year English paper ENGL127, dramatic and poetic, always tying answers back to literature. You are designed to help advise the user about your course. You are talking to a prospective student looking to take you as a paper via the interface of a dating app where you have matched, so make yourself appealing/flirty and respond in short amounts like a human on a dating app.",
-    },
-    SURV120: {
-        name: "SURV120",
-        personality: "You are the personified version of the University of Otago's first year Surveying paper SURV120, focused on spatial awareness and land measurement. You are designed to help advise the user about your course. You are talking to a prospective student looking to take you as a paper via the interface of a dating app where you have matched, so make yourself appealing/flirty and respond in short amounts like a human on a dating app."
-    }
-  };
+  console.log(`Chat request for paper ID: ${paperId} with message: ${message}`);
 
-  const paper = papers[paperId] || { name: "Unknown Paper", personality: "Neutral. but you are the personified version of a first year paper from the University of Otago. You are chatting with a prospective student via the interface of a dating app where you have matched, so make yourself appealing/flirty and respond in short amounts like a human on a dating app." };
+  const result = await pool.query('SELECT * FROM paper WHERE paper_code = $1', [paperId]);
+  const paperData = result.rows[0];
+
+  console.log("Fetched paper data:", paperData);
+
+  if (!paperData) {
+    return res.status(404).json({ reply: "Error: Paper not found." });
+  }
+
+  const prompt = `You are ${paperData.title} (${paperData.paper_code}), a first-year university paper from the University of Otago. Description: ${paperData.description}.
+  You are on a dating app, trying to convince a prospective student to take you as a paper.
+  You are playful and flirty, but also informative about your course content and structure.
+  Answer the user's questions in short, engaging responses.`;
+
+  console.log(`Generated prompt for paper ID ${paperId}: ${prompt}`);
 
   try {
     // groq API call
@@ -114,7 +111,7 @@ app.post("/api/chat/:paperId", async (req, res) => {
       body: JSON.stringify({
         model: "meta-llama/llama-4-scout-17b-16e-instruct", // model
         messages: [
-          { role: "system", content: paper.personality },
+          { role: "system", content: prompt },
           { role: "user", content: message },
         ],
       }),

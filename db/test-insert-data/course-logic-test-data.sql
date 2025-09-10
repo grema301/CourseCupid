@@ -1,8 +1,8 @@
 -- Sessions
-INSERT INTO Chat_Session (session_id, user_id, created_at, updated_at, expires_at, starred, title)
+INSERT INTO Chat_Session (session_id, user_id, session_code, recovery_email, created_at, updated_at, expires_at, is_registered, starred, title)
 VALUES
-    (gen_random_uuid(), (SELECT user_id FROM Web_User WHERE username='katrina'), NOW(), NOW(), NOW() + INTERVAL '8 hours', FALSE, 'Katrina Course Ideas'),
-    (gen_random_uuid(), (SELECT user_id FROM Web_User WHERE username='george'), NOW(), NOW(), NOW() + INTERVAL '8 hours', TRUE, 'George First Year');
+    (gen_random_uuid(), (SELECT user_id FROM Web_User WHERE username='katrina'), 'ABC12345', 'katrina@otago.ac.nz', NOW(), NOW(), NOW() + INTERVAL '8 hours', TRUE, FALSE, 'Katrina Course Ideas'),
+    (gen_random_uuid(), (SELECT user_id FROM Web_User WHERE username='george'), 'XYZ67890', 'george@otago.ac.nz', NOW(), NOW(), NOW() + INTERVAL '8 hours', TRUE, TRUE, 'George First Year');
 
 -- Qualifications
 INSERT INTO Qualification (qualification_id, code, qual_name, description, keywords)

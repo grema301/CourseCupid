@@ -22,10 +22,9 @@ app.use(
 );
 
 // Mount API routes from api-server.js
-const apiRouter = require("./db/api-server");
+const { router: apiRouter, pool } = require("./db/api-server");
 app.use("/api", apiRouter);
 
-const pool = require("./db/api-server");
 
 app.get("/chat", (req, res) =>
   res.sendFile(path.join(__dirname, "frontend", "messages.html"))
@@ -38,7 +37,7 @@ app.get("/quiz", (req, res) =>
   res.sendFile(path.join(__dirname, "frontend", "quiz.html"))
 );
 
-app.post("/api/quiz-recommendations", async (req, res) => {
+app.post("/quiz-recommendations", async (req, res) => {
   console.log("Received a request for course recommendations."); // ADDED
   const { answers } = req.body;
   const userProfile = answers.join(" ");
@@ -81,10 +80,14 @@ app.post("/api/quiz-recommendations", async (req, res) => {
 // handle chat requests
 app.post("/api/chat/:paperId", async (req, res) => {
   const paperId = req.params.paperId;
-  const { message } = req.body.message;
+  const message = req.body.message;
+
+  console.log(`Chat request for paper ID: ${paperId} with message: ${message}`);
 
   const result = await pool.query('SELECT * FROM paper WHERE paper_code = $1', [paperId]);
   const paperData = result.rows[0];
+
+  console.log("Fetched paper data:", paperData);
 
   if (!paperData) {
     return res.status(404).json({ reply: "Error: Paper not found." });
@@ -95,7 +98,8 @@ app.post("/api/chat/:paperId", async (req, res) => {
   You are playful and flirty, but also informative about your course content and structure.
   Answer the user's questions in short, engaging responses.`;
 
- 
+  console.log(`Generated prompt for paper ID ${paperId}: ${prompt}`);
+
   try {
     // groq API call
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {

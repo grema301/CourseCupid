@@ -3,6 +3,7 @@ const cors = require('cors');
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
 const router = express.Router();
+const { v4: uuidv4 } = require('uuid');
 
 router.use(cors());
 router.use(express.json());
@@ -16,6 +17,7 @@ const dbConfig = process.env.DATABASE_URL
       password: 'mee3jai4waed',
       database: 'cosc345'
     };
+
 
 const pool = new Pool(dbConfig);
 
@@ -117,6 +119,36 @@ router.post('/logout', (req, res) => {
     res.json({ success: true });
   });
 });
+
+
+/**Ensure session is being recorded into the databse */
+router.post('/chat-sessions', async (req, res) => {
+  try {
+    const sessionId = uuidv4();
+    const now = new Date();
+
+    //chekc is user is logged in, if not, anon users get null
+    const userId = req.session?.user_id || null; //whats our auth system?
+
+    
+    const result = await pool.query(`
+      INSERT INTO Chat_Session (
+        session_id, user_id, created_at, updated_at
+      ) VALUES ($1, $2, $3, $4)
+      RETURNING session_id, user_id
+    `, [sessionId, userId, now, now]); // null for anonymous users
+
+    res.json({
+      session_id: result.rows[0].session_id,
+      is_anonymous: result.rows[0].user_id === null
+    });
+  } catch (error) {
+    console.error('Error creating chat session:', error);
+    res.status(500).json({ error: 'Failed to create chat session' });
+  }
+});
+
+
 
 module.exports = router;
 

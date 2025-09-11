@@ -121,6 +121,7 @@ router.post('/logout', (req, res) => {
 });
 
 
+
 /**Ensure session is being recorded into the databse */
 router.post('/chat-sessions', async (req, res) => {
   try {

@@ -2,6 +2,7 @@ const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
 require("dotenv").config();
+const { spawn } = require("child_process");
 
 const session = require("express-session"); 
 
@@ -37,14 +38,21 @@ app.get("/quiz", (req, res) =>
   res.sendFile(path.join(__dirname, "frontend", "quiz.html"))
 );
 
-app.post("/quiz-recommendations", async (req, res) => {
+app.post("/api/quiz-recommendations", async (req, res) => {
   console.log("Received a request for course recommendations."); // ADDED
   const { answers } = req.body;
   const userProfile = answers.join(" ");
   console.log("User profile string:", userProfile); // ADDED
 
   // We are going to execute the Python script as a separate child process
-  const pythonProcess = spawn('python', ['course_matcher.py', userProfile]);
+  const pythonProcess = spawn('python', ['google_course_matcher.py', userProfile], {
+      env: { ...process.env, GEMINI_API_KEY: process.env.GEMINI_API_KEY }
+  });
+  pythonProcess.on('error', (err) => {
+      console.error(`Failed to start child process: ${err.message}`);
+      res.status(500).json({ error: "Failed to start the recommendation service." });
+  });
+
   let dataToSend = '';
 
   // Listen for data from the python script

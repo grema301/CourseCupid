@@ -20,7 +20,7 @@ begin;
 
 drop table if exists Recommendation_FB cascade;
 drop table if exists Recommendation cascade;
-drop table if exists Message cascade;
+drop table if exists Chat_Message cascade;
 drop table if exists Saved_Item cascade;
 drop table if exists Minor_Req cascade;
 drop table if exists Major_Req cascade;
@@ -46,7 +46,8 @@ create table Web_User
     email VARCHAR(255) UNIQUE ,
     password_hash VARCHAR(255),
     created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL
+    updated_at TIMESTAMP NOT NULL,
+    is_registered BOOLEAN NOT NULL
 );
 
 --------------------------------------------------------------------------------
@@ -57,15 +58,11 @@ create table Web_User
 create table Chat_Session 
 (   session_id UUID PRIMARY KEY,
     user_id UUID REFERENCES Web_User (user_id),
-    session_code VARCHAR(8) UNIQUE NOT NULL,
-    recovery_email VARCHAR,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     expires_at TIMESTAMP,
-    is_registered BOOLEAN NOT NULL,
     starred BOOLEAN,
-    title VARCHAR,
-    is_anonymous BOOLEAN GENERATED ALWAYS AS (user_id IS NULL) STORED
+    title VARCHAR
 );
 
 --------------------------------------------------------------------------------
@@ -212,7 +209,7 @@ create table Saved_Item
 -- The Message table holds .. information
 -- The .. table has a foreign key to this table.
 --
-create table Message
+create table Chat_Message
 (    message_id UUID PRIMARY KEY,
     session_id UUID REFERENCES Chat_Session(session_id),
     role VARCHAR CHECK (role IN ('user','assistant')) NOT NULL,

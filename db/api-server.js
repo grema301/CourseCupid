@@ -8,6 +8,7 @@ const { v4: uuidv4 } = require('uuid');
 router.use(cors());
 router.use(express.json());
 
+/*
 const dbConfig = process.env.DATABASE_URL
   ? { connectionString: process.env.DATABASE_URL, ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false }
   : {
@@ -18,8 +19,25 @@ const dbConfig = process.env.DATABASE_URL
       database: 'cosc345'
     };
 
-
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, options: "-c search_path=hogka652" });
+*/
+
+
+const pool = new Pool({//Connecting to database
+  host: "isdb.uod.otago.ac.nz",
+  user: "hogka652",
+  port: 5432,
+  password: "mee3jai4waed", 
+  database: "cosc345"
+});
+
+
+pool.connect()
+  .then(() => console.log('Database connected'))
+  .catch(err => console.error('Database error:', err));
+
+
+
 
 // ensure users table exists
 (async () => {

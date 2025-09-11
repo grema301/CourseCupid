@@ -38,7 +38,7 @@ app.get("/quiz", (req, res) =>
   res.sendFile(path.join(__dirname, "frontend", "quiz.html"))
 );
 
-app.post("/quiz-recommendations", async (req, res) => {
+app.post("/api/quiz-recommendations", async (req, res) => {
   console.log("Received a request for course recommendations."); // ADDED
   const { answers } = req.body;
   const userProfile = answers.join(" ");
@@ -48,6 +48,11 @@ app.post("/quiz-recommendations", async (req, res) => {
   const pythonProcess = spawn('python', ['google_course_matcher.py', userProfile], {
       env: { ...process.env, GEMINI_API_KEY: process.env.GEMINI_API_KEY }
   });
+  pythonProcess.on('error', (err) => {
+      console.error(`Failed to start child process: ${err.message}`);
+      res.status(500).json({ error: "Failed to start the recommendation service." });
+  });
+
   let dataToSend = '';
 
   // Listen for data from the python script

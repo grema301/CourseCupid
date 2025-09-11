@@ -1,4 +1,3 @@
-import sqlite3
 import pickle
 import sys
 import json
@@ -13,7 +12,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 load_dotenv() 
 
 # ---------- CONFIG ----------
-DB_PATH = "courses.db"
+JSON_PATH = "webscrappers/papers_data.json"
 EMBEDDINGS_FILE = "course_embeddings.pkl"
 TOP_K = 5
 # ----------------------------
@@ -29,30 +28,62 @@ except Exception as e:
     sys.exit(1)
 
 def load_courses_from_db():
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, code, name, description FROM courses")
-    return cursor.fetchall()
+    try:
+        with open(JSON_PATH, 'r') as f:
+            courses_data = json.load(f)
+        
+        courses = []
+        course_id = 0
+        for course_info in courses_data.values():
+            course_id += 1
+            courses.append((
+                course_id,
+                course_info['paper_code'],
+                course_info['title'],
+                course_info['description']
+            ))
+        return courses
+    
+    except FileNotFoundError:
+        print(f"Error: The JSON file '{JSON_PATH}' was not found.", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error loading courses from JSON file: {e}", file=sys.stderr)
+        sys.exit(1)
 
 def embed_courses(courses):
     """
-    Generates and returns embeddings for all courses using the Gemini API.
+    Generates and returns embeddings for all courses using the Gemini API,
+    by processing them in batches to respect API limits.
     """
     print("Generating new embeddings with Gemini API...", file=sys.stderr)
+    
+    # Extract the texts from the course data
     texts = [f"{code} - {name}: {desc}" for (_, code, name, desc) in courses]
     
-    try:
-        # Use the Gemini Embeddings API to get vectors for all courses
-        result = client.models.embed_content(
-            model="gemini-embedding-001",
-            contents=texts,
-            config=types.EmbedContentConfig(task_type="RETRIEVAL_DOCUMENT")
-        )
-        embeddings = np.array([e.values for e in result.embeddings])
-        return embeddings
-    except Exception as e:
-        print(f"Error embedding courses with Gemini API: {e}", file=sys.stderr)
-        return None
+    all_embeddings = []
+    batch_size = 100 # The maximum allowed by the API
+
+    # Process texts in batches
+    for i in range(0, len(texts), batch_size):
+        batch_texts = texts[i:i + batch_size]
+        try:
+            # Use the Gemini Embeddings API to get vectors for a batch of courses
+            result = client.models.embed_content(
+                model="gemini-embedding-001",
+                contents=batch_texts,
+                config=types.EmbedContentConfig(task_type="RETRIEVAL_DOCUMENT")
+            )
+            # Append the embeddings from the current batch
+            embeddings = [e.values for e in result.embeddings]
+            all_embeddings.extend(embeddings)
+
+        except Exception as e:
+            print(f"Error embedding courses with Gemini API: {e}", file=sys.stderr)
+            return None
+
+    return np.array(all_embeddings)
+    
 
 def save_embeddings(courses, embeddings):
     with open(EMBEDDINGS_FILE, "wb") as f:

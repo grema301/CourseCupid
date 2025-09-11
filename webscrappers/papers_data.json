@@ -1,0 +1,1022 @@
+{
+  "ACCT102": {
+    "paper_code": "ACCT102",
+    "title": "Principles of Accounting",
+    "subject": "Accounting",
+    "description": "A foundation for further studies in accounts preparation.  Examines underlying concepts, principles and techniques of financial accounting and reporting."
+  },
+  "AGRI101": {
+    "paper_code": "AGRI101",
+    "title": "Agricultural Innovation",
+    "subject": "Agriculture",
+    "description": "Current issues and solutions in agriculture, including social, commercial, and environmental aspects, and the role of science and technology for driving innovation."
+  },
+  "ANAT101": {
+    "paper_code": "ANAT101",
+    "title": "Anatomy for Sport and Exercise",
+    "subject": "Anatomy",
+    "description": "Introduction to functional anatomy of the human body, with a focus on biomechanics of normal human movement. Examples in sport and exercise are used to integrate structure and function."
+  },
+  "ANAT131": {
+    "paper_code": "ANAT131",
+    "title": "Origins of Anatomical Language",
+    "subject": "Anatomy",
+    "description": "An introduction to the study of anatomy throughout history and how anatomical terminology used to this day has roots in classical languages such as Greek and Latin."
+  },
+  "ANTH103": {
+    "paper_code": "ANTH103",
+    "title": "Introduction to Anthropology",
+    "subject": "Anthropology",
+    "description": "An introduction to the fundamental concepts and history of general anthropology, including archaeology and social anthropology."
+  },
+  "ANTH105": {
+    "paper_code": "ANTH105",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "ANTH106": {
+    "paper_code": "ANTH106",
+    "title": "Human Origins and Civilisations",
+    "subject": "Anthropology",
+    "description": "A review of archaeological evidence for the origins and cultural development of the human species from its earliest appearance up to and including the rise of early civilisations."
+  },
+  "ASIA101": {
+    "paper_code": "ASIA101",
+    "title": "Introducing Asia",
+    "subject": "Asian Studies",
+    "description": "A multi-disciplinary introduction to the culture and society of Asian countries and regions, with an emphasis on East Asia."
+  },
+  "ASTR101": {
+    "paper_code": "ASTR101",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "BIBS112": {
+    "paper_code": "BIBS112",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "BIBS121": {
+    "paper_code": "BIBS121",
+    "title": "Interpreting the New Testament",
+    "subject": "Biblical Studies",
+    "description": "The interpretation of the New Testament in its historical context, including an introduction to critical methods and to the study of the Gospels and the Epistles, with an in-depth discussion of selected texts."
+  },
+  "BIBS131": {
+    "paper_code": "BIBS131",
+    "title": "Introductory New Testament Greek Language 1",
+    "subject": "Biblical Studies",
+    "description": "A reading-based beginners’ paper covering the basic elements of New Testament Greek grammar and vocabulary, designed to develop reading skills in New Testament Greek."
+  },
+  "BIBS132": {
+    "paper_code": "BIBS132",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "BIOA101": {
+    "paper_code": "BIOA101",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "BIOC192": {
+    "paper_code": "BIOC192",
+    "title": "Foundations of Biochemistry",
+    "subject": "Biochemistry",
+    "description": "An introduction to the structure and function of proteins as essential elements of life processes; principles of enzymology; introductory bioenergetics; conservation of the energy of food for body processes; digestion and catabolism of fats, proteins and carbohydrates; terminal pathways of oxidation, anaerobic and aerobic metabolism, mitochondrial metabolism; energy storage and utilisation; the molecular basis of disease; illustrative topics in metabolism."
+  },
+  "BIOL112": {
+    "paper_code": "BIOL112",
+    "title": "Animal Biology",
+    "subject": "Biology",
+    "description": "An introductory survey of the evolution and diversity of animal life.  Essential biological principles are illustrated using examples from New Zealand fauna, issues of environmental, social or economic importance, and cutting-edge research developments at the University of Otago."
+  },
+  "BIOL123": {
+    "paper_code": "BIOL123",
+    "title": "Plants: How They Shape the World",
+    "subject": "Biology",
+    "description": "An introduction to botany, how the study of plants aids our understanding of Earth’s history and human society, and how plants will respond to future environmental change."
+  },
+  "BSNS111": {
+    "paper_code": "BSNS111",
+    "title": "Business and Society",
+    "subject": "Business Studies",
+    "description": "Introduction to the business environment of New Zealand, including important defining characteristics, social and environmental implications of business decisions, and an appreciation of bi- and multi-cultural frameworks as they affect business."
+  },
+  "BSNS112": {
+    "paper_code": "BSNS112",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "BSNS113": {
+    "paper_code": "BSNS113",
+    "title": "Economic Principles and Policy",
+    "subject": "Business Studies",
+    "description": "Introduction to concepts central to understanding market economies, including allocation of scarce resources, consumer and business reactions to changing market conditions, and the application of economic principles to personal and business decision-making."
+  },
+  "BSNS114": {
+    "paper_code": "BSNS114",
+    "title": "Financial Decision Making",
+    "subject": "Business Studies",
+    "description": "Introduction to some basic characteristics of financial markets. The time value of money, calculations of fair value for bonds and stocks, criteria for financing a business, risk-return trade-offs, regulatory frameworks and ethical considerations are included."
+  },
+  "BSNS115": {
+    "paper_code": "BSNS115",
+    "title": "Accounting and Information Systems",
+    "subject": "Business Studies",
+    "description": "Introduction to financial and management accounting concepts, including reading and interpreting accounting statements and making internal business decisions. Using information systems and communication technology to manage data, with associated ethical issues."
+  },
+  "CELS191": {
+    "paper_code": "CELS191",
+    "title": "Cell and Molecular Biology",
+    "subject": "Cell and Molecular Biology",
+    "description": "An introduction to the biology of cells; fundamentals of molecular biology; organismal and molecular genetics; human genetic variation; diversity and biology of microorganisms; microbial virulence and disease processes."
+  },
+  "CELS199": {
+    "paper_code": "CELS199",
+    "title": "Cell and Molecular Biology",
+    "subject": "Cell and Molecular Biology",
+    "description": "An introduction to the biology of cells; fundamentals of molecular biology; organismal and molecular genetics; human genetic variation; diversity and biology of microorganisms; microbial virulence and disease processes."
+  },
+  "CHEM111": {
+    "paper_code": "CHEM111",
+    "title": "Chemistry: Molecular Architecture",
+    "subject": "Chemistry",
+    "description": "An introduction to modern structural chemical science covering: states of matter: gas, liquid, solid, solutions; atomic structure; chemical bonding: stereochemistry, isomerism, conformational analysis; methods of structural determination: spectroscopy (electronic absorption, infrared, nuclear magnetic resonance), mass spectrometry; colloids."
+  },
+  "CHEM150": {
+    "paper_code": "CHEM150",
+    "title": "Concepts in Chemistry",
+    "subject": "Chemistry",
+    "description": "Introduction to the core ideas and methods of chemistry, recommended for students with limited chemistry backgrounds. Topics include stoichiometry, equilibria, thermochemistry, redox, acid-base chemistry and main group and organic chemistry."
+  },
+  "CHEM191": {
+    "paper_code": "CHEM191",
+    "title": "The Chemical Basis of Biology and Human Health",
+    "subject": "Chemistry",
+    "description": "An introduction to the concepts of chemistry underlying important processes in biology and human health, including chemical bonding, energetics, kinetics, equilibria and solubility, properties of water and solutions, acids, bases, complexation and electron transfer, mechanisms of organic reactions and properties of amino acids and carbohydrates."
+  },
+  "CHIN131": {
+    "paper_code": "CHIN131",
+    "title": "Introductory Chinese 1",
+    "subject": "Chinese",
+    "description": "An introductory course in reading, writing, speaking and listening to Chinese for students with no previous knowledge of the language.  The paper takes an integrated approach to the skills of language acquisition and includes basic material on the cultural heritage of the Chinese people."
+  },
+  "CHIN132": {
+    "paper_code": "CHIN132",
+    "title": "Introductory Chinese 2",
+    "subject": "Chinese",
+    "description": "A continuation of CHIN131, further developing students’ Chinese language skills in reading, writing, speaking and listening at an elementary level.  The paper takes an integrated approach to the skills of language acquisition and includes basic material on the cultural heritage of the Chinese people."
+  },
+  "CHTH102": {
+    "paper_code": "CHTH102",
+    "title": "The History of Christianity",
+    "subject": "Christian Thought and History",
+    "description": "A survey of the history of Christianity from 100 AD to the present day: from early formation to recent contexts in Nazi Germany, Soviet Russia and North America."
+  },
+  "CHTH111": {
+    "paper_code": "CHTH111",
+    "title": "Doing Theology",
+    "subject": "Christian Thought and History",
+    "description": "What is theology? How do we do it, and why? Exploring Christian thinking on Jesus Christ, God, the Trinity, salvation, creation, and the last things."
+  },
+  "CHTH131": {
+    "paper_code": "CHTH131",
+    "title": "God and Ethics in the Modern World",
+    "subject": "Christian Thought and History",
+    "description": "An introduction to Christian ethics in the modern world with particular attention to the major cultural shifts that have shaped contemporary thinking about God, ethics, religion and law."
+  },
+  "CLAS105": {
+    "paper_code": "CLAS105",
+    "title": "Greek Mythology",
+    "subject": "Classical Studies",
+    "description": "A study of the myths of ancient Greece with particular reference to the origins and nature of gods and heroes."
+  },
+  "CLAS108": {
+    "paper_code": "CLAS108",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "CLAS109": {
+    "paper_code": "CLAS109",
+    "title": "Roman Social History: Slaves, Gladiators, Prostitutes",
+    "subject": "Classical Studies",
+    "description": "A study of ancient Roman social life, with particular emphasis on the marginalised (or so-called ’invisible’) lower classes, including slaves, gladiators, prostitutes and bandits."
+  },
+  "COMO101": {
+    "paper_code": "COMO101",
+    "title": "Modelling and Computation",
+    "subject": "Computational Modelling",
+    "description": "An introduction to mathematical and computational modelling with applications in science, engineering, biomedicine and industry. Topics include the translation of observations into mathematical models, and the use of simulation and numerical methods to evaluate and apply the models."
+  },
+  "COMP101": {
+    "paper_code": "COMP101",
+    "title": "Foundations of Information Systems",
+    "subject": "Computer and Information Science",
+    "description": "Introduction to information systems for the management and exploitation of data and information, and to relational databases."
+  },
+  "COMP111": {
+    "paper_code": "COMP111",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "COMP120": {
+    "paper_code": "COMP120",
+    "title": "Practical Data Science",
+    "subject": "Computer and Information Science",
+    "description": "An introduction to the techniques used to prepare, integrate, manage and visualise complex data using modern software environments. Essential to students needing to manage data in science, business, or humanities."
+  },
+  "COMP151": {
+    "paper_code": "COMP151",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "COMP161": {
+    "paper_code": "COMP161",
+    "title": "Computer Programming",
+    "subject": "Computer and Information Science",
+    "description": "An introduction to computer programming suitable for beginners with little or no prior experience. Introduces the Java programming language, basic object oriented concepts, and simple graphical applications."
+  },
+  "COMP162": {
+    "paper_code": "COMP162",
+    "title": "Foundations of Computer Science",
+    "subject": "Computer and Information Science",
+    "description": "An introduction to computer programming suitable for beginners with some prior experience. Builds on and extends basic Java and object oriented programming. Introduces broader programming concepts and other languages."
+  },
+  "DANC101": {
+    "paper_code": "DANC101",
+    "title": "Dance and Popular Culture",
+    "subject": "Dance",
+    "description": "An examination of the role of dance in popular culture in local and global contexts through integrated theory and choreographic exploration."
+  },
+  "EAOS111": {
+    "paper_code": "EAOS111",
+    "title": "Earth and Ocean Science",
+    "subject": "Earth and Ocean Science",
+    "description": "Your introduction to planet Earth, inside and out. The origin of our universe, oceans, mountains, climate change, and mass extinctions: it’s all connected. Three field trips including a research cruise."
+  },
+  "EAOS121": {
+    "paper_code": "EAOS121",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "ECOL111": {
+    "paper_code": "ECOL111",
+    "title": "Ecology and Conservation of Diversity",
+    "subject": "Ecology",
+    "description": "Species and population ecology: patterns of biodiversity; management of threatened species; evolution and environmental influences; how individuals interact with each other in populations, and with their physical environment."
+  },
+  "ECON112": {
+    "paper_code": "ECON112",
+    "title": "Principles of Macroeconomics",
+    "subject": "Economics",
+    "description": "Introduction to analysing the economy as a whole. Topics include the determination of national income, unemployment, inflation, interest rates and the exchange rate, as well as monetary and fiscal policy."
+  },
+  "EDCR101": {
+    "paper_code": "EDCR101",
+    "title": "Exploring Curriculum",
+    "subject": "Education",
+    "description": "An exploration of early childhood curriculum, with a particular focus on Te Whāriki, the early childhood curriculum framework."
+  },
+  "EDCR102": {
+    "paper_code": "EDCR102",
+    "title": "The Languages of Children",
+    "subject": "Education",
+    "description": "An exploration of the meaning-making experiences of very young children as they begin to communicate with the world and those around them."
+  },
+  "EDCR131": {
+    "paper_code": "EDCR131",
+    "title": "English and Mathematics 1",
+    "subject": "Education",
+    "description": "Introduces teaching and learning in English and mathematics and statistics. Examines the ways in which language, literacy and number concepts are acquired and explores knowledge fundamental to English and mathematics and statistics understanding."
+  },
+  "EDCR133": {
+    "paper_code": "EDCR133",
+    "title": "Health and Physical Education",
+    "subject": "Education",
+    "description": "Introduces the aims, philosophy and content of health and physical education. Examines effective pedagogies and resources required for critical thinking and action through learning, curriculum sequences and practical experiences."
+  },
+  "EDCR135": {
+    "paper_code": "EDCR135",
+    "title": "Introduction to The New Zealand Curriculum and Social Sciences",
+    "subject": "Education",
+    "description": "An introduction to The New Zealand Curriculum and the learning area of the Social Sciences."
+  },
+  "EDPR101": {
+    "paper_code": "EDPR101",
+    "title": "The Practice of Early Childhood Teaching 1",
+    "subject": "Education",
+    "description": "An introduction to professional, ethical, theoretical and pedagogical understandings, skills and dispositions important for early childhood teaching practice."
+  },
+  "EDPR102": {
+    "paper_code": "EDPR102",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "EDPR131": {
+    "paper_code": "EDPR131",
+    "title": "Te Weu",
+    "subject": "Education",
+    "description": "An introduction to ethical, legal, and practical requirements of the primary teaching profession; and an examination of self-identities and policies related to te reo me ngā tikanga Māori."
+  },
+  "EDSU110": {
+    "paper_code": "EDSU110",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "EDUC101": {
+    "paper_code": "EDUC101",
+    "title": "Education and Society",
+    "subject": "Education",
+    "description": "An examination of the political, social and cultural dimensions of contemporary educational practice."
+  },
+  "EDUC102": {
+    "paper_code": "EDUC102",
+    "title": "Human Development",
+    "subject": "Education",
+    "description": "Lifespan development in its social contexts.  A topic-based paper which includes the study of families, cultures within New Zealand, and disability."
+  },
+  "EDUC105": {
+    "paper_code": "EDUC105",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "ENGL120": {
+    "paper_code": "ENGL120",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "ENGL121": {
+    "paper_code": "ENGL121",
+    "title": "English Literature: The Remix",
+    "subject": "English",
+    "description": "Books are made out of other books; well-known English literary works are placed alongside historic and contemporary works that respond to them."
+  },
+  "ENGL127": {
+    "paper_code": "ENGL127",
+    "title": "Essentials of Writing",
+    "subject": "English",
+    "description": "Master the basics of writing clearly, persuasively, and powerfully across academic and professional contexts."
+  },
+  "ENGL128": {
+    "paper_code": "ENGL128",
+    "title": "Essentials of Communication",
+    "subject": "English",
+    "description": "Influence people and captivate colleagues: master the basics of speaking persuasively, listening actively, reading critically, and writing powerfully."
+  },
+  "ENGL131": {
+    "paper_code": "ENGL131",
+    "title": "Controversial Classics",
+    "subject": "English",
+    "description": "A study of literary classics that have attracted controversy for reasons including political content; issues of morality/obscenity; transgressing conventions of form; polemical works; questions of authorial identity and authenticity; controversies over prizes and literary merit."
+  },
+  "ENTR111": {
+    "paper_code": "ENTR111",
+    "title": "Responsible Entrepreneurship",
+    "subject": "Entrepreneurship",
+    "description": "Learn the importance of incorporating ethical, sustainable, inclusive, and indigenous values and mindsets in your entrepreneurial thinking and the opportunities this creates in new venture development."
+  },
+  "ENTR112": {
+    "paper_code": "ENTR112",
+    "title": "Business Model Development and Innovation",
+    "subject": "Entrepreneurship",
+    "description": "Work on business design and testing through ideation, prototyping, assessment and iteration. Learn about the process of finding a valuable, profitable, and scalable business model for your ideas."
+  },
+  "ENVI111": {
+    "paper_code": "ENVI111",
+    "title": "Environment and Society",
+    "subject": "Environment and Society",
+    "description": "Fundamentals of the Earth’s environmental systems; human impact on natural systems at global, national and regional scales.  Environmental hazards, concerns and issues; ethical, legislative, economic, and political responses and constraints."
+  },
+  "EURO101": {
+    "paper_code": "EURO101",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "FINC102": {
+    "paper_code": "FINC102",
+    "title": "Business Mathematics",
+    "subject": "Finance",
+    "description": "An integrated treatment of mathematics (algebra, matrices, calculus, optimisation) and modelling techniques, with an emphasis on applications."
+  },
+  "FOSC111": {
+    "paper_code": "FOSC111",
+    "title": "Food in a Changing World",
+    "subject": "Food Science",
+    "description": "An introduction to scientific and social aspects of food including global trends in food production for health and well-being, food choice, sensory properties, and issues around food safety and sustainability."
+  },
+  "FREN105": {
+    "paper_code": "FREN105",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "FREN131": {
+    "paper_code": "FREN131",
+    "title": "Introductory French 1",
+    "subject": "French",
+    "description": "Intensive French language for beginners and very near beginners."
+  },
+  "FREN132": {
+    "paper_code": "FREN132",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "GEND101": {
+    "paper_code": "GEND101",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "GEND102": {
+    "paper_code": "GEND102",
+    "title": "Bodies, Sexualities and Society",
+    "subject": "Gender Studies",
+    "description": "Experiences of bodies, sexuality and identity, and the connections between them, in contemporary and historical settings, using New Zealand and international examples."
+  },
+  "GEOG101": {
+    "paper_code": "GEOG101",
+    "title": "Physical Geography",
+    "subject": "Geography",
+    "description": "An introduction to the geographic study of the Earth’s environmental systems, with particular emphasis on energy, landforms, vegetation, surficial materials and water.  Includes laboratory studies, tutorials and field work."
+  },
+  "GEOG102": {
+    "paper_code": "GEOG102",
+    "title": "Geographies of Sustainable Futures",
+    "subject": "Geography",
+    "description": "We face significant challenges including population growth, uneven development, over/under consumption, climate change, poverty, racism, and food security.  Human Geography helps us to understand these challenges and imagine sustainable futures."
+  },
+  "GEOL112": {
+    "paper_code": "GEOL112",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "GLBL110": {
+    "paper_code": "GLBL110",
+    "title": "Mapping our Interconnected World: An Introduction to Global Studies",
+    "subject": "Global Studies",
+    "description": "What does it mean to be a “global citizen”?  Gain the cross-cultural and interdisciplinary perspectives required to face the challenges of globalisation and contribute to an inclusive, equitable, and sustainable world."
+  },
+  "GREK111": {
+    "paper_code": "GREK111",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "GREK112": {
+    "paper_code": "GREK112",
+    "title": "Introductory Greek 2",
+    "subject": "Greek",
+    "description": "A continuation of GREK111, including the study of texts taken from Classical Athens."
+  },
+  "HEBR131": {
+    "paper_code": "HEBR131",
+    "title": "Introductory Biblical Hebrew 1",
+    "subject": "Hebrew",
+    "description": "A paper for beginners covering the basics of Biblical Hebrew grammar and vocabulary, to enable students to read the Hebrew Bible in the original."
+  },
+  "HEBR132": {
+    "paper_code": "HEBR132",
+    "title": "Introductory Biblical Hebrew 2",
+    "subject": "Hebrew",
+    "description": "A continuation of HEBR131, including the translation and exegesis of selected passages from the Hebrew Bible."
+  },
+  "HIST102": {
+    "paper_code": "HIST102",
+    "title": "The Global Twentieth Century",
+    "subject": "History",
+    "description": "An exploration of the twentieth century's wars and revolutions, booms and busts, dictators and democratic forces, providing a secure historical basis for understanding today's complex globalised world."
+  },
+  "HIST107": {
+    "paper_code": "HIST107",
+    "title": "New Zealand in the World from the 18th Century",
+    "subject": "History",
+    "description": "New Zealand history in a global perspective: the way forces of imperialism, colonisation, capitalism and racial conflict have shaped modern New Zealand and its place in the world."
+  },
+  "HIST108": {
+    "paper_code": "HIST108",
+    "title": "From Medieval to Modern Europe",
+    "subject": "History",
+    "description": "An examination of principal trends in the development of European civilisation between the early Middle Ages and the nineteenth century."
+  },
+  "HIST123": {
+    "paper_code": "HIST123",
+    "title": "Revolutions",
+    "subject": "History",
+    "description": "An examination of the ways in which revolutions have transformed the world."
+  },
+  "HUBS191": {
+    "paper_code": "HUBS191",
+    "title": "Human Body Systems 1",
+    "subject": "Human Body Systems",
+    "description": "An introduction to the structure and function of the musculoskeletal, nervous, endocrine and immune systems in the human body, and to biostatistics."
+  },
+  "HUBS192": {
+    "paper_code": "HUBS192",
+    "title": "Human Body Systems 2",
+    "subject": "Human Body Systems",
+    "description": "An introduction to the structure and function of the human integumentary (skin), cardiovascular, respiratory, gastrointestinal, renal/urinary and reproductive systems."
+  },
+  "HUNT141": {
+    "paper_code": "HUNT141",
+    "title": "Understanding Human Nutrition",
+    "subject": "Human Nutrition",
+    "description": "Basic understanding of key nutritional concepts and the importance of evidence-based nutrition for individual and population health."
+  },
+  "INFO130": {
+    "paper_code": "INFO130",
+    "title": "Fundamentals and practice of spreadsheets",
+    "subject": "Information Science",
+    "description": "Introduces the core concepts and tools used to organise and manipulate tabular data. Covers basic spreadsheet calculation, modelling, visualisation and analysis skills for business and research."
+  },
+  "JAPA131": {
+    "paper_code": "JAPA131",
+    "title": "Introductory Japanese 1",
+    "subject": "Japanese",
+    "description": "An introductory course in reading, writing, speaking and listening to Japanese for students with no previous knowledge of the language.  The paper takes an integrated approach to the skills of language acquisition and includes basic material on the cultural heritage of the Japanese people."
+  },
+  "JAPA132": {
+    "paper_code": "JAPA132",
+    "title": "Introductory Japanese 2",
+    "subject": "Japanese",
+    "description": "A continuation of JAPA131, further developing students’ Japanese language skills in reading, writing, speaking and listening at an elementary level.  The paper takes an integrated approach to the skills of language acquisition and includes basic material on the cultural heritage of the Japanese people."
+  },
+  "LATN111": {
+    "paper_code": "LATN111",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "LATN112": {
+    "paper_code": "LATN112",
+    "title": "Introductory Latin 2",
+    "subject": "Latin",
+    "description": "A continuation of LATN111, including the study of texts chosen to illustrate Roman history and literature in the 1st century BC."
+  },
+  "LING103": {
+    "paper_code": "LING103",
+    "title": "Language Myths",
+    "subject": "Linguistics",
+    "description": "Examination of popular myths from a linguistics perspective. Includes topics such as the origins and nature of language, attitudes toward languages, and language policies."
+  },
+  "LING111": {
+    "paper_code": "LING111",
+    "title": "A World of Languages",
+    "subject": "Linguistics",
+    "description": "A tour through the world's 6,000 languages, learning where they come from and how they are put together: the foundational sounds, words, sentences and meanings of language."
+  },
+  "LING140": {
+    "paper_code": "LING140",
+    "title": "Language, Brain, and Being Human",
+    "subject": "Linguistics",
+    "description": "Humans uniquely are the big-brained animals with language. Explore what language is, how your mind makes it happen, and thereby what it means to be human."
+  },
+  "MANT101": {
+    "paper_code": "MANT101",
+    "title": "Managing for Performance",
+    "subject": "Management",
+    "description": "Individual and group behaviour, communications, and the management of operations and human resources within organisations."
+  },
+  "MAOR102": {
+    "paper_code": "MAOR102",
+    "title": "Māori Society",
+    "subject": "Māori Studies",
+    "description": "An introduction to the theory and practice of Māori culture and society in traditional and contemporary contexts."
+  },
+  "MAOR108": {
+    "paper_code": "MAOR108",
+    "title": "Waiata: Te Tīmatanga",
+    "subject": "Maori Studies",
+    "description": "An introductory study of various forms of waiata (Māori performing art) including haka from traditional to contemporary times. A practicum component is also included."
+  },
+  "MAOR110": {
+    "paper_code": "MAOR110",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "MAOR111": {
+    "paper_code": "MAOR111",
+    "title": "Te Kākano 1",
+    "subject": "Māori Studies",
+    "description": "He akoranga hei whakapakari i te reo o rātou kua tīmata kē ki te ako i te reo Māori. Ko te nuinga o te karaehe e whakaakona ana i te reo. Me mātua mōhio te akonga ki te mihi, ki te hanga i ētahi whakatakotoranga kōrero.  A post-introductory paper in Māori language that is taught mainly in Māori. Some previous knowledge of Māori language is essential."
+  },
+  "MAOR112": {
+    "paper_code": "MAOR112",
+    "title": "Te Kākano 2",
+    "subject": "Maori Studies",
+    "description": "He akoranga hei whakapakari i te reo kua akona i MAOR111. Ko te katoa o te karaehe e whakaakona ana i te reo Māori.  Development of the skills taught in MAOR111. Taught in Māori."
+  },
+  "MAOR120": {
+    "paper_code": "MAOR120",
+    "title": "Introducing the Māori World",
+    "subject": "Maori Studies",
+    "description": "An introduction to the Māori world, including cultural concepts and practices, Treaty of Waitangi, pronunciation, greetings, songs, and forms of language appropriate to work contexts. Includes cultural experience practicum."
+  },
+  "MARI112": {
+    "paper_code": "MARI112",
+    "title": "Marine Biology: The Living Ocean",
+    "subject": "Marine Science",
+    "description": "An introduction to physical, chemical and biological processes and their co-dependencies in the global ocean system."
+  },
+  "MART112": {
+    "paper_code": "MART112",
+    "title": "Marketing",
+    "subject": "Marketing",
+    "description": "An introduction to the marketing environment, customer types, buyer behaviour, market segmentation and product, pricing, distribution and promotion issues in the context of domestic and international product and service markets."
+  },
+  "MATH120": {
+    "paper_code": "MATH120",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "MATH130": {
+    "paper_code": "MATH130",
+    "title": "Fundamentals of Modern Mathematics 1",
+    "subject": "Mathematics",
+    "description": "Core mathematical skills and background for applications across the quantitative sciences."
+  },
+  "MATH140": {
+    "paper_code": "MATH140",
+    "title": "Fundamentals of Modern Mathematics 2",
+    "subject": "Mathematics",
+    "description": "Continuation from MATH 130 with an emphasis on mathematical thinking and formalisation and their importance for applications of mathematics."
+  },
+  "MFCO101": {
+    "paper_code": "MFCO101",
+    "title": "Screen Form and Culture",
+    "subject": "Media, Film and Communication",
+    "description": "An introduction to the basic analytical and critical skills as they apply to the study of moving images, specifically film. Issues of form, style and genre are addressed."
+  },
+  "MFCO102": {
+    "paper_code": "MFCO102",
+    "title": "Media, Power, Society",
+    "subject": "Media, Film and Communication",
+    "description": "Explores the impact of media such as advertising, social media and streaming media upon our values, work, knowledge and experience of everyday life."
+  },
+  "MFCO103": {
+    "paper_code": "MFCO103",
+    "title": "Introduction to Communication Studies",
+    "subject": "Media, Film and Communication",
+    "description": "An introduction to communication theories, media and genres."
+  },
+  "MUSI101": {
+    "paper_code": "MUSI101",
+    "title": "Materials of Music 1",
+    "subject": "Music",
+    "description": "An introduction to the materials of music, advancing students’ understanding of scales, modes, chords, rhythm and musical structure, illustrated with examples drawn from a wide range of music."
+  },
+  "MUSI103": {
+    "paper_code": "MUSI103",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "MUSI104": {
+    "paper_code": "MUSI104",
+    "title": "World Music",
+    "subject": "Music",
+    "description": "An exploration of the world’s traditional, popular and contemporary musics in their cultural context.  (No prior musical knowledge required.)"
+  },
+  "MUSI105": {
+    "paper_code": "MUSI105",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "MUSI131": {
+    "paper_code": "MUSI131",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "MUSI132": {
+    "paper_code": "MUSI132",
+    "title": "Music Production 1",
+    "subject": "Music",
+    "description": "An introduction to the technology of music, including computers and music software, sequencing, editing and recording techniques."
+  },
+  "MUSI135": {
+    "paper_code": "MUSI135",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "MUSI140": {
+    "paper_code": "MUSI140",
+    "title": "Performance Studies 1",
+    "subject": "Music",
+    "description": "Tuition to develop solo performance skills through individual or small group instruction."
+  },
+  "MUSI143": {
+    "paper_code": "MUSI143",
+    "title": "Instrumental or Vocal Performance 1",
+    "subject": "Music",
+    "description": "The development of specialised instrumental or voice skills in music through individual lessons, group learning, and workshops"
+  },
+  "MUSI144": {
+    "paper_code": "MUSI144",
+    "title": "Music Ensemble 1",
+    "subject": "Music",
+    "description": "The development of ensemble skills in music through directed group learning."
+  },
+  "MUSI191": {
+    "paper_code": "MUSI191",
+    "title": "Introduction to Music",
+    "subject": "Music",
+    "description": "An introduction to the theory of music, including notation and the foundations of key, harmony and tonality."
+  },
+  "PACI101": {
+    "paper_code": "PACI101",
+    "title": "Pacific Societies",
+    "subject": "Pacific Islands Studies",
+    "description": "An introduction to selected Pacific societies in traditional and contemporary contexts, with a focus on indigenous perspectives."
+  },
+  "PACI102": {
+    "paper_code": "PACI102",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "PACI103": {
+    "paper_code": "PACI103",
+    "title": "Languages and Cultures of the Pacific: An Introduction",
+    "subject": "Pacific Islands Studies",
+    "description": "An introduction to a select Pacific language."
+  },
+  "PACR101": {
+    "paper_code": "PACR101",
+    "title": "Pacific Realities and University Learning",
+    "subject": "Pacific Realities and University Learning",
+    "description": "An introduction to theories of learning and academic skills needed for independent learning and success at university especially designed for Pacific students new to tertiary study."
+  },
+  "PHIL101": {
+    "paper_code": "PHIL101",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "PHIL103": {
+    "paper_code": "PHIL103",
+    "title": "Ethical Issues",
+    "subject": "Philosophy",
+    "description": "Theories about the status of moral claims (relativism, subjectivism, egoism, utilitarianism, etc.).  The rights and wrongs of specific issues (abortion, the environment, pacifism, etc.)."
+  },
+  "PHIL105": {
+    "paper_code": "PHIL105",
+    "title": "Critical Thinking",
+    "subject": "Philosophy",
+    "description": "The ideas of reason, truth and argument.  What are the limits of argument?  Common fallacies of reasoning.  Traditional logic and its limitations.  Modern logic.  Non-deductive reasoning."
+  },
+  "PHIL106": {
+    "paper_code": "PHIL106",
+    "title": "Radical Philosophy",
+    "subject": "Philosophy",
+    "description": "Radical ideas about the human condition. Topics include existentialism, freedom,  authenticity, nihilism, feminism, meaning, and modernity. Authors studied include Nietzsche and Sartre."
+  },
+  "PHSI131": {
+    "paper_code": "PHSI131",
+    "title": "Fundamentals of Physics I",
+    "subject": "Physics",
+    "description": "The development of physical law from Newton to the revolutionary ideas of quantum physics formulated by Planck, Schrödinger, Heisenberg, Bohr and Einstein. The physics of the real world: motion, energy and its transfer, and an introduction to the quantum mechanical nature of light and matter. Applications of the principles of physics to a technological society."
+  },
+  "PHSI132": {
+    "paper_code": "PHSI132",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "PHSI191": {
+    "paper_code": "PHSI191",
+    "title": "Biological Physics",
+    "subject": "Physics",
+    "description": "Foundations of physics for the health sciences including mechanics, properties of fluids and solids, thermodynamics, optics, electrostatics and DC circuits, and radiation and health."
+  },
+  "PHSL101": {
+    "paper_code": "PHSL101",
+    "title": "Physiology for Sport and Exercise",
+    "subject": "Physiology",
+    "description": "An introduction to the function of the musculoskeletal, nervous, cardiovascular, blood, respiratory, endocrine, gastrointestinal, immune, urinary and reproductive systems of the human body."
+  },
+  "POLS102": {
+    "paper_code": "POLS102",
+    "title": "Aotearoa New Zealand Politics – Introduction",
+    "subject": "Politics",
+    "description": "The study of institutions and processes of the New Zealand political system.  Particularly the formal structure of government, political parties and interest groups, the citizen and political participation."
+  },
+  "POLS104": {
+    "paper_code": "POLS104",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "POLS105": {
+    "paper_code": "POLS105",
+    "title": "Comparative Politics - Introduction",
+    "subject": "Politics",
+    "description": "How political institutions and processes work across a range of countries. Introduces the comparative method and considers ways of conceptualising political systems and understanding the functions of their key institutions."
+  },
+  "POLS110": {
+    "paper_code": "POLS110",
+    "title": "Political Ideas in Action",
+    "subject": "Politics",
+    "description": "A comprehensive exploration of the meaning and function of ideology, and a survey of the political ideologies that have shaped and continue to shape our world, including liberalism, socialism, anarchism, populism and conservatism."
+  },
+  "POPH192": {
+    "paper_code": "POPH192",
+    "title": "Population Health",
+    "subject": "Public Health",
+    "description": "An introduction to the science of epidemiology, the study of the distribution and determinants of health and disease in human populations, and to different ways of understanding health."
+  },
+  "PSYC111": {
+    "paper_code": "PSYC111",
+    "title": "Brain and Behaviour",
+    "subject": "Psychology",
+    "description": "An introductory study of the biological bases of behaviour and development, neuropsychology, perception, and learning."
+  },
+  "PSYC112": {
+    "paper_code": "PSYC112",
+    "title": "Human Thought and Behaviour",
+    "subject": "Psychology",
+    "description": "An introductory study of developmental psychology, social psychology, health psychology, and psychopathology."
+  },
+  "PTWY111": {
+    "paper_code": "PTWY111",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "PTWY112": {
+    "paper_code": "PTWY112",
+    "title": "Essential Business Finance",
+    "subject": "Pathway",
+    "description": "Introduces some characteristics of financial markets, including the time value of money, calculations of fair value for bonds and stocks, risk-return trade-offs, financing criteria and history of markets, and ethics."
+  },
+  "PTWY121": {
+    "paper_code": "PTWY121",
+    "title": "Historical Worlds: Building States",
+    "subject": "Pathway",
+    "description": "Examines how states have been built and how they have shaped the modern international environment, with a focus on key periods and events in the construction of Aotearoa New Zealand."
+  },
+  "PTWY122": {
+    "paper_code": "PTWY122",
+    "title": "Contemporary Worlds: Our Challenges",
+    "subject": "Pathway",
+    "description": "Examines key aspects of theories, institutions, and global issues in the contemporary international environment while also exploring a variety of geographic settings."
+  },
+  "PTWY131": {
+    "paper_code": "PTWY131",
+    "title": "Introduction to the Human Body",
+    "subject": "Pathway",
+    "description": "An introduction to the structure and function of the musculoskeletal, nervous, endocrine and immune systems in the human body, and to biostatistics."
+  },
+  "PTWY132": {
+    "paper_code": "PTWY132",
+    "title": "Introduction to Plant Life",
+    "subject": "Pathway",
+    "description": "An introduction to botany, how the study of plants aids our understanding of Earth’s history and human society, and how plants will respond to future environmental change."
+  },
+  "PUBH192": {
+    "paper_code": "PUBH192",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "RELS102": {
+    "paper_code": "RELS102",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "RELS110": {
+    "paper_code": "RELS110",
+    "title": "Introduction to the Scientific Study of Religion",
+    "subject": "Religious Studies",
+    "description": "An introduction to scientific methods and their application to the study of religion, focusing on scientific explanations for religious belief and behaviour."
+  },
+  "RELS111": {
+    "paper_code": "RELS111",
+    "title": "Māori Spirituality and the World’s Religions",
+    "subject": "Religious Studies",
+    "description": "In the first section we introduce Māori spirituality and religious practices. We then use this knowledge as a lens to understand and compare key components of Buddhism, Christianity, Hinduism, Islam."
+  },
+  "SOCI101": {
+    "paper_code": "SOCI101",
+    "title": "Sociology of New Zealand Society",
+    "subject": "Sociology",
+    "description": "An introduction to core concepts in sociology, dealing in particular with class, gender and race/ethnicity."
+  },
+  "SOCI102": {
+    "paper_code": "SOCI102",
+    "title": "Cultural and Social Identities",
+    "subject": "Sociology",
+    "description": "An introduction to the social scientific analysis of culture, society and identity, including issues of identity politics, socialisation, the self in everyday life, stigma, the politics of ethnicity and the social dynamics of power."
+  },
+  "SOCI103": {
+    "paper_code": "SOCI103",
+    "title": "Crime, Deviance and Social Transformation",
+    "subject": "Sociology",
+    "description": "An introduction to research in criminology in global and local contexts, addressing debates related to crime, deviance and social transformation from a sociological viewpoint."
+  },
+  "SOWK111": {
+    "paper_code": "SOWK111",
+    "title": "Working with People: The New Zealand Context",
+    "subject": "Social Work",
+    "description": "An introduction to the context for academic and professional work in social services in New Zealand."
+  },
+  "SPAN131": {
+    "paper_code": "SPAN131",
+    "title": "Introductory Spanish 1",
+    "subject": "Spanish",
+    "description": "An introductory course in reading, writing, listening to, and speaking Spanish for students with no previous knowledge of the language."
+  },
+  "SPAN132": {
+    "paper_code": "SPAN132",
+    "title": "Introductory Spanish 2",
+    "subject": "Spanish",
+    "description": "A continuation of SPAN131, further developing skills in reading, writing, listening to, and speaking Spanish for students with some basic knowledge of the language."
+  },
+  "SPEX101": {
+    "paper_code": "SPEX101",
+    "title": "Sport, Science and Society",
+    "subject": "Sport, Physical Education and Exercise",
+    "description": "A critical overview of the nature and influence of sport in society, exploring how sport intersects with the fields of science, health, education, politics and the economy."
+  },
+  "SPEX102": {
+    "paper_code": "SPEX102",
+    "title": "Principles of Exercise for Health and Performance",
+    "subject": "Sport, Physical Education and Exercise",
+    "description": "An introduction to the principles and practice of exercise science, including common and relevant myths or misconceptions."
+  },
+  "STAT110": {
+    "paper_code": "STAT110",
+    "title": "Statistical Methods",
+    "subject": "Statistics",
+    "description": "Descriptive statistics, probability distributions, estimation, hypothesis testing, regression, analysis of count data, analysis of variance and experimental design.  Sampling and design principles of techniques to build on in the implementation of research studies."
+  },
+  "STAT115": {
+    "paper_code": "STAT115",
+    "title": "Introduction to Biostatistics",
+    "subject": "Statistics",
+    "description": "A paper for students in health-related subjects, in particular nutrition, food science, epidemiology, exercise science, psychology, and the health sciences.  Topics covered include the nature of random variation, the concepts of bias and confounding, study design, data description including risks and odds, binomial and normal distributions, estimation, hypothesis testing, regression, the control of confounders, critical appraisal, and the analysis of variance."
+  },
+  "SURV120": {
+    "paper_code": "SURV120",
+    "title": "Surveying and Spatial Science",
+    "subject": "Surveying",
+    "description": "An introduction to the field methods, equipment, and computational procedures used in surveying and spatial science to measure, map and analyse Earth’s surface features and the built environment."
+  },
+  "SURV130": {
+    "paper_code": "SURV130",
+    "title": null,
+    "subject": null,
+    "description": null
+  },
+  "THEA152": {
+    "paper_code": "THEA152",
+    "title": "Backstage for Theatre and Performance",
+    "subject": "Theatre Studies",
+    "description": "A practical introduction to the stagecraft of working backstage in theatre and performance, including lighting, sound and stage management."
+  },
+  "THEA153": {
+    "paper_code": "THEA153",
+    "title": "Voice and Movement",
+    "subject": "Theatre Studies",
+    "description": "The nature and philosophy of voice and movement in communication, and the development of personal awareness and requisite skills through practical training."
+  },
+  "THEA154": {
+    "paper_code": "THEA154",
+    "title": "Staging Worlds: Theatre and Performance",
+    "subject": "Theatre Studies",
+    "description": "Using group practice and performance, this paper considers the live theatrical event and introduces the key principles, theories and methods utilised in Theatre Studies, including acting and improvisation techniques, devising (collaborative theatre-making), performance analysis, and critical enquiry."
+  },
+  "TOUR101": {
+    "paper_code": "TOUR101",
+    "title": "Introduction to Tourism",
+    "subject": "Tourism",
+    "description": "An introduction to the global principles that structure tourism, the nature and operation of the tourist industry and the impact, development and management issues that arise from tourism."
+  },
+  "TOUR102": {
+    "paper_code": "TOUR102",
+    "title": "Global Tourism",
+    "subject": "Tourism",
+    "description": "The major issues in world tourism as it is differentiated on a global regional basis; integrated illustrative case studies."
+  }
+}

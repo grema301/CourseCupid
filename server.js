@@ -2,6 +2,7 @@ const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
 require("dotenv").config();
+const { spawn } = require("child_process");
 
 const session = require("express-session"); 
 
@@ -43,7 +44,9 @@ app.post("/api/quiz-recommendations", async (req, res) => {
   console.log("User profile string:", userProfile); // ADDED
 
   // We are going to execute the Python script as a separate child process
-  const pythonProcess = spawn('python', ['course_matcher.py', userProfile]);
+  const pythonProcess = spawn('python', ['google_course_matcher.py', userProfile], {
+      env: { ...process.env, GEMINI_API_KEY: process.env.GEMINI_API_KEY }
+  });
   let dataToSend = '';
 
   // Listen for data from the python script

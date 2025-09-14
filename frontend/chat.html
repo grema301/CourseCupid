@@ -15,19 +15,27 @@
     <aside class="cc-left slim">
       <a class="back-link" href = '/'>← Home </a>
       <a class="back-link" href="/chat">← Messages</a>
+
+      <button id="add-new-chat-btn" onclick="startCreateSession()">
+        <span id="chat-btn-text">Start A New Chat +</span>
+      </button>
+
       <div id="miniList" class="cc-list mini"></div>
-
-
-      <body>Testing</body>
 
     </aside>
 
+    <!-- Chat Body Area -->
     <main class="cc-right">
       <header id="chatHeader" class="cc-header">
         <div id="paperAvatar" class="avatar">📚</div>
         <div class="meta">
           <div id="paperTitle" class="name">Loading…</div>
-          <div id="paperCode" class="sub">paper</div>
+          <!--<div id="paperCode" class="sub">paper</div>-->
+
+          <div id="paperCode" class="sub">Session: 
+            <span id="current-session-id">Loading...</span>
+          </div>
+
         </div>
       </header>
 
@@ -41,5 +49,7 @@
   </div>
 
   <script src="/js/chat.js"></script>
+  <script src="/app.js"></script>
+
 </body>
 </html>

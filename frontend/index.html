@@ -69,7 +69,7 @@
             Start Chatting Now →
           </a>-->
 
-          <button id="start-chat-btn" onclick="testCreateSession()" class="inline-block rounded-full bg-cupidPink text-white px-8 py-3 font-semibold hover:bg-cupidPink/80">
+          <button id="start-chat-btn" onclick="startCreateSession()" class="inline-block rounded-full bg-cupidPink text-white px-8 py-3 font-semibold hover:bg-cupidPink/80">
             <span id="chat-btn-text">Start Chatting Now →</span>
             <span id="chat-btn-loading" class="hidden">Creating Session...</span>
           </button>
@@ -127,31 +127,6 @@
         }
       });
     });
-  
-  
-
-    async function testCreateSession() {
-      try {
-        console.log('Creating chat session...');
-        
-        const response = await fetch('/api/chat-sessions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        
-        const data = await response.json();
-        console.log('Created session:', data);
-        
-        if (data.session_id) {
-          alert(`Success! Created session: ${data.session_id}`);
-          // Later: window.location.href = `/chat/${data.session_id}`;
-          window.location.href = `/chat/default`;
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        alert('Failed to create session');
-      }
-    }
   
   </script>
 

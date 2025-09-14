@@ -130,6 +130,32 @@ app.post("/api/chat/:paperId", async (req, res) => {
   }
 });
 
+
+
+/**Dynamic SessiondID handling */
+app.get("/api/chat/:sessionID", async (req, res) => {
+  const sessionId = req.params.sessionId;
+    
+    try {
+      //Validate that the session exists in database
+      const sessionCheck = await pool.query(
+        'SELECT session_id FROM Chat_Session WHERE session_id = $1', 
+        [sessionId]
+      );
+      
+      if (sessionCheck.rows.length === 0) {
+        return res.status(404).send('Chat session not found');
+      }
+      
+      //Serve chat HTML page
+      res.sendFile(path.join(__dirname, 'frontend', 'chat.html'));
+
+    } catch (error) {
+      console.error('Error loading chat session:', error);
+      res.status(500).send('Error loading chat session');
+    }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

@@ -61,12 +61,27 @@
                     <label class="block"><input type="radio" name="q3" value="Government/NGO work" required> Government/NGO work</label>
                 </div>
             </div>
+            <div class="mb-4">
+                <p class="font-sans semibold">These might not cover everything, give a brief description of what you enjoy:</p>
+                <div class="mt-2">
+                    <textarea name="q4" rows="3" class="w-full p-2 border border-gray-300 rounded" placeholder="E.g., I love coding and building apps." required></textarea>
+                </div>
+            </div>
             <button type="submit" class="mt-4 px-5 py-2 rounded-full bg-cupidPink hover:bg-cupidPink/90 text-white font-semibold">Get Recommendations</button>
         </form>
-        <div id="results" class="mt-8 hidden">
-            <h2 class="text-xl font-bold mb-4">Your Top Matches:</h2>
-            <ul id="courseList" class="space-y-4"></ul>
+
+        <div id="loading" class="mt-8 text-center hidden">
+            <div class="spinner"></div>
+            <p class="mt-2 text-cupidPink text-lg">Finding your perfect course match...</p>
         </div>
+        
+        <div id="cardContainer" class="mt-8 relative hidden" style="height: 400px;">
+        </div>
+
+        <div id="noMoreCards" class="mt-8 text-center hidden">
+            <p class="text-cupipPink text-xl font-bold">No more course recommendations!</p>
+        </div>
+
     </div>
     <script src="/js/quiz.js"></script>
 </body>

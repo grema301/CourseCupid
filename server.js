@@ -1,3 +1,5 @@
+/** server.js */
+
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
@@ -134,7 +136,7 @@ app.post("/api/chat/:paperId", async (req, res) => {
 
 /**Dynamic SessiondID handling */
 app.get("/api/chat/:sessionID", async (req, res) => {
-  const sessionId = req.params.sessionId;
+  const sessionID = req.params.sessionID;
     
     try {
       //Validate that the session exists in database

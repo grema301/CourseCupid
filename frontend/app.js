@@ -19,14 +19,14 @@ async function startCreateSession() {
         window.location.href = `/chat/${data.session_id}`;
     }
     } catch (error) {
-    console.error('Error:', error);
-    alert('Failed to create session');
+        console.error('Error:', error);
+        alert('Failed to create session');
     }
 }
 
 //get current session ID from URL and display it
 //should add/change to a session title in the future
-function getCurrentSessionId() {
+function getCurrentSessionID() {
     const path = window.location.pathname;
     const match = path.match(/\/chat\/(.+)/);
     return match ? match[1] : null;
@@ -34,13 +34,13 @@ function getCurrentSessionId() {
 
 //update the session ID display
 function updateSessionDisplay() {
-    const sessionId = getCurrentSessionId();
+    const sessionID = getCurrentSessionId();
     //shoudl show session title in the future
     const sessionElement = document.getElementById('current-session-id');
     
-    if (sessionId && sessionElement){
-        sessionElement.textContent = sessionId;
-        console.log('Session ID displayed:', sessionId);
+    if (sessionID && sessionElement){
+        sessionElement.textContent = sessionID;
+        console.log('Session ID displayed:', sessionID);
 
         //for the future, maybe distinct between AI chat and paper chat
         document.getElementById('paperTitle').textContent = 'Dynamic title';
@@ -52,6 +52,39 @@ function updateSessionDisplay() {
         }
     }
 }
+
+
+async function deleteSession(){
+    try {
+        const sessionID = getCurrentSessionID();
+
+        //Add a confirm deletion with user? somewhere eventually
+        
+        const response = await fetch(`/api/chat-sessions/${sessionID}`, {
+            method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            alert('Session deleted successfully!');
+            
+            //redirect to landing page
+            window.location.href = '/'; 
+            
+        } else {
+            throw new Error(data.message || 'Failed to delete session');
+        }
+
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to delete session');
+    }
+}
+
+
+
+
 
 
 //initialize when page loads

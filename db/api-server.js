@@ -254,8 +254,8 @@ router.post('/delete-account', async (req, res) => {
   }
 });
 
-// ensure the router is exported 
-module.exports = router;
+// ensure both router and pool are exported for server.js to destructure
+module.exports = { router, pool };
 
 /*
 //API server on port 3001 

@@ -17,124 +17,411 @@
           fontFamily: {
             script: ['"Great Vibes"', 'cursive'],
             sans: ['Inter', 'sans-serif'],
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.6s ease-out',
+            'slide-up': 'slideUp 0.8s ease-out',
+            'float': 'float 3s ease-in-out infinite',
+            'pulse-slow': 'pulse 3s infinite',
+            'bounce-gentle': 'bounceGentle 2s infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' }
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(30px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-10px)' }
+            },
+            bounceGentle: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-5px)' }
+            }
           }
         }
       }
     }
   </script>
 
-<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/frontend/style.css" />
+
+  <style>
+    /* Custom animations and transitions */
+    .hover-lift {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .hover-lift:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(192, 90, 102, 0.2);
+    }
+
+    .gradient-bg {
+      background: linear-gradient(135deg, #FAF5EF 0%, #f8f1e8 100%);
+    }
+
+    .animated-gradient {
+      background: linear-gradient(-45deg, #C05A66, #d67580, #C05A66, #b8525c);
+      background-size: 400% 400%;
+      animation: gradientShift 6s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .parallax-element {
+      transition: transform 0.1s ease-out;
+    }
+
+    /* Responsive typography */
+    .hero-title {
+      font-size: clamp(3rem, 8vw, 7rem);
+      line-height: 1.1;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+    }
+
+    /* Profile menu animations */
+    .profile-menu-open {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    /* Improved mobile layout */
+    @media (max-width: 768px) {
+      .mobile-stack {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .mobile-full {
+        width: 100%;
+        text-align: center;
+      }
+    }
+
+    /* Loading animations */
+    .loading-shimmer {
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+  </style>
 </head>
-<body class="bg-cupidCream min-h-screen flex flex-col">
-  <header class="flex items-center justify-between px-10 py-6">
-    <a id="home-link" href="index.html" class="flex items-center gap-3">
-      <img src="images/cupid_logo.png" alt="Course Cupid" class="h-8">
-      <span class="text-lg font-semibold text-cupidPink">Course Cupid</span>
+
+<body class="gradient-bg min-h-screen flex flex-col overflow-x-hidden">
+  <!-- Header with fade-in animation -->
+  <header class="animate-fade-in flex items-center justify-between px-4 sm:px-6 lg:px-10 py-4 sm:py-6 relative z-10">
+    <!-- Logo with hover effect -->
+    <a id="home-link" href="index.html" class="flex items-center gap-3 hover-lift group">
+      <img src="images/cupid_logo.png" alt="Course Cupid" class="h-6 sm:h-8 transition-transform duration-300 group-hover:scale-105">
+      <span class="text-base sm:text-lg font-semibold text-cupidPink transition-colors duration-300 group-hover:text-cupidPink/80">Course Cupid</span>
     </a>
 
-    <nav class="flex gap-6 text-sm">
-      <a href="index.html" class="hover:text-cupidPink font-semibold">Home</a>
-      <a href="papers.html" class="hover:text-cupidPink">Papers</a>
-      <a href="#" class="hover:text-cupidPink">Contact</a>
+    <!-- Navigation - responsive -->
+    <nav class="hidden md:flex gap-6 lg:gap-10 text-sm">
+      <a href="index.html" class="text-cupidPink font-semibold relative group">
+        Home
+        <span class="absolute bottom-0 left-0 w-full h-0.5 bg-cupidPink"></span>
+      </a>
+      <a href="about.html" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+        About Us
+        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+      </a>
+      <a href="quiz.html" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+        Quiz
+        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+      </a>
+      <a href="contact.html" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+        Contact
+        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+      </a>
     </nav>
 
-    <div id="auth-controls" class="flex items-center gap-4">
-      <div id="auth-guest" class="flex gap-3 items-center">
-        <a id="login-link" href="login.html" class="px-4 py-2 rounded-full bg-cupidPink/10 text-cupidPink hover:bg-cupidPink/20 font-medium">Log In</a>
-        <a id="signup-link" href="signup.html" class="px-4 py-2 rounded-full bg-cupidPink text-white font-semibold">Register</a>
+    <!-- Mobile menu button -->
+    <button id="mobile-menu-btn" class="md:hidden p-2 text-cupidPink hover:bg-cupidPink/10 rounded-lg transition-colors duration-300">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
+
+    <!-- Auth controls - responsive -->
+    <div id="auth-controls" class="flex items-center gap-2 sm:gap-4">
+      <div id="auth-guest" class="flex gap-2 sm:gap-3 items-center mobile-stack">
+        <a id="login-link" href="login.html" class="px-3 sm:px-4 py-2 rounded-full bg-cupidPink/10 text-cupidPink hover:bg-cupidPink/20 font-medium text-sm transition-all duration-300 hover-lift">
+          Log In
+        </a>
+        <a id="signup-link" href="signup.html" class="px-3 sm:px-4 py-2 rounded-full animated-gradient text-white font-semibold text-sm hover-lift">
+          Register
+        </a>
       </div>
 
       <div id="auth-user" class="hidden relative flex items-center gap-2">
-        <div id="profile-btn" class="flex items-center gap-2 bg-white border border-cupidPink/20 rounded-full px-2 py-1 shadow-sm cursor-pointer">
-          <div id="user-avatar" class="w-8 h-8 rounded-full bg-cupidPink text-white flex items-center justify-center font-semibold text-sm"></div>
+        <div id="profile-btn" class="flex items-center gap-2 bg-white border border-cupidPink/20 rounded-full px-2 py-1 shadow-sm cursor-pointer hover-lift">
+          <div id="user-avatar" class="w-8 h-8 rounded-full bg-cupidPink text-white flex items-center justify-center font-semibold text-sm animate-bounce-gentle"></div>
           <span id="user-name" class="text-cupidPink font-medium text-sm max-w-[120px] truncate"></span>
         </div>
 
         <div id="profile-menu"
-             class="absolute right-0 top-full mt-2 w-44 bg-white rounded-lg shadow-lg border border-cupidPink/10 z-50 overflow-hidden
+             class="absolute right-0 top-full mt-2 w-44 bg-white rounded-lg shadow-xl border border-cupidPink/10 z-50 overflow-hidden
                     transform transition-all duration-150 origin-top-right opacity-0 -translate-y-2 scale-95 pointer-events-none">
           <div class="py-1">
-            <a href="settings.html" class="block px-4 py-2 text-sm text-cupidPink hover:bg-cupidPink/5">Settings</a>
-            <button id="logout-btn" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Logout</button>
+            <a href="settings.html" class="block px-4 py-2 text-sm text-cupidPink hover:bg-cupidPink/5 transition-colors duration-200">Settings</a>
+            <button id="logout-btn" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200">Logout</button>
           </div>
         </div>
       </div>
 
-      <button onclick="testCreateSession()" class="ml-4 px-3 py-1 rounded-full bg-cupidPink/10 text-cupidPink hover:bg-cupidPink/20 text-sm">Test: Create Chat Session</button>
+      <button onclick="testCreateSession()" class="ml-2 px-3 py-1 rounded-full bg-gray-800 text-white text-sm hover:bg-gray-700 transition-all duration-300 hover-lift">Test: Create Chat Session</button>
     </div>
   </header>
 
-  <section class="flex flex-col lg:flex-row items-center justify-between px-10 py-20">
-    <div class="max-w-xl">
-      <h1 class="font-script text-7xl text-cupidPink">Course Cupid</h1>
-      <p class="mt-4 text-lg text-gray-800">Flirt with Options,<br>Commit to the Right Course</p>
-      <div class="mt-8 flex gap-4">
-          <a href="chat/default" class="inline-block rounded-full bg-cupidPink text-white px-8 py-3 font-semibold hover:bg-cupidPink/80">
-            Start Chatting Now →
-          </a>
-          <a href="quiz.html" class="inline-block rounded-full bg-cupidPink/30 text-cupidPink px-8 py-3 font-semibold hover:bg-cupidPink hover:text-white transition-colors duration-300">
-            Take the Quiz
-          </a>
+  <!-- Mobile menu overlay -->
+  <div id="mobile-menu" class="hidden md:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm">
+    <div class="bg-cupidCream h-full w-64 shadow-xl animate-slide-up">
+      <div class="p-6">
+        <button id="mobile-menu-close" class="float-right text-cupidPink hover:bg-cupidPink/10 p-2 rounded-lg">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+        <nav class="mt-12 flex flex-col gap-6">
+          <a href="index.html" class="text-lg text-cupidPink font-semibold transition-colors">Home</a>
+          <a href="about.html" class="text-lg hover:text-cupidPink transition-colors">About Us</a>
+          <a href="quiz.html" class="text-lg hover:text-cupidPink transition-colors">Quiz</a>
+          <a href="contact.html" class="text-lg hover:text-cupidPink transition-colors">Contact</a>
+        </nav>
       </div>
     </div>
-    <div class="mt-10 lg:mt-0 lg:w-1/2 flex justify-center">
-      <img src="images/cupid_big_picture.png" alt="Cupid illustration" class="max-h-[400px]">
+  </div>
+
+  <!-- Hero section with enhanced animations -->
+  <section class="flex flex-col lg:flex-row items-center justify-between px-4 sm:px-6 lg:px-10 py-10 sm:py-16 lg:py-20 flex-1">
+    <!-- Left content -->
+    <div class="max-w-xl lg:max-w-2xl animate-slide-up mobile-full">
+      <h1 class="font-script hero-title text-cupidPink animate-float">Course Cupid</h1>
+      <p class="mt-4 hero-subtitle text-gray-700 leading-relaxed animate-fade-in" style="animation-delay: 0.3s;">
+        Flirt with Options,<br>
+        <span class="font-semibold text-cupidPink">Commit to the Right Course</span>
+      </p>
+      
+      <!-- CTA buttons with stagger animation -->
+      <div class="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-4 animate-fade-in" style="animation-delay: 0.6s;">
+        <a href="chat/default" class="inline-flex items-center justify-center rounded-full animated-gradient text-white px-6 sm:px-8 py-3 font-semibold hover-lift group transition-all duration-300">
+          Start Chatting Now
+          <svg class="ml-2 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+          </svg>
+        </a>
+        <a href="quiz.html" class="inline-flex items-center justify-center rounded-full bg-cupidPink/20 backdrop-blur-sm text-cupidPink px-6 sm:px-8 py-3 font-semibold hover:bg-cupidPink hover:text-white transition-all duration-300 hover-lift group">
+          Take the Quiz
+          <svg class="ml-2 w-5 h-5 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
+        </a>
+      </div>
+
+      <!-- Feature highlights -->
+      <div class="mt-8 sm:mt-12 flex flex-col sm:flex-row gap-4 sm:gap-8 text-sm text-gray-600 animate-fade-in" style="animation-delay: 0.9s;">
+        <div class="flex items-center gap-2">
+          <div class="w-2 h-2 bg-cupidPink rounded-full animate-pulse-slow"></div>
+          <span>AI-Powered Recommendations</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-2 h-2 bg-cupidPink rounded-full animate-pulse-slow" style="animation-delay: 0.5s;"></div>
+          <span>Personalized Course Matching</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-2 h-2 bg-cupidPink rounded-full animate-pulse-slow" style="animation-delay: 1s;"></div>
+          <span>Smart Career Guidance</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right image with parallax effect -->
+    <div class="mt-8 lg:mt-0 lg:w-1/2 flex justify-center animate-fade-in parallax-element" style="animation-delay: 0.4s;">
+      <div class="relative">
+        <img src="images/cupid_big_picture.png" alt="Cupid illustration" class="max-h-[300px] sm:max-h-[400px] lg:max-h-[500px] w-auto animate-float hover:scale-105 transition-transform duration-500">
+        
+        <!-- Floating elements -->
+        <div class="absolute -top-4 -right-4 w-12 h-12 bg-cupidPink/20 rounded-full animate-bounce-gentle blur-sm" style="animation-delay: 0.5s;"></div>
+        <div class="absolute -bottom-2 -left-6 w-8 h-8 bg-cupidPink/30 rounded-full animate-bounce-gentle blur-sm" style="animation-delay: 1.2s;"></div>
+        <div class="absolute top-1/2 -left-8 w-6 h-6 bg-cupidPink/25 rounded-full animate-bounce-gentle blur-sm" style="animation-delay: 2s;"></div>
+      </div>
     </div>
   </section>
 
+  <!-- Development button - remove in production -->
+  <div class="fixed bottom-4 right-4 z-50">
+    <button onclick="testCreateSession()" class="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-700 transition-colors duration-300 shadow-lg">
+      Test: Create Session
+    </button>
+  </div>
+
   <script src="/frontend/app.js"></script>
   <script>
+    // Enhanced animations and interactions
+    document.addEventListener('DOMContentLoaded', () => {
+      // Mobile menu functionality
+      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+      const mobileMenuClose = document.getElementById('mobile-menu-close');
+
+      mobileMenuBtn?.addEventListener('click', () => {
+        mobileMenu.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      });
+
+      const closeMobileMenu = () => {
+        mobileMenu.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+      };
+
+      mobileMenuClose?.addEventListener('click', closeMobileMenu);
+      mobileMenu?.addEventListener('click', (e) => {
+        if (e.target === mobileMenu) closeMobileMenu();
+      });
+
+      // Profile menu functionality
+      const profileBtn = document.getElementById('profile-btn');
+      const profileMenu = document.getElementById('profile-menu');
+
+      profileBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        profileMenu.classList.toggle('profile-menu-open');
+      });
+
+      // Close profile menu when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!profileBtn?.contains(e.target) && !profileMenu?.contains(e.target)) {
+          profileMenu?.classList.remove('profile-menu-open');
+        }
+      });
+
+      // Parallax effect for hero image
+      const parallaxElements = document.querySelectorAll('.parallax-element');
+      
+      window.addEventListener('mousemove', (e) => {
+        const { clientX, clientY } = e;
+        
+        parallaxElements.forEach(element => {
+          const rect = element.getBoundingClientRect();
+          const elementCenterX = rect.left + rect.width / 2;
+          const elementCenterY = rect.top + rect.height / 2;
+          
+          const deltaX = (clientX - elementCenterX) * 0.01;
+          const deltaY = (clientY - elementCenterY) * 0.01;
+          
+          element.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+        });
+      });
+
+      // Initialize auth UI
+      refreshAuthUI();
+
+      // Logout functionality
+      document.getElementById('logout-btn')?.addEventListener('click', handleLogout);
+    });
+
+    // Enhanced auth UI function
     async function refreshAuthUI() {
       try {
-        const res = await fetch('/api/me', { credentials: 'same-origin' });
-        const d = await res.json();
+        const authControls = document.getElementById('auth-controls');
         const guest = document.getElementById('auth-guest');
         const userBox = document.getElementById('auth-user');
-        if (d.loggedIn) {
-          guest.classList.add('hidden');
-          userBox.classList.remove('hidden');
-          const name = d.user?.username || 'User';
-          const userNameEl = document.getElementById('user-name');
-          userNameEl.textContent = name;
-          userNameEl.title = name;
-          const avatar = document.getElementById('user-avatar');
-          avatar.textContent = name.charAt(0).toUpperCase();
-        } else {
-          guest.classList.remove('hidden');
-          userBox.classList.add('hidden');
-        }
+        
+        // Show loading state
+        authControls.classList.add('loading-shimmer');
+        
+        const res = await fetch('/api/me', { credentials: 'same-origin' });
+        const d = await res.json();
+        
+        setTimeout(() => {
+          authControls.classList.remove('loading-shimmer');
+          
+          if (d.loggedIn) {
+            guest.classList.add('hidden');
+            userBox.classList.remove('hidden');
+            userBox.classList.add('animate-fade-in');
+            
+            const name = d.user?.username || 'User';
+            const userNameEl = document.getElementById('user-name');
+            userNameEl.textContent = name;
+            userNameEl.title = name;
+            
+            const avatar = document.getElementById('user-avatar');
+            avatar.textContent = name.charAt(0).toUpperCase();
+          } else {
+            guest.classList.remove('hidden');
+            guest.classList.add('animate-fade-in');
+            userBox.classList.add('hidden');
+          }
+        }, 300);
+        
       } catch (e) {
         console.error('Auth UI error', e);
+        document.getElementById('auth-controls').classList.remove('loading-shimmer');
       }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      refreshAuthUI();
-      if (typeof initProfileMenu === 'function') initProfileMenu(); 
-
-      // logout 
-      document.getElementById('logout-btn')?.addEventListener('click', async () => {
-        try {
-          const r = await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
-          const j = await r.json();
-          if (j.success) {
-            await refreshAuthUI();
-            window.location = '/';
-          } else {
-            alert('Logout failed');
-          }
-        } catch (err) {
-          console.error(err);
-        }
-      });
-    });
-  
-  
-
-    async function testCreateSession() {
+    // Enhanced logout function
+    async function handleLogout() {
       try {
+        const button = document.getElementById('logout-btn');
+        const originalText = button.textContent;
+        
+        button.textContent = 'Logging out...';
+        button.disabled = true;
+        
+        const r = await fetch('/api/logout', { 
+          method: 'POST', 
+          credentials: 'same-origin' 
+        });
+        const j = await r.json();
+        
+        if (j.success) {
+          button.textContent = 'Logged out!';
+          setTimeout(async () => {
+            await refreshAuthUI();
+            window.location.href = '/';
+          }, 800);
+        } else {
+          throw new Error('Logout failed');
+        }
+      } catch (err) {
+        console.error(err);
+        const button = document.getElementById('logout-btn');
+        button.textContent = 'Logout';
+        button.disabled = false;
+        alert('Logout failed. Please try again.');
+      }
+    }
+
+    // Enhanced test session function with loading states
+    async function testCreateSession() {
+      const button = event.target;
+      const originalText = button.textContent;
+      
+      try {
+        button.textContent = 'Creating...';
+        button.disabled = true;
+        button.classList.add('loading-shimmer');
+        
         console.log('Creating chat session...');
         
         const response = await fetch('/api/chat-sessions', {
@@ -145,17 +432,49 @@
         const data = await response.json();
         console.log('Created session:', data);
         
+        button.classList.remove('loading-shimmer');
+        
         if (data.session_id) {
-          alert(`Success! Created session: ${data.session_id}`);
-          // Later: window.location.href = `/chat/${data.session_id}`;
+          button.textContent = 'Success!';
+          button.classList.add('bg-green-600');
+          
+          // Show success notification
+          const notification = document.createElement('div');
+          notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg animate-slide-up z-50';
+          notification.textContent = `Session created: ${data.session_id.slice(0, 8)}...`;
+          document.body.appendChild(notification);
+          
+          setTimeout(() => {
+            notification.remove();
+            // window.location.href = `/chat/${data.session_id}`;
+          }, 2000);
         }
       } catch (error) {
         console.error('Error:', error);
-        alert('Failed to create session');
+        button.classList.remove('loading-shimmer');
+        button.textContent = 'Failed';
+        button.classList.add('bg-red-600');
+        
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.disabled = false;
+          button.classList.remove('bg-red-600');
+        }, 2000);
       }
     }
-  
-  </script>
 
+    // Performance optimization: Throttled resize handler
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        // Recalculate any size-dependent animations
+        const parallaxElements = document.querySelectorAll('.parallax-element');
+        parallaxElements.forEach(el => {
+          el.style.transform = 'translate(0, 0)';
+        });
+      }, 250);
+    });
+  </script>
 </body>
 </html>

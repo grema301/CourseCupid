@@ -57,7 +57,7 @@ create table Web_User
 --
 create table Chat_Session 
 (   session_id UUID PRIMARY KEY,
-    user_id UUID REFERENCES Web_User (user_id),
+    user_id UUID REFERENCES Web_User (user_id) ON DELETE SET NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     expires_at TIMESTAMP,
@@ -102,8 +102,8 @@ create table Subject
 --
 create table Major
 (   major_id UUID PRIMARY KEY,
-    qualification_id UUID REFERENCES Qualification(qualification_id),
-    subject_id UUID REFERENCES Subject(subject_id),
+    qualification_id UUID REFERENCES Qualification(qualification_id) ON DELETE CASCADE,
+    subject_id UUID REFERENCES Subject(subject_id) ON DELETE CASCADE,
     major_name VARCHAR NOT NULL,
     description TEXT,
     keywords TEXT[],
@@ -118,8 +118,8 @@ create table Major
 --
 create table Minor
 (   minor_id UUID PRIMARY KEY,
-    qualification_id UUID REFERENCES Qualification(qualification_id),
-    subject_id UUID REFERENCES Subject(subject_id),
+    qualification_id UUID REFERENCES Qualification(qualification_id) ON DELETE CASCADE,
+    subject_id UUID REFERENCES Subject(subject_id) ON DELETE CASCADE,
     minor_name VARCHAR NOT NULL,
     description TEXT,
     keywords TEXT[],
@@ -134,7 +134,7 @@ create table Minor
 --
 create table Paper
 (   paper_code VARCHAR PRIMARY KEY,
-    subject_id UUID REFERENCES Subject(subject_id),
+    subject_id UUID REFERENCES Subject(subject_id) ON DELETE CASCADE,
     title VARCHAR NOT NULL,
     points INT NOT NULL,
     description TEXT,
@@ -157,8 +157,8 @@ create table Paper
 --
 --
 create table Major_Req
-(   major_id UUID REFERENCES Major(major_id),
-    paper_code VARCHAR REFERENCES Paper(paper_code),
+(   major_id UUID REFERENCES Major(major_id) ON DELETE CASCADE,
+    paper_code VARCHAR REFERENCES Paper(paper_code) ON DELETE CASCADE,
     requirement_type VARCHAR CHECK (requirement_type IN ('core','elective')),
     is_prerequisite BOOLEAN,
     PRIMARY KEY (major_id, paper_code)
@@ -172,8 +172,8 @@ create table Major_Req
 --
 --
 create table Minor_Req
-(   minor_id UUID REFERENCES Minor(minor_id),
-    paper_code VARCHAR REFERENCES Paper(paper_code),
+(   minor_id UUID REFERENCES Minor(minor_id) ON DELETE CASCADE,
+    paper_code VARCHAR REFERENCES Paper(paper_code) ON DELETE CASCADE,
     requirement_type VARCHAR CHECK (requirement_type IN ('core','elective')),
     PRIMARY KEY (minor_id, paper_code)
 );
@@ -191,7 +191,7 @@ create table Minor_Req
 --
 create table Saved_Item
 (   saved_id UUID PRIMARY KEY,
-    session_id UUID REFERENCES Chat_Session(session_id),
+    session_id UUID REFERENCES Chat_Session(session_id) ON DELETE CASCADE,
     item_type VARCHAR CHECK (item_type IN ('paper','major','minor','qualification','session')),
     item_id VARCHAR NOT NULL,
     created_at TIMESTAMP NOT NULL,
@@ -211,7 +211,7 @@ create table Saved_Item
 --
 create table Chat_Message
 (    message_id UUID PRIMARY KEY,
-    session_id UUID REFERENCES Chat_Session(session_id),
+    session_id UUID REFERENCES Chat_Session(session_id) ON DELETE CASCADE,
     role VARCHAR CHECK (role IN ('user','assistant')) NOT NULL,
     content TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL,
@@ -226,8 +226,8 @@ create table Chat_Message
 --
 create table Recommendation
 (   recommendation_id UUID PRIMARY KEY,
-    message_id UUID REFERENCES Message(message_id),
-    paper_code VARCHAR REFERENCES Paper(paper_code),
+    message_id UUID REFERENCES Chat_Message(message_id) ON DELETE CASCADE,
+    paper_code VARCHAR REFERENCES Paper(paper_code) ON DELETE CASCADE,
     match_score FLOAT,
     match_reason TEXT,
     recommendation_type VARCHAR CHECK (recommendation_type IN ('paper','major','qualification')),
@@ -242,7 +242,7 @@ create table Recommendation
 --
 create table Recommendation_FB
 (   feedback_id UUID PRIMARY KEY,
-    recommendation_id UUID REFERENCES Recommendation(recommendation_id),
+    recommendation_id UUID REFERENCES Recommendation(recommendation_id) ON DELETE CASCADE,
     feedback_type VARCHAR CHECK (feedback_type IN ('swipe_right','swipe_left','super_like','saved','skip')),
     swipe_direction VARCHAR CHECK (swipe_direction IN ('left','right','up')),
     created_at TIMESTAMP NOT NULL,

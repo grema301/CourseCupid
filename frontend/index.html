@@ -34,9 +34,9 @@
       <span class="text-lg font-semibold text-cupidPink">Course Cupid</span>
     </a>
 
-    <nav class="flex gap-10 text-sm">
-      <a href="index.html" class="hover:text-cupidPink">Home</a>
-      <a href="#" class="hover:text-cupidPink">About Us</a>
+    <nav class="flex gap-6 text-sm">
+      <a href="index.html" class="hover:text-cupidPink font-semibold">Home</a>
+      <a href="papers.html" class="hover:text-cupidPink">Papers</a>
       <a href="#" class="hover:text-cupidPink">Contact</a>
     </nav>
 
@@ -46,16 +46,24 @@
         <a id="signup-link" href="signup.html" class="px-4 py-2 rounded-full bg-cupidPink text-white font-semibold">Register</a>
       </div>
 
-      <div id="auth-user" class="hidden flex items-center gap-2">
-        <div class="flex items-center gap-2 bg-white border border-cupidPink/20 rounded-full px-2 py-1 shadow-sm">
+      <div id="auth-user" class="hidden relative flex items-center gap-2">
+        <div id="profile-btn" class="flex items-center gap-2 bg-white border border-cupidPink/20 rounded-full px-2 py-1 shadow-sm cursor-pointer">
           <div id="user-avatar" class="w-8 h-8 rounded-full bg-cupidPink text-white flex items-center justify-center font-semibold text-sm"></div>
           <span id="user-name" class="text-cupidPink font-medium text-sm max-w-[120px] truncate"></span>
         </div>
-        <button id="logout-btn" class="ml-1 px-3 py-1 rounded-full bg-transparent border border-cupidPink/20 text-cupidPink hover:bg-cupidPink/10 text-sm">Logout</button>
+
+        <div id="profile-menu"
+             class="absolute right-0 top-full mt-2 w-44 bg-white rounded-lg shadow-lg border border-cupidPink/10 z-50 overflow-hidden
+                    transform transition-all duration-150 origin-top-right opacity-0 -translate-y-2 scale-95 pointer-events-none">
+          <div class="py-1">
+            <a href="settings.html" class="block px-4 py-2 text-sm text-cupidPink hover:bg-cupidPink/5">Settings</a>
+            <button id="logout-btn" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Logout</button>
+          </div>
+        </div>
       </div>
-      <button onclick="testCreateSession()">Test: Create Chat Session</button>
+
+      <button onclick="testCreateSession()" class="ml-4 px-3 py-1 rounded-full bg-cupidPink/10 text-cupidPink hover:bg-cupidPink/20 text-sm">Test: Create Chat Session</button>
     </div>
-    
   </header>
 
   <section class="flex flex-col lg:flex-row items-center justify-between px-10 py-20">
@@ -104,6 +112,9 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       refreshAuthUI();
+      if (typeof initProfileMenu === 'function') initProfileMenu(); 
+
+      // logout 
       document.getElementById('logout-btn')?.addEventListener('click', async () => {
         try {
           const r = await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });

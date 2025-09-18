@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Papers • Course Cupid</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { cupidPink: '#C05A66', cupidCream: '#FAF5EF' } } } };
+  </script>
+</head>
+<body class="bg-cupidCream min-h-screen text-slate-900">
+  <header class="flex items-center justify-between px-8 py-6">
+    <a href="index.html" class="flex items-center gap-3">
+      <img src="images/cupid_logo.png" alt="Course Cupid" class="h-8">
+      <span class="text-lg font-semibold text-cupidPink">Course Cupid</span>
+    </a>
+    <nav class="flex gap-6 text-sm">
+      <a href="index.html" class="hover:text-cupidPink">Home</a>
+      <a href="papers.html" class="hover:text-cupidPink font-medium">Papers</a>
+      <a href="#" class="hover:text-cupidPink">Contact</a>
+    </nav>
+    <div id="auth-controls" class="flex items-center gap-4">
+      <div id="auth-guest" class="flex gap-3 items-center">
+        <a id="login-link" href="login.html" class="px-4 py-2 rounded-full bg-cupidPink/10 text-cupidPink hover:bg-cupidPink/20 font-medium">Log In</a>
+        <a id="signup-link" href="signup.html" class="px-4 py-2 rounded-full bg-cupidPink text-white font-semibold">Register</a>
+      </div>
+      <div id="auth-user" class="hidden relative flex items-center gap-2">
+        <div id="profile-btn" class="flex items-center gap-2 bg-white border border-cupidPink/20 rounded-full px-2 py-1 shadow-sm cursor-pointer">
+          <div id="user-avatar" class="w-8 h-8 rounded-full bg-cupidPink text-white flex items-center justify-center font-semibold text-sm"></div>
+          <span id="user-name" class="text-cupidPink font-medium text-sm max-w-[120px] truncate"></span>
+        </div>
+        <div id="profile-menu"
+             class="absolute right-0 top-full mt-2 w-44 bg-white rounded-lg shadow-lg border border-cupidPink/10 z-50 overflow-hidden
+                    transform transition-all duration-150 origin-top-right opacity-0 -translate-y-2 scale-95 pointer-events-none">
+          <div class="py-1">
+            <a href="settings.html" class="block px-4 py-2 text-sm text-cupidPink hover:bg-cupidPink/5">Settings</a>
+            <button id="logout-btn" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="px-8 pb-16">
+    <div class="max-w-6xl mx-auto">
+      <div class="flex items-center justify-between mb-4">
+        <h1 class="text-3xl text-cupidPink mb-0">All papers</h1>
+        <div class="text-sm text-gray-600" id="total-count">Loading…</div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-4 mb-6">
+        <input id="search" type="search" placeholder="Search by code, title or description..." class="flex-1 min-w-[220px] border rounded-lg px-4 py-2 bg-white" />
+        <select id="year-filter" class="border rounded-lg px-3 py-2 bg-white">
+          <option value="">All years</option>
+          <option value="1">Year 1</option>
+          <option value="2">Year 2</option>
+          <option value="3">Year 3</option>
+          <option value="4">Year 4</option>
+          <option value="5">Year 5</option>
+        </select>
+        <button id="reset" class="px-3 py-2 rounded-lg bg-white border text-sm">Reset</button>
+      </div>
+
+      <div id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+
+      <div id="loading" class="mt-6 text-center text-gray-500 hidden">Loading...</div>
+      <div id="empty" class="mt-6 text-center text-gray-500 hidden">No papers match your search.</div>
+      <div id="scroll-sentinel" class="h-8"></div>
+    </div>
+  </main>
+
+  <script>
+    const pageSize = 20;
+    let page = 1;
+    let total = 0;
+    let loading = false;
+    let lastSearch = '';
+    let lastYear = '';
+
+    const grid = document.getElementById('grid');
+    const loadingEl = document.getElementById('loading');
+    const emptyEl = document.getElementById('empty');
+    const totalCountEl = document.getElementById('total-count');
+    const sentinel = document.getElementById('scroll-sentinel');
+
+    function makeCard(p) {
+      const a = document.createElement('a');
+      a.className = 'block text-left bg-white rounded-xl p-4 shadow-sm border border-cupidPink/5 hover:shadow-md transition';
+      a.href = p.link || `https://www.otago.ac.nz/courses/papers?papercode=${encodeURIComponent(p.code)}`;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.innerHTML = `
+        <div class="flex items-start gap-3">
+          <div class="w-12 h-12 flex items-center justify-center rounded-full bg-cupidPink text-white font-semibold text-sm">${(p.title && p.title[0]) || (p.code[0] || '')}</div>
+          <div class="flex-1">
+            <div class="text-sm text-cupidPink font-semibold">${p.code}</div>
+            <div class="text-md font-medium mt-1">${p.title || 'Untitled'}</div>
+            <p class="mt-2 text-xs text-gray-600 line-clamp-3">${p.description || ''}</p>
+          </div>
+        </div>
+      `;
+      return a;
+    }
+
+    async function fetchPage(reset = false) {
+      if (loading) return;
+      loading = true;
+      loadingEl.classList.remove('hidden');
+      if (reset) { page = 1; grid.innerHTML = ''; }
+
+      try {
+        const q = encodeURIComponent(lastSearch || '');
+        const yr = encodeURIComponent(lastYear || '');
+        const resp = await fetch(`/api/papers?page=${page}&pageSize=${pageSize}&search=${q}&year=${yr}`);
+        if (!resp.ok) throw new Error('Fetch failed ' + resp.status);
+        const json = await resp.json();
+        total = json.total || 0;
+        const shown = reset ? 0 : grid.children.length;
+        const willShow = shown + (json.items ? json.items.length : 0);
+        totalCountEl.textContent = `Showing ${willShow} of ${total} papers`;
+
+        const items = json.items || [];
+        if (reset && items.length === 0) {
+          emptyEl.classList.remove('hidden');
+          sentinel.style.display = 'none';
+        } else {
+          emptyEl.classList.add('hidden');
+          sentinel.style.display = '';
+          items.forEach(it => grid.appendChild(makeCard(it)));
+        }
+
+        // increment page only if items returned
+        if (items.length > 0) page++;
+        if (grid.children.length >= total) {
+          sentinel.style.display = 'none';
+          totalCountEl.textContent = `Showing ${grid.children.length} of ${total} papers`;
+        }
+      } catch (err) {
+        console.error('Fetch papers error', err);
+      } finally {
+        loading = false;
+        loadingEl.classList.add('hidden');
+      }
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !loading && grid.children.length < total) {
+          fetchPage(false);
+        }
+      });
+    }, { root: null, rootMargin: '0px', threshold: 0.2 });
+
+    observer.observe(sentinel);
+
+    document.getElementById('search').addEventListener('input', (e) => {
+      lastSearch = e.target.value.trim();
+      clearTimeout(window._papersDebounce);
+      window._papersDebounce = setTimeout(() => fetchPage(true), 250);
+    });
+
+    document.getElementById('year-filter').addEventListener('change', (e) => {
+      lastYear = e.target.value;
+      fetchPage(true);
+    });
+
+    document.getElementById('reset').addEventListener('click', () => {
+      document.getElementById('search').value = '';
+      document.getElementById('year-filter').value = '';
+      lastSearch = '';
+      lastYear = '';
+      fetchPage(true);
+    });
+
+    fetchPage(true);
+  </script>
+  <script src="/frontend/app.js"></script>
+  <script>
+    async function refreshAuthUI_Safe() {
+      if (typeof refreshAuthUI === 'function') return refreshAuthUI();
+      try {
+        const res = await fetch('/api/me', { credentials: 'same-origin' });
+        const d = await res.json();
+        const guest = document.getElementById('auth-guest');
+        const userBox = document.getElementById('auth-user');
+        if (d.loggedIn) {
+          guest.classList.add('hidden');
+          userBox.classList.remove('hidden');
+          const name = d.user?.username || 'User';
+          const userNameEl = document.getElementById('user-name');
+          userNameEl.textContent = name;
+          const avatar = document.getElementById('user-avatar');
+          const parts = name.trim().split(/\s+/).filter(Boolean);
+          const initials = parts.length === 1 ? (/[A-Za-z]/.test(parts[0][0]) ? parts[0][0].toUpperCase() : '#') : (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+          avatar.textContent = initials;
+        } else {
+          guest.classList.remove('hidden');
+          userBox.classList.add('hidden');
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    function initProfileMenu_Fallback() {
+      if (typeof initProfileMenu === 'function') return initProfileMenu();
+      const btn = document.getElementById('profile-btn');
+      const menu = document.getElementById('profile-menu');
+      if (!btn || !menu) return;
+      const openCls = ['opacity-100','translate-y-2','scale-100','pointer-events-auto'];
+      const closedCls = ['opacity-0','-translate-y-2','scale-95','pointer-events-none'];
+      menu.classList.remove(...openCls); menu.classList.add(...closedCls);
+      btn.setAttribute('aria-haspopup','true'); btn.setAttribute('aria-expanded','false');
+      const open = () => { menu.classList.remove(...closedCls); menu.classList.add(...openCls); btn.setAttribute('aria-expanded','true'); };
+      const close = () => { menu.classList.remove(...openCls); menu.classList.add(...closedCls); btn.setAttribute('aria-expanded','false'); };
+      btn.addEventListener('click', e => { e.stopPropagation(); (menu.classList.contains('pointer-events-auto') ? close() : open()); });
+      document.addEventListener('click', () => close());
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      refreshAuthUI_Safe().then(initProfileMenu_Fallback);
+      document.getElementById('logout-btn')?.addEventListener('click', async () => {
+        try {
+          const r = await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
+          const j = await r.json();
+          if (j.success) { await refreshAuthUI_Safe(); window.location = '/'; }
+        } catch (err) { console.error(err); }
+      });
+    });
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const current = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+      document.querySelectorAll('header nav a[href]').forEach(a => {
+        const hrefName = (a.getAttribute('href').split('/').pop() || '').toLowerCase();
+        if (hrefName === current || (current === 'index.html' && (hrefName === '' || hrefName === 'index.html'))) {
+          a.classList.add('font-medium');
+        } else {
+          a.classList.remove('font-medium');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

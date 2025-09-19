@@ -1,3 +1,5 @@
+/** api-server.js */
+
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
@@ -125,7 +127,7 @@ router.post('/logout', (req, res) => {
 /**Ensure session is being recorded into the databse */
 router.post('/chat-sessions', async (req, res) => {
   try {
-    const sessionId = uuidv4();
+    const sessionID = uuidv4();
     const now = new Date();
 
     //chekc is user is logged in, if not, anon users get null
@@ -137,7 +139,7 @@ router.post('/chat-sessions', async (req, res) => {
         session_id, user_id, created_at, updated_at
       ) VALUES ($1, $2, $3, $4)
       RETURNING session_id, user_id
-    `, [sessionId, userId, now, now]); // null for anonymous users
+    `, [sessionID, userId, now, now]); // null for anonymous users
 
     res.json({
       session_id: result.rows[0].session_id,
@@ -146,6 +148,29 @@ router.post('/chat-sessions', async (req, res) => {
   } catch (error) {
     console.error('Error creating chat session:', error);
     res.status(500).json({ error: 'Failed to create chat session' });
+  }
+});
+
+
+/**Handle deleting a session */
+router.delete('/chat-sessions/:sessionID', async (req, res) => {
+  try {
+    const { sessionID } = req.params;
+    
+    if (!sessionID) {
+      return res.status(400).json({ success: false, message: 'Session ID is required'});
+    }
+
+    //should add cascade to schema, deal with dependencies
+    await pool.query('DELETE FROM chat_session WHERE session_id = $1', [sessionID]);
+    
+    res.json({ 
+      success: true, message: 'Session deleted successfully', sessionID: sessionID
+    });
+    
+  } catch (error) {
+    console.error('Error deleting session:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete session' });
   }
 });
 

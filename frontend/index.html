@@ -190,7 +190,6 @@
           </div>
         </div>
       </div>
-      <!--<button onclick="testCreateSession()">Test: Create Chat Session</button>-->
     </div>
   </header>
 
@@ -226,12 +225,23 @@
       
       <!-- CTA buttons with stagger animation -->
       <div class="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-4 animate-fade-in" style="animation-delay: 0.6s;">
+        
+        <!--
         <a href="chat/default" class="inline-flex items-center justify-center rounded-full animated-gradient text-white px-6 sm:px-8 py-3 font-semibold hover-lift group transition-all duration-300">
           Start Chatting Now
           <svg class="ml-2 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
           </svg>
-        </a>
+        </a>-->
+
+        <button id="start-chat-btn" 
+          onclick="startCreateSession()" 
+          class="inline-flex items-center justify-center rounded-full animated-gradient text-white px-6 sm:px-8 py-3 font-semibold hover-lift group transition-all duration-300">
+          <span id="chat-btn-text">Start Chatting Now →</span>
+          <span id="chat-btn-loading" class="hidden">Creating Session...</span>
+        </button>
+
+        
         <a href="quiz.html" class="inline-flex items-center justify-center rounded-full bg-cupidPink/20 backdrop-blur-sm text-cupidPink px-6 sm:px-8 py-3 font-semibold hover:bg-cupidPink hover:text-white transition-all duration-300 hover-lift group">
           Take the Quiz
           <svg class="ml-2 w-5 h-5 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -270,7 +280,9 @@
     </div>
   </section>
 
-  <script src="/frontend/app.js"></script>
+  <!--<script src="/frontend/app.js"></script>-->
+  <script src="/app.js"></script>
+  <script src="server.js"></script>
   <script>
     // Enhanced animations and interactions
     document.addEventListener('DOMContentLoaded', () => {
@@ -406,57 +418,6 @@
         button.textContent = 'Logout';
         button.disabled = false;
         alert('Logout failed. Please try again.');
-      }
-    }
-
-    // Enhanced test session function with loading states
-    async function testCreateSession() {
-      const button = event.target;
-      const originalText = button.textContent;
-      
-      try {
-        button.textContent = 'Creating...';
-        button.disabled = true;
-        button.classList.add('loading-shimmer');
-        
-        console.log('Creating chat session...');
-        
-        const response = await fetch('/api/chat-sessions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        
-        const data = await response.json();
-        console.log('Created session:', data);
-        
-        button.classList.remove('loading-shimmer');
-        
-        if (data.session_id) {
-          button.textContent = 'Success!';
-          button.classList.add('bg-green-600');
-          
-          // Show success notification
-          const notification = document.createElement('div');
-          notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg animate-slide-up z-50';
-          notification.textContent = `Session created: ${data.session_id.slice(0, 8)}...`;
-          document.body.appendChild(notification);
-          
-          setTimeout(() => {
-            notification.remove();
-            // window.location.href = `/chat/${data.session_id}`;
-          }, 2000);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        button.classList.remove('loading-shimmer');
-        button.textContent = 'Failed';
-        button.classList.add('bg-red-600');
-        
-        setTimeout(() => {
-          button.textContent = originalText;
-          button.disabled = false;
-          button.classList.remove('bg-red-600');
-        }, 2000);
       }
     }
 

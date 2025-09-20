@@ -1,3 +1,5 @@
+/**Chat.js */
+
 // helpers
 function $(id){ return document.getElementById(id); }
 const chatWindow = $("chatWindow");
@@ -48,6 +50,95 @@ async function preloadSidebar(){
   });
 }
 
+
+
+/**load and display all chat sessions in the sidebar */
+async function loadChatSessions() {
+  try {
+    const currentSessionId = paperId;//RETRIEVES FROM URL SO SAME BUT NOT A GOOD NAME
+    const response = await fetch(`/api/chat-sessions/${currentSessionId}`);
+    
+    const data = await response.json();
+    const miniList = document.getElementById('miniList');
+    
+    if (data.success && data.sessions) {
+      displaySessionsInSidebar(data.sessions);//in app.js
+    } else {
+      console.error('Failed to load sessions:', data.error);
+      if (miniList){
+        miniList.innerHTML = `
+          <div style="color: red; text-align: center;">
+            Error loading sessions: ${data.error}
+          </div>
+        `;
+      }
+    }
+  } catch (error) {
+    console.error('Error loading sessions:', error);
+    if (miniList) {
+      miniList.innerHTML = `
+        <div style="color: red; text-align: center;">
+          Error: ${error.message}
+        </div>
+      `;
+    }
+  }
+}
+
+/**Display sessions in the sidebar */
+function displaySessionsInSidebar(sessions) {
+  const miniList = document.getElementById('miniList');
+  miniList.innerHTML = '';
+  
+  //helper function to show a message
+  const showMessage = (text) => {
+    miniList.innerHTML = `<div class="no-sessions" style="color: #000000; text-align: center;">${text}</div>`;
+  };
+  
+  if (sessions.length === 0) {
+    return showMessage('No chat sessions yet');
+  }
+  
+  //filter out current session and see if any remain
+  const otherSessions = sessions.filter(session => !session.is_current);
+  if (otherSessions.length === 0) {
+    return showMessage('No other sessions for this user');
+  }
+  
+  //create session elements
+  sessions.forEach(session => {
+    const div = document.createElement('div');
+    div.className = `session-item ${session.is_current ? 'current-session' : ''}`;
+    
+    div.innerHTML = `
+      <div class="session-info">
+        <div class="session-name">
+          ${session.display_name}
+          ${session.is_anonymous ? ' (Anonymous)' : ''}
+          ${session.is_current ? ' (Current)' : ''}
+        </div>
+        <div class="session-date">
+          ${new Date(session.created_at).toLocaleDateString()}
+        </div>
+      </div>
+    `;
+    
+    //add click handler for non-current sessions
+    if (!session.is_current) {
+      div.addEventListener('click', () => window.location.href = `/chat/${session.session_id}`);
+      div.addEventListener('mouseenter', () => div.style.backgroundColor = '#ffffff');
+      div.addEventListener('mouseleave', () => div.style.backgroundColor = '');
+    }
+    
+    miniList.appendChild(div);
+  });
+}
+
+
+
+
+
+
 async function loadHistory(){
   const res = await fetch(`/api/chat/${paperId}/history`);
   const data = await res.json();
@@ -81,7 +172,9 @@ chatForm.addEventListener("submit", async (e)=>{
 });
 
 (async function init(){
-  await preloadSidebar();
+  //await preloadSidebar();
+  await loadChatSessions();
   await loadHistory();
   await ensureFirstMessage();
 })();
+

@@ -87,6 +87,7 @@ async function deleteSession(){
 
 
 
+
 //initialize when page loads
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Current URL:', window.location.pathname); 

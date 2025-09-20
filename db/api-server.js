@@ -151,7 +151,6 @@ router.post('/chat-sessions', async (req, res) => {
   }
 });
 
-
 /**Handle deleting a session */
 router.delete('/chat-sessions/:sessionID', async (req, res) => {
   try {
@@ -171,6 +170,57 @@ router.delete('/chat-sessions/:sessionID', async (req, res) => {
   } catch (error) {
     console.error('Error deleting session:', error);
     res.status(500).json({ success: false, message: 'Failed to delete session' });
+  }
+});
+
+
+
+/**Get all chat sessions for the current user or anonymous sessions */
+router.get('/chat-sessions/:currentSessionId', async (req, res) => {
+  try {
+    const { currentSessionId } = req.params;
+    
+    //get the user_id of the current session
+    const currentSession = await pool.query(
+      'SELECT user_id FROM Chat_Session WHERE session_id = $1', [currentSessionId]
+    );
+    
+    if (currentSession.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Current session not found' });
+    }
+    
+    const currentUserId = currentSession.rows[0].user_id;
+    
+    //Get all sessions with the same user_id, handles anon and registered
+    const query = currentUserId === null 
+      ? 'SELECT session_id, user_id, created_at, updated_at FROM Chat_Session WHERE user_id IS NULL ORDER BY updated_at DESC'
+      : 'SELECT session_id, user_id, created_at, updated_at FROM Chat_Session WHERE user_id = $1 ORDER BY updated_at DESC';
+    
+      
+    const params = currentUserId === null ? [] : [currentUserId];
+    const result = await pool.query(query, params);
+    
+    const sessions = result.rows.map(row => ({
+      session_id: row.session_id,
+      user_id: row.user_id,
+      created_at: row.created_at,
+      updated_at: row.updated_at,
+      is_anonymous: row.user_id === null,
+      display_name: `Session ${row.session_id.substring(0, 8)}...`,
+      is_current: row.session_id === currentSessionId
+    }));
+    
+    res.json({
+      success: true,
+      sessions,
+      total: sessions.length,
+      current_user_id: currentUserId,
+      is_anonymous_group: currentUserId === null
+    });
+    
+  } catch (error) {
+    console.error('Error fetching chat sessions:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch chat sessions' });
   }
 });
 
@@ -281,6 +331,9 @@ router.post('/delete-account', async (req, res) => {
 
 // ensure both router and pool are exported for server.js to destructure
 module.exports = { router, pool };
+
+
+
 
 /*
 //API server on port 3001 

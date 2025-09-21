@@ -9,7 +9,7 @@ from google import genai
 from google.genai import types
 from sklearn.metrics.pairwise import cosine_similarity
 
-load_dotenv() 
+load_dotenv()
 
 # ---------- CONFIG ----------
 JSON_PATH = "webscrappers/papers_data.json"

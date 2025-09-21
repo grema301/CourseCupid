@@ -10,13 +10,7 @@ const path = require('path');
 router.use(cors());
 router.use(express.json());
 
-const pool = new Pool({//Connecting to database
-  host: "isdb.uod.otago.ac.nz",
-  user: "hogka652",
-  port: 5432,
-  password: "mee3jai4waed",
-  database: "cosc345"
-});
+const pool = new Pool({ connectionString: process.env.DATABASE_URL, options: "-c search_path=hogka652" });
 
 pool.connect()
   .then(() => console.log('Database connected'))

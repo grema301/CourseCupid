@@ -6,7 +6,14 @@ document.getElementById('quizForm').addEventListener('submit', async (e) => {
         form.querySelector('input[name="q1"]:checked')?.value,
         form.querySelector('input[name="q2"]:checked')?.value,
         form.querySelector('input[name="q3"]:checked')?.value,
-        form.querySelector('textarea[name="q4"]')?.value.trim()
+        form.querySelector('input[name="q4"]:checked')?.value,
+        form.querySelector('input[name="q5"]:checked')?.value,
+        form.querySelector('input[name="q6"]:checked')?.value,
+        form.querySelector('input[name="q7"]:checked')?.value,
+        form.querySelector('input[name="q8"]:checked')?.value,
+        form.querySelector('input[name="q9"]:checked')?.value,
+        form.querySelector('input[name="q10"]:checked')?.value,
+        form.querySelector('textarea[name="q11"]')?.value.trim()
     ];
 
     document.getElementById('quizForm').classList.add('hidden');

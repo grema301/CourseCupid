@@ -73,14 +73,24 @@ function createCardElement(course, index) {
     return card;
 }
 
-function handleSwipe(action, card) {
+async function handleSwipe(action, card) {
     card.style.transition = 'transform 0.5s ease-in-out, opacity 0.5s ease-in-out';
-    if (action === 'like') {
-        card.style.transform = 'translateX(100%) rotate(20deg)';
-    } else {
-        card.style.transform = 'translateX(-100%) rotate(-20deg)';
-    }
+    card.style.transform = action === 'like' ? 'translateX(100%) rotate(20deg)' : 'translateX(-100%) rotate(-20deg)';
     card.style.opacity = '0';
+
+    // NEW: record a match if action = like
+    if (action === 'like') {
+        const courseCode = card.querySelector('h3').textContent.split(" - ")[0];
+        try {
+            await fetch('/api/match', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ paper_code: courseCode })
+            });
+        } catch (err) {
+            console.error('Failed to save match:', err);
+        }
+    }
 
     setTimeout(() => {
         card.remove();

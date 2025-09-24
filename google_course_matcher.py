@@ -12,7 +12,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 load_dotenv()
 
 # ---------- CONFIG ----------
-JSON_PATH = "webscrappers/papers_data.json"
+JSON_PATH = "imported_papers.json"
 EMBEDDINGS_FILE = "course_embeddings.pkl"
 TOP_K = 5
 # ----------------------------

@@ -273,36 +273,41 @@ router.post('/delete-account', async (req, res) => {
   }
 });
 
-// ensure both router and pool are exported for server.js to destructure
-module.exports = { router, pool };
+router.post('/match', async (req, res) => {
+  try {
+    const userId = req.session?.userId;
+    if (!userId) return res.status(401).json({ success: false, message: 'Not logged in' });
 
-/*
-//API server on port 3001 
-app.listen(3001, () => {
-  console.log('API server running on http://localhost:3001');
-  console.log('Website on http://localhost:3000');
-  console.log('Test API http://localhost:3001/api/test');
+    const { paper_code } = req.body;
+    if (!paper_code) return res.status(400).json({ success: false, message: 'Missing paper_code' });
+
+    await pool.query(
+      'INSERT INTO user_paper_matches (user_id, paper_code) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+      [userId, paper_code]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error saving match:', err);
+    res.status(500).json({ success: false, message: 'Failed to save match' });
+  }
+});
+
+router.get('/my-matches', async (req, res) => {
+  try {
+    const userId = req.session?.userId;
+    if (!userId) return res.json([]);
+
+    const result = await pool.query(
+      'SELECT paper_code, matched_at FROM user_paper_matches WHERE user_id = $1 ORDER BY matched_at DESC',
+      [userId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching matches:', err);
+    res.status(500).json({ error: 'Failed to fetch matches' });
+  }
 });
 
 
-
-Inspect -> Console -> Paste each test
-//basic API test
-fetch('http://localhost:3001/api/test')
-  .then(response => response.json())
-  .then(data => console.log('API Test:', data));
-
-//get database users
-fetch('http://localhost:3001/api/users')  
-  .then(response => response.json())
-  .then(users => console.log('Database Users:', users));
-
-//test chat
-fetch('http://localhost:3001/api/chat', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ message: 'Hello!' })
-})
-  .then(response => response.json())
-  .then(data => console.log('Chat Test:', data));
-*/
+// ensure both router and pool are exported for server.js to destructure
+module.exports = { router, pool };

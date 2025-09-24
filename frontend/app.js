@@ -83,7 +83,25 @@ async function deleteSession(){
 }
 
 
+document.addEventListener('DOMContentLoaded', async () => {
+  const miniList = document.getElementById('miniList');
 
+  try {
+    const res = await fetch('/api/my-matches');
+    const matches = await res.json();
+
+    matches.forEach(m => {
+      const el = document.createElement('a');
+      el.className = 'cc-item mini';
+      el.href = `/chat/${m.paper_code}`;
+      el.textContent = `${m.paper_code}`;
+      miniList.appendChild(el);
+    });
+  } catch (err) {
+    console.error('Failed to load mini matches:', err);
+    miniList.innerHTML = `<p class="error">Could not load matches.</p>`;
+  }
+});
 
 
 

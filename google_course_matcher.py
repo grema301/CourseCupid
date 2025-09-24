@@ -37,13 +37,14 @@ def load_courses_from_db():
         courses = []
         course_id = 0
         for course_info in courses_data.values():
-            course_id += 1
-            courses.append((
-                course_id,
-                course_info['paper_code'],
-                course_info['title'],
-                course_info['description']
-            ))
+            if course_info['description'] is not None and course_info['description'].strip() != '':
+                course_id += 1
+                courses.append((
+                    course_id,
+                    course_info['paper_code'],
+                    course_info['title'],
+                    course_info['description']
+                ))
         return courses
 
     except FileNotFoundError:

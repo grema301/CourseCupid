@@ -15,7 +15,6 @@
       <img src="images/cupid_logo.png" alt="Course Cupid" class="h-8">
       <span class="text-lg font-semibold text-cupidPink">Course Cupid</span>
     </a>
-    <!-- Navigation - responsive -->
 <nav class="hidden md:flex gap-6 lg:gap-10 text-sm">
   <a href="index.html" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
     Home
@@ -66,22 +65,19 @@
 
   <main class="px-8 pb-16">
     <div class="max-w-6xl mx-auto">
-      <div class="flex items-center justify-between mb-4">
-        <h1 class="text-3xl text-cupidPink mb-0">All papers</h1>
-        <div class="text-sm text-gray-600" id="total-count">Loading…</div>
-      </div>
 
-      <div class="flex flex-wrap items-center gap-4 mb-6">
-        <input id="search" type="search" placeholder="Search by code, title or description..." class="flex-1 min-w-[220px] border rounded-lg px-4 py-2 bg-white" />
-        <select id="year-filter" class="border rounded-lg px-3 py-2 bg-white">
-          <option value="">All years</option>
-          <option value="1">Year 1</option>
-          <option value="2">Year 2</option>
-          <option value="3">Year 3</option>
-          <option value="4">Year 4</option>
-          <option value="5">Year 5</option>
-        </select>
-        <button id="reset" class="px-3 py-2 rounded-lg bg-white border text-sm">Reset</button>
+      <div class="sticky top-0 z-30 bg-cupidCream/95 backdrop-blur-sm border-b border-cupidPink/5 py-4">
+        <div class="max-w-6xl mx-auto px-0">
+          <div class="flex items-center justify-between mb-3">
+            <h1 class="text-3xl text-cupidPink mb-0">All papers</h1>
+            <div class="text-sm text-gray-600" id="total-count">Loading…</div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-4">
+            <input id="search" type="search" placeholder="Search by code..." class="flex-1 min-w-[220px] border rounded-lg px-4 py-2 bg-white" />
+            <button id="reset" class="px-3 py-2 rounded-lg bg-white border text-sm">Reset</button>
+          </div>
+        </div>
       </div>
 
       <div id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
@@ -98,105 +94,128 @@
     let total = 0;
     let loading = false;
     let lastSearch = '';
-    let lastYear = '';
 
     const grid = document.getElementById('grid');
     const loadingEl = document.getElementById('loading');
     const emptyEl = document.getElementById('empty');
     const totalCountEl = document.getElementById('total-count');
     const sentinel = document.getElementById('scroll-sentinel');
+    
+    let allPapers = []; // full list from imported_papers.json
 
     function makeCard(p) {
       const a = document.createElement('a');
       a.className = 'block text-left bg-white rounded-xl p-4 shadow-sm border border-cupidPink/5 hover:shadow-md transition';
-      a.href = `/chat/${encodeURIComponent(p.code)}`;
+      const code = p.code || p.paper_code || p.paper || p.PAPERCODE || '';
+      const title = p.title || p.name || p.paper_title || p.course || p.course_title || 'Untitled';
+      const desc = p.description || p.summary || p.desc || p.abstract || '';
+      a.href = `/chat/${encodeURIComponent(code)}`;
       a.innerHTML = `
         <div class="flex items-start gap-3">
-          <div class="w-12 h-12 flex items-center justify-center rounded-full bg-cupidPink text-white font-semibold text-sm">${(p.title && p.title[0]) || (p.code[0] || '')}</div>
+          <div class="w-12 h-12 flex items-center justify-center rounded-full bg-cupidPink text-white font-semibold text-sm">${(title && title[0]) || (code && code[0]) || ''}</div>
           <div class="flex-1">
-            <div class="text-sm text-cupidPink font-semibold">${p.code}</div>
-            <div class="text-md font-medium mt-1">${p.title || 'Untitled'}</div>
-            <p class="mt-2 text-xs text-gray-600 line-clamp-3">${p.description || ''}</p>
+            <div class="text-sm text-cupidPink font-semibold">${code}</div>
+            <div class="text-md font-medium mt-1">${title}</div>
+            <p class="mt-2 text-xs text-gray-600 line-clamp-3">${desc}</p>
           </div>
         </div>
       `;
       return a;
     }
 
-    async function fetchPage(reset = false) {
-      if (loading) return;
+    function renderNextPage(filtered) {
+      const start = (page - 1) * pageSize;
+      const chunk = filtered.slice(start, start + pageSize);
+      chunk.forEach(it => grid.appendChild(makeCard(it)));
+      page++;
+      if (grid.children.length >= filtered.length) {
+        sentinel.style.display = 'none';
+      } else {
+        sentinel.style.display = '';
+      }
+      totalCountEl.textContent = `Showing ${grid.children.length} of ${filtered.length} papers`;
+      if (filtered.length === 0) emptyEl.classList.remove('hidden'); else emptyEl.classList.add('hidden');
+    }
+
+    async function loadPapers() {
       loading = true;
       loadingEl.classList.remove('hidden');
-      if (reset) { page = 1; grid.innerHTML = ''; }
-
       try {
-        const q = encodeURIComponent(lastSearch || '');
-        const yr = encodeURIComponent(lastYear || '');
-        const resp = await fetch(`/api/papers?page=${page}&pageSize=${pageSize}&search=${q}&year=${yr}`);
-        if (!resp.ok) throw new Error('Fetch failed ' + resp.status);
+        const resp = await fetch('/imported_papers.json', { cache: 'no-store' });
+        if (!resp.ok) throw new Error('Failed to load imported_papers.json: ' + resp.status);
         const json = await resp.json();
-        total = json.total || 0;
-        const shown = reset ? 0 : grid.children.length;
-        const willShow = shown + (json.items ? json.items.length : 0);
-        totalCountEl.textContent = `Showing ${willShow} of ${total} papers`;
-
-        let items = json.items || [];
-        if (lastSearch && lastSearch.length > 0) {
-          const qLower = lastSearch.toLowerCase();
-          items = items.filter(it => (it.code || '').toLowerCase().includes(qLower));
-        }
-        if (reset && items.length === 0) {
-          emptyEl.classList.remove('hidden');
-          sentinel.style.display = 'none';
-        } else {
-          emptyEl.classList.add('hidden');
-          sentinel.style.display = '';
-          items.forEach(it => grid.appendChild(makeCard(it)));
-        }
-
-        if (items.length > 0) page++;
-        if (grid.children.length >= total) {
-          sentinel.style.display = 'none';
-          totalCountEl.textContent = `Showing ${grid.children.length} of ${total} papers`;
-        }
+        if (Array.isArray(json)) allPapers = json;
+        else if (json && typeof json === 'object') allPapers = Object.values(json);
+        else allPapers = [];
+        allPapers = allPapers.map(raw => {
+          return {
+            code: raw.code || raw.paper_code || raw.paper || raw.PAPERCODE || raw.papercode || '',
+            title: raw.title || raw.name || raw.paper_title || raw.course || raw.course_title || '',
+            description: raw.description || raw.summary || raw.desc || raw.abstract || '',
+            year: raw.year || raw.level || raw.year_level || ''
+          };
+        });
+        total = allPapers.length;
+        page = 1;
+        grid.innerHTML = '';
+        const filtered = applyFilters();
+        renderNextPage(filtered);
       } catch (err) {
-        console.error('Fetch papers error', err);
+        console.error('Failed to load papers:', err);
+        allPapers = [];
+        total = 0;
+        grid.innerHTML = '';
+        totalCountEl.textContent = 'Showing 0 of 0 papers';
+        emptyEl.classList.remove('hidden');
+        sentinel.style.display = 'none';
       } finally {
         loading = false;
         loadingEl.classList.add('hidden');
       }
     }
 
+    function applyFilters() {
+      let filtered = allPapers.slice();
+      if (lastSearch) {
+        const q = lastSearch.toLowerCase();
+        filtered = filtered.filter(p => (String(p.code || p.paper_code || p.paper || '').toLowerCase()).includes(q));
+      }
+      return filtered;
+    }
+
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        if (entry.isIntersecting && !loading && grid.children.length < total) {
-          fetchPage(false);
+        if (entry.isIntersecting && !loading) {
+          const filtered = applyFilters();
+          if (grid.children.length < filtered.length) {
+            renderNextPage(filtered);
+          }
         }
       });
     }, { root: null, rootMargin: '0px', threshold: 0.2 });
-
     observer.observe(sentinel);
 
     document.getElementById('search').addEventListener('input', (e) => {
       lastSearch = e.target.value.trim();
       clearTimeout(window._papersDebounce);
-      window._papersDebounce = setTimeout(() => fetchPage(true), 250);
-    });
-
-    document.getElementById('year-filter').addEventListener('change', (e) => {
-      lastYear = e.target.value;
-      fetchPage(true);
+      window._papersDebounce = setTimeout(() => {
+        page = 1;
+        grid.innerHTML = '';
+        const filtered = applyFilters();
+        renderNextPage(filtered);
+      }, 200);
     });
 
     document.getElementById('reset').addEventListener('click', () => {
       document.getElementById('search').value = '';
-      document.getElementById('year-filter').value = '';
       lastSearch = '';
-      lastYear = '';
-      fetchPage(true);
+      page = 1;
+      grid.innerHTML = '';
+      const filtered = applyFilters();
+      renderNextPage(filtered);
     });
 
-    fetchPage(true);
+    loadPapers();
   </script>
   <script src="/frontend/app.js"></script>
   <script>
@@ -215,7 +234,7 @@
           userNameEl.textContent = name;
           const avatar = document.getElementById('user-avatar');
           const parts = name.trim().split(/\s+/).filter(Boolean);
-          const initials = parts.length === 1 ? (/[A-Za-z]/.test(parts[0][0]) ? parts[0][0].toUpperCase() : '#') : (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+          const initials = parts.length === 1 ? (/[A-ZaZ]/.test(parts[0][0]) ? parts[0][0].toUpperCase() : '#') : (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
           avatar.textContent = initials;
         } else {
           guest.classList.remove('hidden');

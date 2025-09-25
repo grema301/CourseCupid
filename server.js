@@ -163,6 +163,10 @@ app.get("/api/chat/:sessionID", async (req, res) => {
     }
 });
 
+app.get('/imported_papers.json', (req, res) => {
+  res.sendFile(path.join(__dirname, 'imported_papers.json'));
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

@@ -361,34 +361,3 @@ router.get('/my-matches', async (req, res) => {
 
 // ensure both router and pool are exported for server.js to destructure
 module.exports = { router, pool };
-
-/*
-//API server on port 3001 
-app.listen(3001, () => {
-  console.log('API server running on http://localhost:3001');
-  console.log('Website on http://localhost:3000');
-  console.log('Test API http://localhost:3001/api/test');
-});
-
-
-
-Inspect -> Console -> Paste each test
-//basic API test
-fetch('http://localhost:3001/api/test')
-  .then(response => response.json())
-  .then(data => console.log('API Test:', data));
-
-//get database users
-fetch('http://localhost:3001/api/users')  
-  .then(response => response.json())
-  .then(users => console.log('Database Users:', users));
-
-//test chat
-fetch('http://localhost:3001/api/chat', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ message: 'Hello!' })
-})
-  .then(response => response.json())
-  .then(data => console.log('Chat Test:', data));
-*/

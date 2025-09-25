@@ -30,7 +30,7 @@ app.use("/api", apiRouter);
 
 
 app.get("/chat", (req, res) =>
-  res.sendFile(path.join(__dirname, "frontend", "messages.html"))
+  res.sendFile(path.join(__dirname, "frontend", "chat.html"))
 );
 app.get("/chat/:paperId", (req, res) =>
   res.sendFile(path.join(__dirname, "frontend", "chat.html"))

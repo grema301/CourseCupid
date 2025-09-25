@@ -1,22 +1,24 @@
-async function loadMatches(){
-  const res = await fetch("/api/matches");
-  const data = await res.json();
-  const list = document.getElementById("matchList");
-  list.innerHTML = "";
+document.addEventListener('DOMContentLoaded', async () => {
+  const matchList = document.getElementById('matchList');
 
-  data.matches.forEach(m=>{
-    const item = document.createElement("a");
-    item.className = "item";
-    item.href = `/chat/${m.id}`;
-    item.innerHTML = `
-      <div class="avatar" style="background: radial-gradient(60% 60% at 30% 30%, #FF7A8A, ${m.color});">${m.avatar || "📚"}</div>
-      <div class="info">
-        <div class="name">${m.id} — ${m.title}</div>
-        <div class="preview">${m.lastMessage || ""}</div>
-      </div>
-    `;
-    list.appendChild(item);
-  });
-}
+  try {
+    const res = await fetch('/api/my-matches');
+    const matches = await res.json();
 
-loadMatches();
+    if (matches.length === 0) {
+      matchList.innerHTML = `<p class="empty">No matches yet. Swipe right on some papers!</p>`;
+      return;
+    }
+
+    matches.forEach(m => {
+      const el = document.createElement('a');
+      el.className = 'cc-item';
+      el.href = `/chat/${m.paper_code}`;
+      el.textContent = `${m.paper_code}`;
+      matchList.appendChild(el);
+    });
+  } catch (err) {
+    console.error('Failed to load matches:', err);
+    matchList.innerHTML = `<p class="error">Could not load matches.</p>`;
+  }
+});

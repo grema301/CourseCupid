@@ -323,11 +323,44 @@ router.post('/delete-account', async (req, res) => {
   }
 });
 
+router.post('/match', async (req, res) => {
+  try {
+    const userId = req.session?.userId;
+    if (!userId) return res.status(401).json({ success: false, message: 'Not logged in' });
+
+    const { paper_code } = req.body;
+    if (!paper_code) return res.status(400).json({ success: false, message: 'Missing paper_code' });
+
+    await pool.query(
+      'INSERT INTO user_paper_matches (user_id, paper_code) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+      [userId, paper_code]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error saving match:', err);
+    res.status(500).json({ success: false, message: 'Failed to save match' });
+  }
+});
+
+router.get('/my-matches', async (req, res) => {
+  try {
+    const userId = req.session?.userId;
+    if (!userId) return res.json([]);
+
+    const result = await pool.query(
+      'SELECT paper_code, matched_at FROM user_paper_matches WHERE user_id = $1 ORDER BY matched_at DESC',
+      [userId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching matches:', err);
+    res.status(500).json({ error: 'Failed to fetch matches' });
+  }
+});
+
+
 // ensure both router and pool are exported for server.js to destructure
 module.exports = { router, pool };
-
-
-
 
 /*
 //API server on port 3001 

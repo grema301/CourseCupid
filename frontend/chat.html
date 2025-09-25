@@ -1,59 +1,108 @@
-<!-- chat.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <title>CourseCupid • Chat</title>
-  <link rel="stylesheet" href="/css/chat.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Tailwind CDN (you already use this in index.html) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { cupidPink: '#C05A66', cupidCream: '#FAF5EF' },
+          fontFamily: { script: ['"Great Vibes"', 'cursive'], sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* Small custom styles to complement Tailwind */
+    .animated-gradient {
+      background: linear-gradient(90deg, #C05A66, #DB2777);
+      background-size: 200% 200%;
+      color: white;
+    }
+    .hover-lift { transition: all 0.22s cubic-bezier(.2,.9,.3,1); }
+    .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(176,55,85,0.12); }
+    .match-card:hover { background: rgba(192,90,102,0.04); }
+    .bubble-user { align-self:flex-end; background: linear-gradient(180deg,#fff,#f3f0ef); color:#1f2937; border-radius: 16px 16px 4px 16px; padding:10px 12px; max-width:70%; }
+    .bubble-ai   { align-self:flex-start; background: linear-gradient(180deg,#fee2e2,#ffdede); color:#2d032d; border-radius: 16px 16px 16px 4px; padding:10px 12px; max-width:70%; }
+  </style>
 </head>
-<body class="cc-bg">
-  <div class="cc-shell">
 
-    
-    <!-- Sidebar Area -->
-    <aside class="cc-left slim">
-      <a class="back-link" href = '/'>← Home </a>
-      <a class="back-link" href="/chat">← Messages</a>
+<body class="min-h-screen bg-gradient-to-b from-white to-cupidCream font-sans">
+  <!-- Header (small) -->
+  <header class="flex items-center justify-between px-6 py-4 border-b border-cupidPink/10 bg-white/70">
+    <a href="/" class="flex items-center gap-3">
+      <img src="/images/cupid_logo.png" alt="CourseCupid" class="h-8">
+      <span class="text-lg font-semibold text-cupidPink">CourseCupid</span>
+    </a>
+    <div>
+      <a href="/quiz" class="px-4 py-2 rounded-full border border-cupidPink/10 text-cupidPink hover:bg-cupidPink/10 hover:shadow-sm">Take Quiz</a>
+    </div>
+  </header>
 
-      <button id="add-new-chat-btn" onclick="startCreateSession()">
-        <span id="chat-btn-text">Start A New Chat +</span>
-      </button>
+  <div class="flex h-[calc(100vh-72px)]">
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="w-80 bg-white border-r border-cupidPink/10 flex flex-col">
+      <div class="px-4 py-4 flex items-center justify-between border-b border-cupidPink/10">
+        <div>
+          <div class="text-sm text-cupidPink font-semibold">💌 Your Matches</div>
+          <div id="match-count" class="text-xs text-gray-500">Loading...</div>
+        </div>
+        <a href="/chat" class="text-sm text-gray-500 hover:text-cupidPink">Refresh</a>
+      </div>
 
-      <button id="delete-chat-btn" onclick="deleteSession()">
-        <span id="chat-btn-text">Delete Current Chat</span>
-      </button>
+      <div id="matchList" class="flex-1 overflow-y-auto p-3 space-y-2">
+        <!-- JS will inject match cards here -->
+      </div>
 
-      <div id="miniList" class="cc-list mini"></div>
-
+      <div class="p-3 border-t border-cupidPink/10">
+        <a href="/papers" class="w-full block text-center px-3 py-2 rounded-full animated-gradient hover-lift">Browse Papers</a>
+      </div>
     </aside>
 
-    <!-- Chat Body Area -->
-    <main class="cc-right">
-      <header id="chatHeader" class="cc-header">
-        <div id="paperAvatar" class="avatar">📚</div>
-        <div class="meta">
-          <div id="paperTitle" class="name">Loading…</div>
-          <!--<div id="paperCode" class="sub">paper</div>-->
+    <!-- MAIN -->
+    <main class="flex-1 flex flex-col">
+      <!-- Placeholder when no paper selected -->
+      <div id="placeholder" class="flex-1 flex flex-col items-center justify-center gap-4 text-center text-gray-600">
+        <div class="text-7xl">❤</div>
+        <h2 class="text-2xl font-semibold text-cupidPink">Pick a match to start chatting</h2>
+        <p class="max-w-xl">Click a paper on the left (matches you've swiped right on). If you want a fresh match, try the quiz and swipe on recommended papers.</p>
+      </div>
 
-          <div id="paperCode" class="sub">Session: 
-            <span id="current-session-id">Loading...</span>
+      <!-- Chat Panel (hidden until a paper selected) -->
+      <div id="chatPanel" class="hidden flex-1 flex flex-col bg-gradient-to-b from-white/60 to-cupidCream/40">
+        <!-- header -->
+        <div class="flex items-center gap-3 px-4 py-3 border-b border-cupidPink/10 bg-white/70">
+          <div id="paperAvatar" class="w-12 h-12 rounded-lg bg-cupidPink text-white flex items-center justify-center text-xl"></div>
+          <div class="flex-1">
+            <div id="paperTitle" class="font-semibold text-lg text-cupidPink">Loading…</div>
+            <div id="paperSubtitle" class="text-xs text-gray-500">Tap the avatar to view paper page</div>
           </div>
-
+          <div class="text-sm text-gray-500">Session: <span id="current-session-id">—</span></div>
         </div>
-      </header>
 
-      <section id="chatWindow" class="cc-chat"></section>
+        <!-- messages -->
+        <div id="chatWindow" class="flex-1 p-4 overflow-y-auto flex flex-col gap-3">
+          <!-- messages appended here -->
+        </div>
 
-      <form id="chatForm" class="cc-inputbar">
-        <input id="chatInput" type="text" placeholder="Type a message…" autocomplete="off" required />
-        <button class="send" type="submit">Send</button>
-      </form>
+        <!-- input -->
+        <form id="chatForm" class="px-4 py-3 border-t border-cupidPink/10 flex items-center gap-3 bg-white/70">
+          <input id="chatInput" type="text" placeholder="Ask about assessments, workload, or what makes me special…" class="flex-1 rounded-full border border-gray-200 px-4 py-2 focus:outline-none" required />
+          <button id="sendBtn" class="px-4 py-2 rounded-full animated-gradient hover-lift">Send</button>
+        </form>
+      </div>
     </main>
   </div>
 
+  <!-- chat app script -->
   <script src="/js/chat.js"></script>
-  <script src="/app.js"></script>
-
 </body>
 </html>

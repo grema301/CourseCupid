@@ -15,11 +15,33 @@
       <img src="images/cupid_logo.png" alt="Course Cupid" class="h-8">
       <span class="text-lg font-semibold text-cupidPink">Course Cupid</span>
     </a>
-    <nav class="flex gap-6 text-sm">
-      <a href="index.html" class="hover:text-cupidPink">Home</a>
-      <a href="papers.html" class="hover:text-cupidPink font-medium">Papers</a>
-      <a href="#" class="hover:text-cupidPink">Contact</a>
-    </nav>
+    <!-- Navigation - responsive -->
+<nav class="hidden md:flex gap-6 lg:gap-10 text-sm">
+  <a href="index.html" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+    Home
+    <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+  </a>
+  <a href="aboutus.html" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+    About Us
+    <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+  </a>
+  <a href="quiz.html" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+    Quiz
+    <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+  </a>
+  <a href="papers.html" class="text-cupidPink font-semibold relative group">
+    Papers
+    <span class="absolute bottom-0 left-0 w-full h-0.5 bg-cupidPink"></span>
+  </a>
+  <a href="/chat/default" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+        Chatbot
+        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+      </a>
+  <a href="contact.html" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+    Contact
+    <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+  </a>
+</nav>
     <div id="auth-controls" class="flex items-center gap-4">
       <div id="auth-guest" class="flex gap-3 items-center">
         <a id="login-link" href="login.html" class="px-4 py-2 rounded-full bg-cupidPink/10 text-cupidPink hover:bg-cupidPink/20 font-medium">Log In</a>
@@ -87,9 +109,7 @@
     function makeCard(p) {
       const a = document.createElement('a');
       a.className = 'block text-left bg-white rounded-xl p-4 shadow-sm border border-cupidPink/5 hover:shadow-md transition';
-      a.href = p.link || `https://www.otago.ac.nz/courses/papers?papercode=${encodeURIComponent(p.code)}`;
-      a.target = '_blank';
-      a.rel = 'noopener noreferrer';
+      a.href = `/chat/${encodeURIComponent(p.code)}`;
       a.innerHTML = `
         <div class="flex items-start gap-3">
           <div class="w-12 h-12 flex items-center justify-center rounded-full bg-cupidPink text-white font-semibold text-sm">${(p.title && p.title[0]) || (p.code[0] || '')}</div>
@@ -120,7 +140,11 @@
         const willShow = shown + (json.items ? json.items.length : 0);
         totalCountEl.textContent = `Showing ${willShow} of ${total} papers`;
 
-        const items = json.items || [];
+        let items = json.items || [];
+        if (lastSearch && lastSearch.length > 0) {
+          const qLower = lastSearch.toLowerCase();
+          items = items.filter(it => (it.code || '').toLowerCase().includes(qLower));
+        }
         if (reset && items.length === 0) {
           emptyEl.classList.remove('hidden');
           sentinel.style.display = 'none';
@@ -130,7 +154,6 @@
           items.forEach(it => grid.appendChild(makeCard(it)));
         }
 
-        // increment page only if items returned
         if (items.length > 0) page++;
         if (grid.children.length >= total) {
           sentinel.style.display = 'none';

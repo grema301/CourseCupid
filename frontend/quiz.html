@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Course Cupid Quiz</title>
-    
-      <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz • Course Cupid</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -17,72 +16,365 @@
           fontFamily: {
             script: ['"Great Vibes"', 'cursive'],
             sans: ['Inter', 'sans-serif'],
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.6s ease-out',
+            'slide-up': 'slideUp 0.8s ease-out',
+            'float': 'float 3s ease-in-out infinite',
+            'pulse-slow': 'pulse 3s infinite',
+            'bounce-gentle': 'bounceGentle 2s infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' }
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(30px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-10px)' }
+            },
+            bounceGentle: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-5px)' }
+            }
           }
         }
       }
     }
   </script>
-
-  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/frontend/style.css" />
+
+  <style>
+    .hover-lift {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .hover-lift:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(192, 90, 102, 0.2);
+    }
+
+    .gradient-bg {
+      background: linear-gradient(135deg, #FAF5EF 0%, #f8f1e8 100%);
+    }
+
+    .animated-gradient {
+      background: linear-gradient(-45deg, #C05A66, #d67580, #C05A66, #b8525c);
+      background-size: 400% 400%;
+      animation: gradientShift 6s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(192, 90, 102, 0.1);
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #C05A66;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .card {
+      width: 300px;
+      height: 350px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      cursor: grab;
+      user-select: none;
+      transition: transform 0.3s ease;
+    }
+
+    .card:active {
+      cursor: grabbing;
+    }
+
+    .card.dragging {
+      transform: translate(-50%, -50%) rotate(15deg);
+    }
+
+    .card.like {
+      transform: translate(-50%, -50%) translateX(100px) rotate(30deg);
+      opacity: 0;
+    }
+
+    .card.pass {
+      transform: translate(-50%, -50%) translateX(-100px) rotate(-30deg);
+      opacity: 0;
+    }
+
+    /* Radio button styling */
+    input[type="radio"]:checked + .radio-content {
+      border-color: #C05A66;
+      background-color: rgba(192, 90, 102, 0.1);
+    }
+
+    @media (max-width: 768px) {
+      .mobile-stack {
+        flex-direction: column;
+        gap: 1rem;
+      }
+    }
+  </style>
 </head>
-<body class="bg-cupidCream text-brown-800">
-    <a href="index.html" class="absolute top-4 left-4 text-cupidPink hover:text-cupidPink/80 font-semibold transition-colors duration-300">
-        ← Home
+
+<body class="gradient-bg min-h-screen flex flex-col overflow-x-hidden">
+  <!-- Header -->
+  <header class="animate-fade-in flex items-center justify-between px-4 sm:px-6 lg:px-10 py-4 sm:py-6 relative z-10">
+    <a href="index.html" class="flex items-center gap-3 hover-lift group">
+      <img src="images/cupid_logo.png" alt="Course Cupid" class="h-6 sm:h-8 transition-transform duration-300 group-hover:scale-105">
+      <span class="text-base sm:text-lg font-semibold text-cupidPink transition-colors duration-300 group-hover:text-cupidPink/80">Course Cupid</span>
     </a>
-    <div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
-        <h1 class="text-2xl font-script text-cupidPink mb-4">Find Your Perfect Course Match!</h1>
-        <form id="quizForm">
-            <div class="mb-4">
-                <p class="font-sans semibold">What area are you most interested in?</p>
-                <div class="mt-2">
-                    <label class="block"><input type="radio" name="q1" value="Computer Science" required> Computer Science</label>
-                    <label class="block"><input type="radio" name="q1" value="Business" required> Business</label>
-                    <label class="block"><input type="radio" name="q1" value="Health Sciences" required> Health Sciences</label>
-                    <label class="block"><input type="radio" name="q1" value="Humanities" required> Humanities</label>
-                </div>
-            </div>
-            <div class="mb-4">
-                <p class="font-sans semibold">What type of learning do you prefer?</p>
-                <div class="mt-2">
-                    <label class="block"><input type="radio" name="q2" value="Hands-on / Practical" required> Hands-on / Practical</label>
-                    <label class="block"><input type="radio" name="q2" value="Theoretical" required> Theoretical</label>
-                    <label class="block"><input type="radio" name="q2" value="Research-based" required> Research-based</label>
-                    <label class="block"><input type="radio" name="q2" value="Creative projects" required> Creative projects</label>
-                </div>
-            </div>
-            <div class="mb-4">
-                <p class="font-sans semibold">What is your career goal?</p>
-                <div class="mt-2">
-                    <label class="block"><input type="radio" name="q3" value="Industry job" required> Industry job</label>
-                    <label class="block"><input type="radio" name="q3" value="Academic research" required> Academic research</label>
-                    <label class="block"><input type="radio" name="q3" value="Entrepreneurship" required> Entrepreneurship</label>
-                    <label class="block"><input type="radio" name="q3" value="Government/NGO work" required> Government/NGO work</label>
-                </div>
-            </div>
-            <div class="mb-4">
-                <p class="font-sans semibold">These might not cover everything, give a brief description of what you enjoy:</p>
-                <div class="mt-2">
-                    <textarea name="q4" rows="3" class="w-full p-2 border border-gray-300 rounded" placeholder="E.g., I love coding and building apps." required></textarea>
-                </div>
-            </div>
-            <button type="submit" class="mt-4 px-5 py-2 rounded-full bg-cupidPink hover:bg-cupidPink/90 text-white font-semibold">Get Recommendations</button>
-        </form>
 
-        <div id="loading" class="mt-8 text-center hidden">
-            <div class="spinner"></div>
-            <p class="mt-2 text-cupidPink text-lg">Finding your perfect course match...</p>
+    <nav class="hidden md:flex gap-6 lg:gap-10 text-sm">
+      <a href="index.html" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+        Home
+        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+      </a>
+      <a href="about.html" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+        About Us
+        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+      </a>
+      <a href="quiz.html" class="text-cupidPink font-semibold relative group">
+        Quiz
+        <span class="absolute bottom-0 left-0 w-full h-0.5 bg-cupidPink"></span>
+      </a>
+       <a href="papers.html" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+    Papers
+    <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+  </a>
+  <a href="/chat/default" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+        Chatbot
+        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+  </a>
+      <a href="contact.html" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+        Contact
+        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+      </a>
+    </nav>
+
+    <div id="auth-controls" class="flex items-center gap-2 sm:gap-4">
+      <div id="auth-guest" class="flex gap-2 sm:gap-3 items-center mobile-stack">
+        <a href="login.html" class="px-3 sm:px-4 py-2 rounded-full bg-cupidPink/10 text-cupidPink hover:bg-cupidPink/20 font-medium text-sm transition-all duration-300 hover-lift">
+          Log In
+        </a>
+        <a href="signup.html" class="px-3 sm:px-4 py-2 rounded-full animated-gradient text-white font-semibold text-sm hover-lift">
+          Register
+        </a>
+      </div>
+      <div id="auth-user" class="hidden flex items-center gap-2">
+        <div class="flex items-center gap-2 bg-white border border-cupidPink/20 rounded-full px-2 py-1 shadow-sm hover-lift">
+          <div id="user-avatar" class="w-8 h-8 rounded-full bg-cupidPink text-white flex items-center justify-center font-semibold text-sm"></div>
+          <span id="user-name" class="text-cupidPink font-medium text-sm max-w-[120px] truncate"></span>
         </div>
-        
-        <div id="cardContainer" class="mt-8 relative hidden" style="height: 400px;">
+        <button id="logout-btn" class="ml-1 px-3 py-1 rounded-full bg-transparent border border-cupidPink/20 text-cupidPink hover:bg-cupidPink/10 text-sm transition-all duration-300 hover-lift">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Floating background elements -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute top-20 left-16 w-24 h-24 bg-cupidPink/5 rounded-full animate-float"></div>
+    <div class="absolute bottom-32 right-12 w-20 h-20 bg-cupidPink/10 rounded-full animate-bounce-gentle" style="animation-delay: 1s;"></div>
+    <div class="absolute top-1/2 right-1/4 w-16 h-16 bg-cupidPink/7 rounded-full animate-pulse-slow" style="animation-delay: 2s;"></div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="flex-1 flex items-center justify-center px-4 py-8">
+    <div class="glass-effect rounded-2xl shadow-2xl p-8 sm:p-10 w-full max-w-2xl animate-slide-up relative z-10">
+      
+      <!-- Quiz Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-4xl sm:text-5xl font-script text-cupidPink mb-4 animate-float">Find Your Perfect Course Match!</h1>
+        <p class="text-gray-600 text-sm sm:text-base">Answer a few questions to discover courses that align with your interests and goals</p>
+      </div>
+
+      <!-- Quiz Form -->
+      <form id="quizForm">
+        <div class="space-y-8">
+          
+          <!-- Question 1 -->
+          <div class="mb-6">
+            <p class="text-lg font-semibold text-gray-800 mb-4">What area are you most interested in?</p>
+            <div class="space-y-3">
+              <label class="block cursor-pointer">
+                <input type="radio" name="q1" value="Computer Science" required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">Computer Science</div>
+                  <div class="text-sm text-gray-600">Programming, AI, Software Development</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q1" value="Business" required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">Business</div>
+                  <div class="text-sm text-gray-600">Management, Finance, Marketing</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q1" value="Health Sciences" required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">Health Sciences</div>
+                  <div class="text-sm text-gray-600">Medicine, Nursing, Public Health</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q1" value="Humanities" required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">Humanities</div>
+                  <div class="text-sm text-gray-600">Literature, History, Philosophy</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Question 2 -->
+          <div class="mb-6">
+            <p class="text-lg font-semibold text-gray-800 mb-4">What type of learning do you prefer?</p>
+            <div class="space-y-3">
+              <label class="block cursor-pointer">
+                <input type="radio" name="q2" value="Hands-on / Practical" required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">Hands-on / Practical</div>
+                  <div class="text-sm text-gray-600">Learning by doing, labs, projects</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q2" value="Theoretical" required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">Theoretical</div>
+                  <div class="text-sm text-gray-600">Concepts, principles, abstract thinking</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q2" value="Research-based" required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">Research-based</div>
+                  <div class="text-sm text-gray-600">Investigation, analysis, discovery</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q2" value="Creative projects" required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">Creative projects</div>
+                  <div class="text-sm text-gray-600">Design, innovation, artistic expression</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Question 3 -->
+          <div class="mb-6">
+            <p class="text-lg font-semibold text-gray-800 mb-4">What is your career goal?</p>
+            <div class="space-y-3">
+              <label class="block cursor-pointer">
+                <input type="radio" name="q3" value="Industry job" required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">Industry job</div>
+                  <div class="text-sm text-gray-600">Corporate career, private sector</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q3" value="Academic research" required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">Academic research</div>
+                  <div class="text-sm text-gray-600">University, research institutions</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q3" value="Entrepreneurship" required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">Entrepreneurship</div>
+                  <div class="text-sm text-gray-600">Start your own business, innovation</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q3" value="Government/NGO work" required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">Government/NGO work</div>
+                  <div class="text-sm text-gray-600">Public service, social impact</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Question 4 -->
+          <div class="mb-6">
+            <p class="text-lg font-semibold text-gray-800 mb-4">Tell us more about what you enjoy:</p>
+            <textarea name="q4" rows="4" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-cupidPink focus:ring-cupidPink focus:outline-none transition-all duration-300" placeholder="E.g., I love coding and building apps, working with data, or helping people..." required></textarea>
+          </div>
+
         </div>
 
-        <div id="noMoreCards" class="mt-8 text-center hidden">
-            <p class="text-cupipPink text-xl font-bold">No more course recommendations!</p>
-        </div>
+        <!-- Submit Button -->
+        <button type="submit" class="w-full mt-6 px-6 py-3 rounded-full animated-gradient text-white font-semibold hover-lift transition-all duration-300 flex items-center justify-center gap-2 group">
+          Get Recommendations
+          <svg class="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+          </svg>
+        </button>
+      </form>
+
+      <!-- Loading State -->
+      <div id="loading" class="mt-8 text-center hidden">
+        <div class="spinner mb-4"></div>
+        <p class="text-cupidPink text-lg font-medium">Finding your perfect course match...</p>
+      </div>
+      
+      <!-- Card Container -->
+      <div id="cardContainer" class="mt-8 relative hidden" style="height: 400px;">
+        <!-- Cards will be dynamically inserted here -->
+      </div>
+
+      <!-- No More Cards Message -->
+      <div id="noMoreCards" class="mt-8 text-center hidden">
+        <p class="text-cupidPink text-xl font-semibold mb-4">No more course recommendations</p>
+        <a href="chat/default" class="inline-flex items-center px-6 py-3 animated-gradient text-white rounded-xl font-semibold hover-lift transition-all duration-300 gap-2 group">
+          Start chatting now
+          <svg class="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+          </svg>
+        </a>
+      </div>
 
     </div>
-    <script src="/js/quiz.js"></script>
+  </main>
+
+  <script src="/frontend/app.js"></script>
+  <script src="/js/quiz.js"></script>
 </body>
 </html>

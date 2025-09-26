@@ -217,9 +217,6 @@
     }
   }
 
-
-
-
   // Form submit
   chatForm?.addEventListener('submit', (ev) => {
     ev.preventDefault();

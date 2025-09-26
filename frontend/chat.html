@@ -63,6 +63,9 @@
       </div>
 
       <div class="p-3 border-t border-cupidPink/10">
+        <button id="add-chat-btn" onclick="startCreateSession()">
+          <span id="chat-btn-text">Create A New Cupid Chat</span>
+        </button>
         <a href="/papers.html" class="w-full block text-center px-3 py-2 rounded-full animated-gradient hover-lift">Browse Papers</a>
       </div>
     </aside>
@@ -139,6 +142,29 @@
         console.error('Error:', error);
         alert('Failed to delete session');
       }
+    }
+
+    /**Function to let user create a new chat session, is redirected */
+    async function startCreateSession() {
+        try {
+        console.log('Creating chat session...');
+        
+        const response = await fetch('/api/chat-sessions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        const data = await response.json();
+        console.log('Created session:', data);
+        
+        if (data.session_id) {
+            alert(`Success! Created session: ${data.session_id}`);
+            window.location.href = `/chat/${data.session_id}`;
+        }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to create session');
+        }
     }
 
   </script>

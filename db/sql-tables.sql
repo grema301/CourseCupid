@@ -42,7 +42,7 @@ commit;
 --
 create table Web_User
 (   user_id UUID PRIMARY KEY,
-    username VARCHAR,
+    username VARCHAR UNIQUE,
     email VARCHAR(255) UNIQUE ,
     password_hash VARCHAR(255),
     created_at TIMESTAMP NOT NULL,

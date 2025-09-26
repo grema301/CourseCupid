@@ -84,6 +84,9 @@
           <div class="flex-1">
             <div id="paperTitle" class="font-semibold text-lg text-cupidPink">Loading…</div>
             <div id="paperSubtitle" class="text-xs text-gray-500">Tap the avatar to view paper page</div>
+            <button id="delete-chat-btn" onclick="deleteSession()">
+              <span id="chat-btn-text">Delete Current Chat</span>
+            </button>
           </div>
           <div class="text-sm text-gray-500">Session: <span id="current-session-id">—</span></div>
         </div>
@@ -104,5 +107,40 @@
 
   <!-- chat app script -->
   <script src="/js/chat.js"></script>
+  <script>
+    function getCurrentSessionID() {
+      const path = window.location.pathname;
+      const match = path.match(/\/chat\/(.+)/);
+      return match ? match[1] : null;
+    }
+
+    async function deleteSession(){
+      try {
+        const sessionID = getCurrentSessionID();
+
+        //Add a confirm deletion with user? somewhere eventually
+        
+        const response = await fetch(`/api/chat-sessions/${sessionID}`, {
+            method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            alert('Session deleted successfully!');
+            
+            //redirect to default page
+            window.location.href = '/'; 
+            
+        } else {
+            throw new Error(data.message || 'Failed to delete session');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to delete session');
+      }
+    }
+
+  </script>
 </body>
 </html>

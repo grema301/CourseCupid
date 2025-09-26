@@ -1,4 +1,5 @@
-// chat-app.js
+/**Chat.js */
+
 (() => {
   const sidebar = document.getElementById('sidebar');
   const matchList = document.getElementById('matchList');
@@ -215,6 +216,9 @@
       appendMessage('ai', '⚠️ Could not reach AI. Try again later.', new Date().toISOString());
     }
   }
+
+
+
 
   // Form submit
   chatForm?.addEventListener('submit', (ev) => {

@@ -34,16 +34,16 @@ function getCurrentSessionID() {
 
 //update the session ID display
 function updateSessionDisplay() {
-    const sessionID = getCurrentSessionId();
+    const sessionID = getCurrentSessionID();
     //shoudl show session title in the future
-    const sessionElement = document.getElementById('current-session-id');
+    const sessionElement = document.getElementByID('current-session-id');
     
     if (sessionID && sessionElement){
         sessionElement.textContent = sessionID;
         console.log('Session ID displayed:', sessionID);
 
         //for the future, maybe distinct between AI chat and paper chat
-        document.getElementById('paperTitle').textContent = 'Dynamic title';
+        document.getElementByID('paperTitle').textContent = 'Dynamic title';
 
     }else{
         console.log('No session ID found or element missing'); 
@@ -53,38 +53,8 @@ function updateSessionDisplay() {
     }
 }
 
-
-async function deleteSession(){
-    try {
-        const sessionID = getCurrentSessionID();
-
-        //Add a confirm deletion with user? somewhere eventually
-        
-        const response = await fetch(`/api/chat-sessions/${sessionID}`, {
-            method: 'DELETE'
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.success) {
-            alert('Session deleted successfully!');
-            
-            //redirect to landing page
-            window.location.href = '/'; 
-            
-        } else {
-            throw new Error(data.message || 'Failed to delete session');
-        }
-
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Failed to delete session');
-    }
-}
-
-
 document.addEventListener('DOMContentLoaded', async () => {
-  const miniList = document.getElementById('miniList');
+  const miniList = document.getElementByID('miniList');
 
   try {
     const res = await fetch('/api/my-matches');

@@ -251,21 +251,10 @@ create table Recommendation_FB
 
 CREATE TABLE IF NOT EXISTS user_paper_matches (
   id SERIAL PRIMARY KEY,
-  user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES web_user(user_id) ON DELETE CASCADE,
   paper_code VARCHAR(20) NOT NULL,
   matched_at TIMESTAMP DEFAULT NOW()
 );
-
-CREATE TABLE IF NOT EXISTS chat_messages (
-  id SERIAL PRIMARY KEY,
-  session_id UUID NOT NULL,
-  user_id INT REFERENCES users(id) ON DELETE CASCADE,
-  paper_code VARCHAR(20) NOT NULL,
-  message TEXT NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW()
-);
-
-
 
 --------------------------------------------------------------------------------
 --

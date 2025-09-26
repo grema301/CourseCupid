@@ -129,7 +129,6 @@ app.post("/api/chat/:paperId", async (req, res) => {
 
     const data = await response.json();
     const reply = data.choices[0].message.content;
-
     res.json({ reply });
   } catch (err) {
     console.error(err);
@@ -161,6 +160,10 @@ app.get("/api/chat/:sessionID", async (req, res) => {
       console.error('Error loading chat session:', error);
       res.status(500).send('Error loading chat session');
     }
+});
+
+app.get('/imported_papers.json', (req, res) => {
+  res.sendFile(path.join(__dirname, 'imported_papers.json'));
 });
 
 app.listen(PORT, () => {

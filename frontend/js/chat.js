@@ -3,6 +3,7 @@
 (() => {
   const sidebar = document.getElementById('sidebar');
   const matchList = document.getElementById('matchList');
+  const cupidChatList = document.getElementById('cupidChatList');
   const matchCount = document.getElementById('match-count');
   const placeholder = document.getElementById('placeholder');
   const chatPanel = document.getElementById('chatPanel');
@@ -71,6 +72,48 @@
     return a;
   }
 
+  // Render single match card in sidebar
+  function makeCupidChatCard(session) {
+    const a = document.createElement('button');
+    a.type = 'button';
+    a.className = 'w-full text-left p-3 rounded-lg match-card hover-lift flex gap-3 items-start';
+    a.style.display = 'flex';
+    a.style.alignItems = 'center';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'w-12 h-12 rounded-md flex items-center justify-center text-white font-semibold';
+    avatar.style.background = session.color || '#DA9F93';
+    avatar.textContent = '💘';
+
+    const meta = document.createElement('div');
+    meta.className = 'flex-1';
+
+    const title = document.createElement('div');
+    title.className = 'font-medium text-sm text-cupidPink';
+    title.textContent = session || `Chat ${session.session_id.slice(0, 8)}...`;
+
+    const preview = document.createElement('div');
+    preview.className = 'text-xs text-gray-500 mt-1 truncate';
+    const date = session.created_at ? new Date(session.created_at).toLocaleDateString() : '';
+    preview.textContent = session.lastMessage || `Created ${date}`;
+
+    meta.appendChild(title);
+    meta.appendChild(preview);
+
+    a.appendChild(avatar);
+    a.appendChild(meta);
+
+    //for now, just show an alert with the session ID when clicked
+    a.addEventListener('click', () => {
+      openCupidChat(session.session_id, session);
+      // Update URL for session
+      const url = `/chat/${encodeURIComponent(session.session_id)}`;
+      history.pushState({ session: session.session_id }, '', url);
+    });
+
+    return a;
+  }
+
   // Populate sidebar with matches
   async function loadMatches(selectedPaper) {
     matchList.innerHTML = '';
@@ -110,6 +153,30 @@
       console.error(err);
       matchList.innerHTML = '<div class="text-sm text-red-500 p-3">Could not load matches.</div>';
       matchCount.textContent = '0 matches';
+    }
+  }
+
+  // Populate sidebar with conversations with Cupid
+  async function loadCupidChats(selectedSessionId) {
+    cupidChatList.innerHTML = '';
+    try {
+      const res = await fetch('/api/chat-sessions', { credentials: 'same-origin' });
+      if (!res.ok) throw new Error('Failed to load chat sessions');
+      const sessions = await res.json();
+
+      if (!Array.isArray(sessions) || sessions.length === 0) {
+        cupidChatList.innerHTML = '<div class="text-sm text-gray-500 p-3">No Cupid chats yet. Create one below!</div>';
+        return;
+      }
+
+      sessions.forEach(session => {
+        const el = makeCupidChatCard(session);
+        cupidChatList.appendChild(el);
+        //No auto-opening for now, just display the sessions
+      });
+    } catch (err) {
+      console.error(err);
+      cupidChatList.innerHTML = '<div class="text-sm text-red-500 p-3">Could not load Cupid chats.</div>';
     }
   }
 
@@ -193,6 +260,22 @@
     }
   }
 
+  async function openCupidChat(sessionId, meta = {}) {
+    currentSessionId = sessionId;
+    currentPaper = null;
+    currentChatType = 'cupid';
+    
+    placeholder.classList.add('hidden');
+    chatPanel.classList.remove('hidden');
+    paperTitleEl.textContent = `Cupid Chat`;
+    paperAvatarEl.textContent = '💘';
+    paperAvatarEl.style.background = '#DB2777';
+    sessionIdEl.textContent = sessionId.slice(0, 8);
+
+    await loadMessages(sessionId);
+  }
+
+
   // Send message flow: append user message, send to backend, append ai reply
   async function sendMessage(messageText) {
     if (!currentPaper) return;
@@ -230,9 +313,22 @@
     const p = getPaperIdFromPath();
     if (p) {
       loadMatches(p);
+
+      if(identifier.match(/^[A-Z]{4}\d{3}$/)){
+        //Looks like a paper code (e.g., COMP161)
+        loadMatches(p);
+        loadCupidChats();
+      }else{
+        //Assume it's a session ID
+        loadMatches();
+        loadCupidChats(p);
+      }
+
     } else {
       // go home view
       currentPaper = null;
+      currentSessionId = null;
+      currentChatType = null;
       chatPanel.classList.add('hidden');
       placeholder.classList.remove('hidden');
     }
@@ -241,7 +337,10 @@
   // INIT
   (async function init() {
     const initialPaper = getPaperIdFromPath();
+
     await loadMatches(initialPaper);
+    await loadCupidChats();
+
     // If initialPaper didn't auto open via loadMatches (e.g., no match), try to open directly if it exists
     if (initialPaper && !currentPaper) {
       // attempt to open even if not matched (useful for dev/testing)

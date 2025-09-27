@@ -61,7 +61,10 @@
       <!-- Cupid Chat Sessions Section -->
       <div class="border-b border-cupidPink/10">
         <div class="px-4 py-2 text-xs text-gray-600 font-semibold uppercase tracking-wide">
-          💘 Cupid Chats
+          💘 Cupid Chats 
+          <button id="add-chat-btn" class="text-center px-3 py-2 rounded-full animated-gradient hover-lift" onclick="startCreateSession()">
+            <span id="chat-btn-text">Create A New Cupid Chat</span>
+          </button>
         </div>
         <div id="cupidChatList" class="max-h-48 overflow-y-auto p-3 space-y-2">
           <!-- JS will inject cupid chats here -->
@@ -78,9 +81,6 @@
       </div>
 
       <div class="p-3 border-t border-cupidPink/10">
-        <button id="add-chat-btn" onclick="startCreateSession()">
-          <span id="chat-btn-text">Create A New Cupid Chat</span>
-        </button>
         <a href="/papers.html" class="w-full block text-center px-3 py-2 rounded-full animated-gradient hover-lift">Browse Papers</a>
       </div>
     </aside>
@@ -102,7 +102,7 @@
           <div class="flex-1">
             <div id="paperTitle" class="font-semibold text-lg text-cupidPink">Loading…</div>
             <div id="paperSubtitle" class="text-xs text-gray-500">Tap the avatar to view paper page</div>
-            <button id="delete-chat-btn" onclick="deleteSession()">
+            <button id="delete-chat-btn" class="text-xs text-center px-3 py-2 rounded-full animated-gradient hover-lift"onclick="deleteSession()">
               <span id="chat-btn-text">Delete Current Chat</span>
             </button>
           </div>

@@ -134,7 +134,7 @@ router.post('/chat/:sessionId', async (req, res) => {
     return res.status(404).json({ reply: "Error: Session not found." });
   }
 
-  // For now, return a simple response - you'll want to implement proper AI chat here
+  // For now, return a simple response
   const reply = "Hello! This is a Cupid chat session. How can I help you today?";
   
   // TODO: Save message to database and call AI service
@@ -157,7 +157,7 @@ router.get('/chat/:sessionId/messages', async (req, res) => {
       return res.status(404).json({ error: 'Session not found' });
     }
     
-    // For now return empty - implement message storage later
+    // For now return empty, implement message storage later
     res.json([]);
     
   } catch (error) {
@@ -311,7 +311,7 @@ router.get('/chat-sessions', async (req, res) => {
   try {
     //Get all sessions, ordered by most recent first
     const result = await pool.query(`
-      SELECT session_id, user_id, created_at, updated_at 
+      SELECT session_id, user_id, created_at, updated_at, title
       FROM Chat_Session 
       ORDER BY created_at DESC
     `);
@@ -321,7 +321,7 @@ router.get('/chat-sessions', async (req, res) => {
       session_id: row.session_id,
       created_at: row.created_at,
       updated_at: row.updated_at,
-      title: `Chat ${row.session_id.substring(0, 8)}...` // Optional: add a display title
+      title: row.title
     }));
     
     res.json(sessions);

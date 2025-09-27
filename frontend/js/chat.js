@@ -90,7 +90,7 @@
 
     const title = document.createElement('div');
     title.className = 'font-medium text-sm text-cupidPink';
-    title.textContent = session || `Chat ${session.session_id.slice(0, 8)}...`;
+    title.textContent = session.title || `Chat ${session.session_id.slice(0, 8)}...`;
 
     const preview = document.createElement('div');
     preview.className = 'text-xs text-gray-500 mt-1 truncate';
@@ -105,7 +105,7 @@
 
     //for now, just show an alert with the session ID when clicked
     a.addEventListener('click', () => {
-      openCupidChat(session.session_id, session);
+      openCupidChat(session);
       // Update URL for session
       const url = `/chat/${encodeURIComponent(session.session_id)}`;
       history.pushState({ session: session.session_id }, '', url);
@@ -260,19 +260,21 @@
     }
   }
 
-  async function openCupidChat(sessionId, meta = {}) {
-    currentSessionId = sessionId;
+  async function openCupidChat(session) {
+    currentSessionId = session.session_id;
     currentPaper = null;
     currentChatType = 'cupid';
     
     placeholder.classList.add('hidden');
     chatPanel.classList.remove('hidden');
-    paperTitleEl.textContent = `Cupid Chat`;
+    sessionIdEl.textContent = currentSessionId;
     paperAvatarEl.textContent = '💘';
-    paperAvatarEl.style.background = '#DB2777';
-    sessionIdEl.textContent = sessionId.slice(0, 8);
+    paperAvatarEl.style.background = '#DA9F93';
 
-    await loadMessages(sessionId);
+    const displayName = session.title || ('Chat ' + session.session_id.slice(0, 8));
+    paperTitleEl.textContent = displayName;
+
+    await loadMessages(session.session_id);
   }
 
 

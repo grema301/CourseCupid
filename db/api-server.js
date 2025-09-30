@@ -18,6 +18,7 @@ pool.connect()
   .then(() => console.log('Database connected'))
   .catch(err => console.error('Database error:', err));
 
+/*
 // ensure users table exists
 (async () => {
   try {
@@ -32,7 +33,7 @@ pool.connect()
   } catch (err) {
     console.error('Database error (creating tables):', err);
   }
-})();
+})();*/
 
 router.get('/test', async (req, res) => {
   try {
@@ -52,10 +53,14 @@ router.post('/signup', async (req, res) => {
     return res.json({ success: false, message: 'Password must be at least 8 characters long' });
   try {
     const hash = await bcrypt.hash(password, 10);
+    const userID = uuidv4();
+    const now = new Date();
+
     const insert = await pool.query(
-      'INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id, username',
-      [username, email, hash]
+      'INSERT INTO Web_User (user_id, username, email, password_hash, created_at, updated_at, is_registered) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING user_id, username',
+      [userID, username, email, hash, now, now, true]
     );
+
     // set session
     if (req && req.session) {
       req.session.userId = insert.rows[0].id;
@@ -78,13 +83,13 @@ router.post('/login', async (req, res) => {
   if (!username || !password)
     return res.json({ success: false, message: 'Missing fields' });
   try {
-    const result = await pool.query('SELECT id, username, password_hash FROM users WHERE username = $1', [username]);
+    const result = await pool.query('SELECT user_id, username, password_hash FROM Web_User WHERE username = $1', [username]);
     if (result.rows.length === 0) return res.json({ success: false, message: 'Invalid credentials' });
     const user = result.rows[0];
     const match = await bcrypt.compare(password, user.password_hash);
     if (!match) return res.json({ success: false, message: 'Invalid credentials' });
     if (req && req.session) {
-      req.session.userId = user.id;
+      req.session.userId = user.user_id;
       req.session.username = user.username;
     }
     res.json({ success: true, message: 'Login successful!' });
@@ -264,7 +269,7 @@ router.post('/chat-sessions', async (req, res) => {
     const now = new Date();
 
     //chekc is user is logged in, if not, anon users get null
-    const user_ID = req.session?.user_id || null; //whats our auth system?
+    const userId = req.session?.userId || null; //whats our auth system?
 
     
     const result = await pool.query(`
@@ -272,7 +277,7 @@ router.post('/chat-sessions', async (req, res) => {
         session_id, user_id, created_at, updated_at
       ) VALUES ($1, $2, $3, $4)
       RETURNING session_id, user_id
-    `, [session_ID, user_ID, now, now]); // null for anonymous users
+    `, [session_ID, userId, now, now]); // null for anonymous users
 
     res.json({
       session_id: result.rows[0].session_id,
@@ -418,7 +423,7 @@ router.post('/delete-account', async (req, res) => {
   const userId = req.session.userId;
   try {
     // remove user row 
-    await pool.query('DELETE FROM users WHERE id = $1', [userId]);
+    await pool.query('DELETE FROM Web_User WHERE id = $1', [userId]);
 
     // destroy session and clear cookie
     req.session.destroy(err => {

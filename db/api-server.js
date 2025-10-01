@@ -311,19 +311,41 @@ router.delete('/chat-sessions/:sessionID', async (req, res) => {
   }
 });
 
-// Gets chat sessions to display
+// Gets chat sessions to display based on login status
 router.get('/chat-sessions', async (req, res) => {
   try {
-    //Get all sessions, ordered by most recent first
-    const result = await pool.query(`
-      SELECT session_id, user_id, created_at, updated_at, title
-      FROM Chat_Session 
-      ORDER BY created_at DESC
-    `);
+    const loggedInUserId = req.session?.userId || null;
+    const currentSessionId = req.query.currentSessionId || null; // Get from query param
     
-    // Format the data for the frontend
+    let query, params;
+    
+    if (loggedInUserId) {
+      // Logged in: show all sessions for this user
+      query = `
+        SELECT session_id, user_id, created_at, updated_at, title
+        FROM Chat_Session 
+        WHERE user_id = $1 
+        ORDER BY updated_at DESC
+      `;
+      params = [loggedInUserId];
+    } else if (currentSessionId){
+      // Not logged in but has a current session: show only that session
+      query = `
+        SELECT session_id, user_id, created_at, updated_at, title
+        FROM Chat_Session 
+        WHERE session_id = $1
+      `;
+      params = [currentSessionId];
+    }else{
+      // Return empty array
+      return res.json([]);
+    }
+    
+    const result = await pool.query(query, params);
+    
     const sessions = result.rows.map(row => ({
       session_id: row.session_id,
+      user_id: row.user_id,
       created_at: row.created_at,
       updated_at: row.updated_at,
       title: row.title
@@ -335,6 +357,8 @@ router.get('/chat-sessions', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch chat sessions' });
   }
 });
+
+
 
 
 

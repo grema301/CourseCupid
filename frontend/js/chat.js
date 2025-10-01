@@ -157,10 +157,18 @@
   }
 
   // Populate sidebar with conversations with Cupid
-  async function loadCupidChats(selectedSessionId) {
+  async function loadCupidChats() {
     cupidChatList.innerHTML = '';
     try {
-      const res = await fetch('/api/chat-sessions', { credentials: 'same-origin' });
+      // Get current session ID from URL
+      const currentSessionId = getPaperIdFromPath();// This gets the identifier from /chat/:id
+
+      // Pass current session ID as query parameter
+      const url = currentSessionId 
+      ? `/api/chat-sessions?currentSessionId=${encodeURIComponent(currentSessionId)}`
+      : '/api/chat-sessions';
+
+      const res = await fetch(url, { credentials: 'same-origin' });
       if (!res.ok) throw new Error('Failed to load chat sessions');
       const sessions = await res.json();
 

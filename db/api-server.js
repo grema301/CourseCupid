@@ -123,7 +123,7 @@ router.post('/logout', (req, res) => {
 
 
 
-
+/*
 // Handle chat messages for a session (not paper)
 router.post('/chat/:sessionId', async (req, res) => {
   const sessionId = req.params.sessionId;
@@ -145,8 +145,9 @@ router.post('/chat/:sessionId', async (req, res) => {
   // TODO: Save message to database and call AI service
   
   res.json({ reply });
-});
+});*/
 
+/*
 // Get messages for a session (update the existing one)
 router.get('/chat/:sessionId/messages', async (req, res) => {
   try {
@@ -169,7 +170,37 @@ router.get('/chat/:sessionId/messages', async (req, res) => {
     console.error('Error loading session messages:', error);
     res.status(500).json({ error: 'Failed to load messages' });
   }
+});*/
+
+
+// Handle chat messages, handles both sessions and papers
+// If identifier is a UUID (session), handles it here. Otherwise calls next() 
+// to pass paper chats to server.js where the paper AI is implemented.
+router.post('/chat/:identifier', async (req, res, next) => {
+  const identifier = req.params.identifier;
+  const message = req.body.message;
+  
+  // Check if it's a session ID (UUID pattern)
+  const isSessionId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
+
+  if (isSessionId) {
+    // Validate session exists
+    const sessionCheck = await pool.query(
+      'SELECT session_id FROM Chat_Session WHERE session_id = $1', 
+      [identifier]
+    );
+    
+    if (sessionCheck.rows.length === 0) {
+      return res.status(404).json({ reply: "Error: Session not found." });
+    }
+
+    const reply = "Hello! This is a Cupid chat session. How can I help you today?";
+    return res.json({ reply });
+  } 
+
+  next(); // Not a session ID, pass to server.js to handle paper AI chat
 });
+
 
 
 
@@ -193,12 +224,12 @@ router.get('/chat/:identifier/messages', async (req, res) => {
         return res.status(404).json({ error: 'Session not found' });
       }
       
-      // Return empty array for now (implement message storage later)
-      res.json([]);
+      // Return empty array for now, implement message storage later)
+      return res.json([]);
     } else {
-      // Handle paper-based messages (existing logic)
-      // You might already have this logic elsewhere, or return empty for now
-      res.json([]);
+      // It's a paper code don't validate as UUID, just return empty for now
+      // TODO: Implement paper message history from database
+      return res.json([]);
     }
     
   } catch (error) {
@@ -206,6 +237,10 @@ router.get('/chat/:identifier/messages', async (req, res) => {
     res.status(500).json({ error: 'Failed to load messages' });
   }
 });
+
+
+
+
 
 // Handle session-based chat history (fallback route frontend tries)
 router.get('/chat/:identifier/history', async (req, res) => {
@@ -223,9 +258,9 @@ router.get('/chat/:identifier/history', async (req, res) => {
         return res.status(404).json({ error: 'Session not found' });
       }
       
-      res.json([]);
+      return res.json([]);
     } else {
-      res.json([]);
+      return res.json([]);
     }
   } catch (error) {
     console.error('Error loading history:', error);
@@ -249,10 +284,10 @@ router.post('/chat/:identifier/first', async (req, res) => {
         return res.status(404).json({ error: 'Session not found' });
       }
       
-      res.json({ reply: "Hi there! This is a cupid chat" });
+      return res.json({ reply: "Hi there! This is a cupid chat" });
     } else {
       //Handle paper-based first messages
-      res.json({ reply: "Check api-server.js /chat/:identifier/first" });
+      return res.json({ reply: "Check api-server.js /chat/:identifier/first" });
     }
   } catch (error) {
     console.error('Error with first message:', error);

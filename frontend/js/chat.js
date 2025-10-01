@@ -15,6 +15,8 @@
   const sessionIdEl = document.getElementById('current-session-id');
 
   let currentPaper = null;
+  let currentSessionId = null;  // Add this line
+  let currentChatType = null;   // Add this line too if not already there 
 
   // Utility: get paperId from path if present (supports /chat and /chat/:paper)
   function getPaperIdFromPath() {
@@ -287,14 +289,21 @@
 
 
   // Send message flow: append user message, send to backend, append ai reply
+  // Static message for Cupid, AI works for papers
   async function sendMessage(messageText) {
-    if (!currentPaper) return;
+
+    // Check if we're in a paper chat OR a Cupid session chat
+    const identifier = currentPaper || currentSessionId;
+    if (!identifier) return;
+
+    //if (!currentPaper) return;
+
     appendMessage('user', messageText, new Date().toISOString());
     chatInput.value = '';
     chatInput.focus();
 
     try {
-      const r = await fetch(`/api/chat/${encodeURIComponent(currentPaper)}`, {
+      const r = await fetch(`/api/chat/${encodeURIComponent(identifier)}`, {
         method: 'POST',
         credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },

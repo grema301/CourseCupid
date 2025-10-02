@@ -94,6 +94,34 @@ app.post("/api/chat/:paperId", async (req, res) => {
 
   console.log(`Chat request for paper ID: ${paperId} with message: ${message}`);
 
+  // Check if it's a session ID
+  const isSessionId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(paperId);
+  
+  if (isSessionId) {
+    // Handle session-based chat
+    try {
+      const sessionCheck = await pool.query(
+        'SELECT session_id FROM Chat_Session WHERE session_id = $1', 
+        [paperId]
+      );
+      
+      if (sessionCheck.rows.length === 0) {
+        return res.status(404).json({ reply: "Error: Session not found." });
+      }
+      
+      // For now, simple Cupid response - implement AI later
+      const reply = "I'm Cupid! I'm here to help you find your perfect course match. What would you like to know about courses or your academic journey?";
+      res.json({ reply });
+      
+    } catch (error) {
+      console.error('Session chat error:', error);
+      res.status(500).json({ reply: "Error: could not process chat." });
+    }
+    
+    return;
+  }
+
+
   const result = await pool.query('SELECT * FROM paper WHERE paper_code = $1', [paperId]);
   const paperData = result.rows[0];
 
@@ -137,16 +165,15 @@ app.post("/api/chat/:paperId", async (req, res) => {
 });
 
 
-
-/**Dynamic SessiondID handling */
+/**Dynamic SessiondID handling
 app.get("/api/chat/:sessionID", async (req, res) => {
   const sessionID = req.params.sessionID;
     
     try {
       //Validate that the session exists in database
       const sessionCheck = await pool.query(
-        'SELECT session_id FROM Chat_Session WHERE session_id = $1', 
-        [sessionId]
+        'SELECT session_id FROM Chat_Session WHERE session_id = $1 ORDER BY created_at DESC', 
+        [sessionID] 
       );
       
       if (sessionCheck.rows.length === 0) {
@@ -160,7 +187,8 @@ app.get("/api/chat/:sessionID", async (req, res) => {
       console.error('Error loading chat session:', error);
       res.status(500).send('Error loading chat session');
     }
-});
+});*/
+
 
 app.get('/imported_papers.json', (req, res) => {
   res.sendFile(path.join(__dirname, 'imported_papers.json'));

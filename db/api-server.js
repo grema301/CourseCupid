@@ -123,10 +123,215 @@ router.post('/logout', (req, res) => {
 
 
 
-/**Ensure session is being recorded into the databse */
+/*
+// Handle chat messages for a session (not paper)
+router.post('/chat/:sessionId', async (req, res) => {
+  const sessionId = req.params.sessionId;
+  const message = req.body.message;
+
+  // Validate session exists
+  const sessionCheck = await pool.query(
+    'SELECT session_id FROM Chat_Session WHERE session_id = $1', 
+    [sessionId]
+  );
+  
+  if (sessionCheck.rows.length === 0) {
+    return res.status(404).json({ reply: "Error: Session not found." });
+  }
+
+  // For now, return a simple response
+  const reply = "Hello! This is a Cupid chat session. How can I help you today?";
+  
+  // TODO: Save message to database and call AI service
+  
+  res.json({ reply });
+});*/
+
+/*
+// Get messages for a session (update the existing one)
+router.get('/chat/:sessionId/messages', async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    
+    // Validate session exists
+    const sessionCheck = await pool.query(
+      'SELECT session_id FROM Chat_Session WHERE session_id = $1', 
+      [sessionId]
+    );
+    
+    if (sessionCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
+    
+    // For now return empty, implement message storage later
+    res.json([]);
+    
+  } catch (error) {
+    console.error('Error loading session messages:', error);
+    res.status(500).json({ error: 'Failed to load messages' });
+  }
+});*/
+
+
+// Handle chat messages, handles both sessions and papers
+// If identifier is a UUID (session), handles it here. Otherwise calls next() 
+// to pass paper chats to server.js where the paper AI is implemented.
+router.post('/chat/:identifier', async (req, res, next) => {
+  const identifier = req.params.identifier;
+  const message = req.body.message;
+  
+  // Check if it's a session ID (UUID pattern)
+  const isSessionId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
+
+  if (!isSessionId) {
+    return next();// Not a session ID, pass to server.js to handle paper AI chat
+  }
+
+  try {
+
+    // Validate session exists
+    const sessionCheck = await pool.query(
+      'SELECT session_id FROM Chat_Session WHERE session_id = $1', 
+      [identifier]
+    );
+    
+    if (sessionCheck.rows.length === 0) {
+      return res.status(404).json({ reply: "Error: Session not found." });
+    }
+
+    const now = new Date();
+
+
+    //Save the user message
+    const userMessageId = uuidv4();
+    await pool.query(`
+      INSERT INTO Chat_Message (message_id, session_id, role, content, created_at, user_preferences)
+      VALUES ($1, $2, $3, $4, $5, $6)
+    `, [userMessageId, identifier, 'user', message, now, null]);
+
+
+    //Placeholder reply
+    const reply = "Hello! I'm Cupid! How can I help you?";
+
+
+    //Save the assistant reply
+    const assistantMessageId = uuidv4();
+    await pool.query(`
+      INSERT INTO Chat_Message (message_id, session_id, role, content, created_at, user_preferences)
+      VALUES ($1, $2, $3, $4, $5, $6)
+    `, [assistantMessageId, identifier, 'assistant', reply, now, null]);
+
+
+    //Send reply
+    return res.json({ reply: reply });
+
+  } catch (error) {
+    console.error("Chat error:", error);
+    res.status(500).json({ error: "Failed to handle chat message" });
+  }
+
+});
+
+
+
+
+
+// Handle session-based chat messages (match frontend expectations)
+router.get('/chat/:identifier/messages', async (req, res) => {
+  try {
+    const identifier = req.params.identifier;
+    
+    // Check if it's a session ID (UUID pattern)
+    const isSessionId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
+    
+    if (isSessionId) {
+      // Validate session exists
+      const sessionCheck = await pool.query(
+        'SELECT session_id FROM Chat_Session WHERE session_id = $1', 
+        [identifier]
+      );
+      
+      if (sessionCheck.rows.length === 0) {
+        return res.status(404).json({ error: 'Session not found' });
+      }
+      
+      // Return empty array for now, implement message storage later)
+      return res.json([]);
+    } else {
+      // It's a paper code don't validate as UUID, just return empty for now
+      // TODO: Implement paper message history from database
+      return res.json([]);
+    }
+    
+  } catch (error) {
+    console.error('Error loading messages:', error);
+    res.status(500).json({ error: 'Failed to load messages' });
+  }
+});
+
+
+
+
+
+// Handle session-based chat history (fallback route frontend tries)
+router.get('/chat/:identifier/history', async (req, res) => {
+  try {
+    const identifier = req.params.identifier;
+    const isSessionId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
+    
+    if (isSessionId) {
+      const sessionCheck = await pool.query(
+        'SELECT session_id FROM Chat_Session WHERE session_id = $1', 
+        [identifier]
+      );
+      
+      if (sessionCheck.rows.length === 0) {
+        return res.status(404).json({ error: 'Session not found' });
+      }
+      
+      return res.json([]);
+    } else {
+      return res.json([]);
+    }
+  } catch (error) {
+    console.error('Error loading history:', error);
+    res.status(500).json({ error: 'Failed to load history' });
+  }
+});
+
+// Handle session-based first message
+router.post('/chat/:identifier/first', async (req, res) => {
+  try {
+    const identifier = req.params.identifier;
+    const isSessionId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
+    
+    if (isSessionId) {
+      const sessionCheck = await pool.query(
+        'SELECT session_id FROM Chat_Session WHERE session_id = $1', 
+        [identifier]
+      );
+      
+      if (sessionCheck.rows.length === 0) {
+        return res.status(404).json({ error: 'Session not found' });
+      }
+      
+      return res.json({ reply: "Hi there! This is a cupid chat" });
+    } else {
+      //Handle paper-based first messages
+      return res.json({ reply: "" });
+    }
+  } catch (error) {
+    console.error('Error with first message:', error);
+    res.status(500).json({ error: 'Failed to get first message' });
+  }
+});
+
+
+
+//DO NOT TOUCH Ensure session is being recorded into the databse
 router.post('/chat-sessions', async (req, res) => {
   try {
-    const sessionID = uuidv4();
+    const session_ID = uuidv4();
     const now = new Date();
 
     //chekc is user is logged in, if not, anon users get null
@@ -138,7 +343,7 @@ router.post('/chat-sessions', async (req, res) => {
         session_id, user_id, created_at, updated_at
       ) VALUES ($1, $2, $3, $4)
       RETURNING session_id, user_id
-    `, [sessionID, userId, now, now]); // null for anonymous users
+    `, [session_ID, userId, now, now]); // null for anonymous users
 
     res.json({
       session_id: result.rows[0].session_id,
@@ -150,8 +355,7 @@ router.post('/chat-sessions', async (req, res) => {
   }
 });
 
-
-/**Handle deleting a session */
+//DO NOT TOUCH Handle deleting a session
 router.delete('/chat-sessions/:sessionID', async (req, res) => {
   try {
     const { sessionID } = req.params;
@@ -161,7 +365,7 @@ router.delete('/chat-sessions/:sessionID', async (req, res) => {
     }
 
     //should add cascade to schema, deal with dependencies
-    await pool.query('DELETE FROM chat_session WHERE session_id = $1', [sessionID]);
+    await pool.query('DELETE FROM Chat_Session WHERE session_id = $1', [sessionID]);
     
     res.json({ 
       success: true, message: 'Session deleted successfully', sessionID: sessionID
@@ -172,6 +376,54 @@ router.delete('/chat-sessions/:sessionID', async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to delete session' });
   }
 });
+
+// Gets chat sessions to display based on login status
+router.get('/chat-sessions', async (req, res) => {
+  try {
+    const loggedInUserId = req.session?.userId || null;
+    const currentSessionId = req.query.currentSessionId || null; // Get from query param
+    
+    let query, params;
+    
+    if (loggedInUserId) {
+      // Logged in: show all sessions for this user
+      query = `
+        SELECT session_id, user_id, created_at, updated_at, title
+        FROM Chat_Session 
+        WHERE user_id = $1 
+        ORDER BY updated_at DESC
+      `;
+      params = [loggedInUserId];
+    } else if (currentSessionId){
+      // Not logged in but has a current session: show only that session
+      query = `
+        SELECT session_id, user_id, created_at, updated_at, title
+        FROM Chat_Session 
+        WHERE session_id = $1
+      `;
+      params = [currentSessionId];
+    }else{
+      // Return empty array
+      return res.json([]);
+    }
+    
+    const result = await pool.query(query, params);
+    
+    const sessions = result.rows.map(row => ({
+      session_id: row.session_id,
+      user_id: row.user_id,
+      created_at: row.created_at,
+      updated_at: row.updated_at,
+      title: row.title
+    }));
+    
+    res.json(sessions);
+  } catch (error) {
+    console.error('Error fetching chat sessions:', error);
+    res.status(500).json({ error: 'Failed to fetch chat sessions' });
+  }
+});
+
 
 
 

@@ -183,7 +183,12 @@ router.post('/chat/:identifier', async (req, res, next) => {
   // Check if it's a session ID (UUID pattern)
   const isSessionId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
 
-  if (isSessionId) {
+  if (!isSessionId) {
+    return next();// Not a session ID, pass to server.js to handle paper AI chat
+  }
+
+  try {
+
     // Validate session exists
     const sessionCheck = await pool.query(
       'SELECT session_id FROM Chat_Session WHERE session_id = $1', 
@@ -194,11 +199,37 @@ router.post('/chat/:identifier', async (req, res, next) => {
       return res.status(404).json({ reply: "Error: Session not found." });
     }
 
-    const reply = "Hello! This is a Cupid chat session. How can I help you today?";
-    return res.json({ reply });
-  } 
+    const now = new Date();
 
-  next(); // Not a session ID, pass to server.js to handle paper AI chat
+
+    //Save the user message
+    const userMessageId = uuidv4();
+    await pool.query(`
+      INSERT INTO Chat_Message (message_id, session_id, role, content, created_at, user_preferences)
+      VALUES ($1, $2, $3, $4, $5, $6)
+    `, [userMessageId, identifier, 'user', message, now, null]);
+
+
+    //Placeholder reply
+    const reply = "Hello! I'm Cupid! How can I help you?";
+
+
+    //Save the assistant reply
+    const assistantMessageId = uuidv4();
+    await pool.query(`
+      INSERT INTO Chat_Message (message_id, session_id, role, content, created_at, user_preferences)
+      VALUES ($1, $2, $3, $4, $5, $6)
+    `, [assistantMessageId, identifier, 'assistant', reply, now, null]);
+
+
+    //Send reply
+    return res.json({ reply: reply });
+
+  } catch (error) {
+    console.error("Chat error:", error);
+    res.status(500).json({ error: "Failed to handle chat message" });
+  }
+
 });
 
 
@@ -287,7 +318,7 @@ router.post('/chat/:identifier/first', async (req, res) => {
       return res.json({ reply: "Hi there! This is a cupid chat" });
     } else {
       //Handle paper-based first messages
-      return res.json({ reply: "Check api-server.js /chat/:identifier/first" });
+      return res.json({ reply: "" });
     }
   } catch (error) {
     console.error('Error with first message:', error);

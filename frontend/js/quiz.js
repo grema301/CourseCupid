@@ -1,3 +1,17 @@
+function checkLoginStatusAndDisplayReminder(isLoggedIn) {
+    const loginReminder = document.getElementById('loginReminder');
+    if (!loginReminder) return;
+
+    if (isLoggedIn) {
+        // Logged In: Hide the reminder
+        loginReminder.classList.add('hidden');
+    } else {
+        // Logged Out: Show the reminder
+        loginReminder.classList.remove('hidden');
+    }
+}
+
+
 document.getElementById('quizForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -129,3 +143,4 @@ function updateCardButtons(card) {
         likeBtn.onclick = () => handleSwipe('like', card);
     }
 }
+

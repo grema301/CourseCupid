@@ -208,6 +208,22 @@
   <main class="flex-1 flex items-center justify-center px-4 py-8">
     <div class="glass-effect rounded-2xl shadow-2xl p-8 sm:p-10 w-full max-w-2xl animate-slide-up relative z-10">
       
+    <!-- Login Reminder -->
+      <div id="loginReminder" class="hidden bg-cupidPink/10 border border-cupidPink/30 text-cupidPink p-4 rounded-xl mb-6 flex items-center justify-between animate-fade-in" role="alert">
+        <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        <div class="flex items-center gap-3">
+            <p class="font-medium text-sm sm:text-base text-cente ">
+                Remember to log in!<br>
+                it will save your matches to talk to the chatbot!
+            </p>
+        </div>
+        <a href="login.html" class="ml-4 flex-shrink-0 px-3 py-1 rounded-full animated-gradient text-white font-semibold text-sm hover-lift">
+            Log In
+        </a>
+    </div>
+
       <!-- Quiz Header -->
       <div class="text-center mb-8">
         <h1 class="text-4xl sm:text-5xl font-script text-cupidPink mb-4 animate-float">Find Your Perfect Course Match!</h1>
@@ -630,6 +646,51 @@
 
     </div>
   </main>
+
+  <script>
+    // This is the fetch-based logic that checks the server via /api/me
+    async function refreshAuthUI_Safe() {
+      try {
+        const res = await fetch('/api/me', { credentials: 'same-origin' });
+        const d = await res.json();
+        const guest = document.getElementById('auth-guest');
+        const userBox = document.getElementById('auth-user');
+        
+        if (d.loggedIn) {
+          guest.classList.add('hidden');
+          userBox.classList.remove('hidden');
+          
+          const name = d.user?.username || 'User';
+          document.getElementById('user-name').textContent = name;
+          
+          // (Handle avatar initials update if needed, but skipping for simplicity)
+          
+          // --- Custom Integration Point: Call your reminder function after auth is stable ---
+          if (typeof checkLoginStatusAndDisplayReminder === 'function') {
+               checkLoginStatusAndDisplayReminder(true); 
+          }
+        } else {
+          guest.classList.remove('hidden');
+          userBox.classList.add('hidden');
+          
+          // --- Custom Integration Point: Call your reminder function after auth is stable ---
+          if (typeof checkLoginStatusAndDisplayReminder === 'function') {
+               checkLoginStatusAndDisplayReminder(false); 
+          }
+        }
+      } catch (e) { 
+          console.error('Auth UI error', e); 
+          // If the status check fails, assume logged out and show reminder
+          if (typeof checkLoginStatusAndDisplayReminder === 'function') {
+               checkLoginStatusAndDisplayReminder(false); 
+          }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        refreshAuthUI_Safe(); 
+    });
+</script>
 
   <script src="/frontend/app.js"></script>
   <script src="/js/quiz.js"></script>

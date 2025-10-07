@@ -10,3 +10,10 @@ Required scripts:
 
 - Run: npm start
 - Frontend served at: http://localhost:3000/
+
+
+====
+
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt

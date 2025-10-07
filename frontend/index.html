@@ -126,14 +126,13 @@
 
 <body class="gradient-bg min-h-screen flex flex-col overflow-x-hidden">
   <!-- Header with fade-in animation -->
-  <header class="animate-fade-in flex items-center justify-between px-4 sm:px-6 lg:px-10 py-4 sm:py-6 relative z-10">
-    <!-- Logo with hover effect -->
-    <a id="home-link" href="index.html" class="flex items-center gap-3 hover-lift group">
+    <header class="animate-fade-in flex items-center justify-between px-4 sm:px-6 lg:px-10 py-4 sm:py-6 relative z-10">
+    <a href="index.html" class="flex items-center gap-3 hover-lift group">
       <img src="images/cupid_logo.png" alt="Course Cupid" class="h-6 sm:h-8 transition-transform duration-300 group-hover:scale-105">
       <span class="text-base sm:text-lg font-semibold text-cupidPink transition-colors duration-300 group-hover:text-cupidPink/80">Course Cupid</span>
     </a>
 
-    <!-- Navigation - responsive -->
+<!-- Navigation - responsive -->
 <nav class="hidden md:flex gap-6 lg:gap-10 text-sm">
   <a href="index.html" class="text-cupidPink font-semibold relative group">
     Home
@@ -161,57 +160,72 @@
   </a>
 </nav>
 
-    <!-- Mobile menu button -->
-    <button id="mobile-menu-btn" class="md:hidden p-2 text-cupidPink hover:bg-cupidPink/10 rounded-lg transition-colors duration-300">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-      </svg>
-    </button>
-
-    <!-- Auth controls - responsive -->
-    <div id="auth-controls" class="flex items-center gap-2 sm:gap-4">
-      <div id="auth-guest" class="flex gap-2 sm:gap-3 items-center mobile-stack">
-        <a id="login-link" href="login.html" class="px-3 sm:px-4 py-2 rounded-full bg-cupidPink/10 text-cupidPink hover:bg-cupidPink/20 font-medium text-sm transition-all duration-300 hover-lift">
-          Log In
-        </a>
-        <a id="signup-link" href="signup.html" class="px-3 sm:px-4 py-2 rounded-full animated-gradient text-white font-semibold text-sm hover-lift">
-          Register
-        </a>
+    <div id="auth-controls" class="flex items-center gap-4">
+      <div id="auth-guest" class="flex gap-3 items-center">
+        <a id="login-link" href="login.html" class="px-4 py-2 rounded-full bg-cupidPink/10 text-cupidPink hover:bg-cupidPink/20 font-medium">Log In</a>
+        <a id="signup-link" href="signup.html" class="px-4 py-2 rounded-full bg-cupidPink text-white font-semibold">Register</a>
       </div>
-
       <div id="auth-user" class="hidden relative flex items-center gap-2">
-        <div id="profile-btn" class="flex items-center gap-2 bg-white border border-cupidPink/20 rounded-full px-2 py-1 shadow-sm cursor-pointer hover-lift">
-          <div id="user-avatar" class="w-8 h-8 rounded-full bg-cupidPink text-white flex items-center justify-center font-semibold text-sm animate-bounce-gentle"></div>
+        <div id="profile-btn" class="flex items-center gap-2 bg-white border border-cupidPink/20 rounded-full px-2 py-1 shadow-sm cursor-pointer">
+          <div id="user-avatar" class="w-8 h-8 rounded-full bg-cupidPink text-white flex items-center justify-center font-semibold text-sm"></div>
           <span id="user-name" class="text-cupidPink font-medium text-sm max-w-[120px] truncate"></span>
         </div>
-
         <div id="profile-menu"
-             class="absolute right-0 top-full mt-2 w-44 bg-white rounded-lg shadow-xl border border-cupidPink/10 z-50 overflow-hidden
+             class="absolute right-0 top-full mt-2 w-44 bg-white rounded-lg shadow-lg border border-cupidPink/10 z-50 overflow-hidden
                     transform transition-all duration-150 origin-top-right opacity-0 -translate-y-2 scale-95 pointer-events-none">
           <div class="py-1">
-            <a href="settings.html" class="block px-4 py-2 text-sm text-cupidPink hover:bg-cupidPink/5 transition-colors duration-200">Settings</a>
-            <button id="logout-btn" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200">Logout</button>
+            <a href="settings.html" class="block px-4 py-2 text-sm text-cupidPink hover:bg-cupidPink/5">Settings</a>
+            <button id="logout-btn" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Logout</button>
           </div>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- Mobile menu overlay -->
-  <div id="mobile-menu" class="hidden md:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm">
-    <div class="bg-cupidCream h-full w-64 shadow-xl animate-slide-up">
+<!-- MOBILE MENU OVERLAY -->
+  <div id="mobile-menu" class="hidden fixed inset-0 z-50 md:hidden">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="mobile-menu-backdrop"></div>
+    
+    <!-- Menu Panel -->
+    <div class="absolute right-0 top-0 h-full w-64 bg-white shadow-xl transform transition-transform duration-300">
       <div class="p-6">
-        <button id="mobile-menu-close" class="float-right text-cupidPink hover:bg-cupidPink/10 p-2 rounded-lg">
+        <!-- Close Button -->
+        <button id="mobile-menu-close" class="absolute top-4 right-4 p-2 text-cupidPink hover:bg-cupidPink/10 rounded-lg">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </button>
-        <nav class="mt-12 flex flex-col gap-6">
-          <a href="index.html" class="text-lg text-cupidPink font-semibold transition-colors">Home</a>
-          <a href="about.html" class="text-lg hover:text-cupidPink transition-colors">About Us</a>
-          <a href="quiz.html" class="text-lg hover:text-cupidPink transition-colors">Quiz</a>
-          <a href="papers.html" class="text-lg hover:text-cupidPink transition-colors">Papers</a>
-          <a href="contact.html" class="text-lg hover:text-cupidPink transition-colors">Contact</a>
+
+        <!-- Mobile Auth Section -->
+        <div id="mobile-auth" class="mt-12 mb-8 border-b border-cupidPink/10 pb-6">
+          <!-- Guest buttons -->
+          <div id="mobile-auth-guest" class="flex flex-col gap-3">
+            <a href="login.html" class="px-4 py-2 rounded-full bg-cupidPink/10 text-cupidPink hover:bg-cupidPink/20 font-medium text-center">Log In</a>
+            <a href="signup.html" class="px-4 py-2 rounded-full bg-cupidPink text-white font-semibold text-center">Register</a>
+          </div>
+          
+          <!-- Logged in user -->
+          <div id="mobile-auth-user" class="hidden">
+            <div class="flex items-center gap-3 mb-4">
+              <div id="mobile-user-avatar" class="w-10 h-10 rounded-full bg-cupidPink text-white flex items-center justify-center font-semibold"></div>
+              <span id="mobile-user-name" class="text-cupidPink font-medium"></span>
+            </div>
+            <div class="flex flex-col gap-2">
+              <a href="settings.html" class="px-4 py-2 text-sm text-cupidPink hover:bg-cupidPink/5 rounded-lg">Settings</a>
+              <button id="mobile-logout-btn" class="px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg text-left">Logout</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile Navigation Links -->
+        <nav class="flex flex-col gap-4">
+          <a href="index.html" class="text-lg text-cupidPink font-semibold hover:bg-cupidPink/5 px-4 py-2 rounded-lg transition-colors">Home</a>
+          <a href="aboutus.html" class="text-lg hover:text-cupidPink hover:bg-cupidPink/5 px-4 py-2 rounded-lg transition-colors">About Us</a>
+          <a href="quiz.html" class="text-lg hover:text-cupidPink hover:bg-cupidPink/5 px-4 py-2 rounded-lg transition-colors">Quiz</a>
+          <a href="papers.html" class="text-lg hover:text-cupidPink hover:bg-cupidPink/5 px-4 py-2 rounded-lg transition-colors">Papers</a>
+          <a href="/chat/default" class="text-lg hover:text-cupidPink hover:bg-cupidPink/5 px-4 py-2 rounded-lg transition-colors">Chatbot</a>
+          <a href="contact.html" class="text-lg hover:text-cupidPink hover:bg-cupidPink/5 px-4 py-2 rounded-lg transition-colors">Contact</a>
         </nav>
       </div>
     </div>
@@ -284,10 +298,10 @@
     </div>
   </section>
 
-  <!--<script src="/frontend/app.js"></script>-->
-  <script src="/app.js"></script>
+  <script src="/frontend/app.js"></script>
+  <!-- <script src="/app.js"></script> -->
   <script src="server.js"></script>
-  <script>
+  <!-- <script>
     // Enhanced animations and interactions
     document.addEventListener('DOMContentLoaded', () => {
       // Mobile menu functionality
@@ -437,6 +451,89 @@
         });
       }, 250);
     });
+
+    function initProfileMenu_Fallback() {
+      if (typeof initProfileMenu === 'function') return initProfileMenu();
+      const btn = document.getElementById('profile-btn');
+      const menu = document.getElementById('profile-menu');
+      if (!btn || !menu) return;
+      const openCls = ['opacity-100','translate-y-2','scale-100','pointer-events-auto'];
+      const closedCls = ['opacity-0','-translate-y-2','scale-95','pointer-events-none'];
+      menu.classList.remove(...openCls); menu.classList.add(...closedCls);
+      btn.setAttribute('aria-haspopup','true'); btn.setAttribute('aria-expanded','false');
+      const open = () => { menu.classList.remove(...closedCls); menu.classList.add(...openCls); btn.setAttribute('aria-expanded','true'); };
+      const close = () => { menu.classList.remove(...openCls); menu.classList.add(...closedCls); btn.setAttribute('aria-expanded','false'); };
+      btn.addEventListener('click', e => { e.stopPropagation(); (menu.classList.contains('pointer-events-auto') ? close() : open()); });
+      document.addEventListener('click', () => close());
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      refreshAuthUI_Safe().then(initProfileMenu_Fallback);
+      document.getElementById('logout-btn')?.addEventListener('click', async () => {
+        try {
+          const r = await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
+          const j = await r.json();
+          if (j.success) { await refreshAuthUI_Safe(); window.location = '/'; }
+        } catch (err) { console.error(err); }
+      });
+    });
+  </script> -->
+
+    <script src="/frontend/app.js"></script>
+  <script>
+    async function refreshAuthUI_Safe() {
+      if (typeof refreshAuthUI === 'function') return refreshAuthUI();
+      try {
+        const res = await fetch('/api/me', { credentials: 'same-origin' });
+        const d = await res.json();
+        const guest = document.getElementById('auth-guest');
+        const userBox = document.getElementById('auth-user');
+        if (d.loggedIn) {
+          guest.classList.add('hidden');
+          userBox.classList.remove('hidden');
+          const name = d.user?.username || 'User';
+          const userNameEl = document.getElementById('user-name');
+          userNameEl.textContent = name;
+          const avatar = document.getElementById('user-avatar');
+          const parts = name.trim().split(/\s+/).filter(Boolean);
+          const initials = parts.length === 1 ? (/[A-ZaZ]/.test(parts[0][0]) ? parts[0][0].toUpperCase() : '#') : (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+          avatar.textContent = initials;
+        } else {
+          guest.classList.remove('hidden');
+          userBox.classList.add('hidden');
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    function initProfileMenu_Fallback() {
+      if (typeof initProfileMenu === 'function') return initProfileMenu();
+      const btn = document.getElementById('profile-btn');
+      const menu = document.getElementById('profile-menu');
+      if (!btn || !menu) return;
+      const openCls = ['opacity-100','translate-y-2','scale-100','pointer-events-auto'];
+      const closedCls = ['opacity-0','-translate-y-2','scale-95','pointer-events-none'];
+      menu.classList.remove(...openCls); menu.classList.add(...closedCls);
+      btn.setAttribute('aria-haspopup','true'); btn.setAttribute('aria-expanded','false');
+      const open = () => { menu.classList.remove(...closedCls); menu.classList.add(...openCls); btn.setAttribute('aria-expanded','true'); };
+      const close = () => { menu.classList.remove(...openCls); menu.classList.add(...closedCls); btn.setAttribute('aria-expanded','false'); };
+      btn.addEventListener('click', e => { e.stopPropagation(); (menu.classList.contains('pointer-events-auto') ? close() : open()); });
+      document.addEventListener('click', () => close());
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      refreshAuthUI_Safe().then(initProfileMenu_Fallback);
+      document.getElementById('logout-btn')?.addEventListener('click', async () => {
+        try {
+          const r = await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
+          const j = await r.json();
+          if (j.success) { await refreshAuthUI_Safe(); window.location = '/'; }
+        } catch (err) { console.error(err); }
+      });
+    });
   </script>
+
+  
 </body>
 </html>

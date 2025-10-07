@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Terms and Conditions • Course Cupid</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cupidPink: '#C05A66',
+            cupidCream: '#FAF5EF',
+          },
+          fontFamily: {
+            script: ['"Great Vibes"', 'cursive'],
+            sans: ['Inter', 'sans-serif'],
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.6s ease-out',
+            'slide-up': 'slideUp 0.8s ease-out',
+            'slide-left': 'slideLeft 0.8s ease-out',
+            'slide-right': 'slideRight 0.8s ease-out',
+            'float': 'float 3s ease-in-out infinite',
+            'pulse-slow': 'pulse 3s infinite',
+            'bounce-gentle': 'bounceGentle 2s infinite',
+            'scale-in': 'scaleIn 0.6s ease-out',
+            'shake': 'shake 0.5s ease-in-out',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' }
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(30px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            },
+            slideLeft: {
+              '0%': { opacity: '0', transform: 'translateX(-30px)' },
+              '100%': { opacity: '1', transform: 'translateX(0)' }
+            },
+            slideRight: {
+              '0%': { opacity: '0', transform: 'translateX(30px)' },
+              '100%': { opacity: '1', transform: 'translateX(0)' }
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-10px)' }
+            },
+            bounceGentle: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-5px)' }
+            },
+            scaleIn: {
+              '0%': { opacity: '0', transform: 'scale(0.9)' },
+              '100%': { opacity: '1', transform: 'scale(1)' }
+            },
+            shake: {
+              '0%, 100%': { transform: 'translateX(0)' },
+              '25%': { transform: 'translateX(-5px)' },
+              '75%': { transform: 'translateX(5px)' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    .hover-lift {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .hover-lift:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(192, 90, 102, 0.2);
+    }
+
+    .gradient-bg {
+      background: linear-gradient(135deg, #FAF5EF 0%, #f8f1e8 100%);
+    }
+
+    .animated-gradient {
+      background: linear-gradient(-45deg, #C05A66, #d67580, #C05A66, #b8525c);
+      background-size: 400% 400%;
+      animation: gradientShift 6s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(192, 90, 102, 0.1);
+    }
+
+    .input-focus {
+      transition: all 0.3s ease;
+    }
+
+    .input-focus:focus {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 25px -8px rgba(192, 90, 102, 0.3);
+      border-color: #C05A66;
+    }
+
+    .loading-spinner {
+      border: 2px solid transparent;
+      border-top: 2px solid currentColor;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .animate-on-scroll {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s ease-out;
+    }
+
+    .animate-on-scroll.animate {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .hero-gradient {
+      background: linear-gradient(135deg, rgba(192, 90, 102, 0.1) 0%, rgba(250, 245, 239, 0.8) 100%);
+    }
+
+    @media (max-width: 768px) {
+      .mobile-stack {
+        flex-direction: column;
+        gap: 1rem;
+      }
+    }
+  </style>
+</head>
+<body class="bg-cupidCream min-h-screen text-slate-900 flex flex-col">
+
+  <header class="flex items-center justify-between px-8 py-6">
+    <a href="index.html" class="flex items-center gap-3">
+      <img src="images/cupid_logo.png" alt="Course Cupid" class="h-8">
+      <span class="text-lg font-semibold text-cupidPink">Course Cupid</span>
+    </a>
+    <nav class="hidden md:flex gap-6 lg:gap-10 text-sm">
+      <a href="index.html" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+        Home
+        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+      </a>
+      <a href="aboutus.html" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+        About Us
+        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+      </a>
+      <a href="quiz.html" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+        Quiz
+        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+      </a>
+      <a href="papers.html" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+        Papers
+        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+      </a>
+      <a href="/chat/default" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+        Chatbot
+        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+      </a>
+      <a href="contact.html" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+        Contact
+        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+      </a>
+    </nav>
+<div id="auth-controls" class="flex items-center gap-4">
+      <div id="auth-guest" class="flex gap-3 items-center">
+        <a id="login-link" href="login.html" class="px-4 py-2 rounded-full bg-cupidPink/10 text-cupidPink hover:bg-cupidPink/20 font-medium">Log In</a>
+        <a id="signup-link" href="signup.html" class="px-4 py-2 rounded-full bg-cupidPink text-white font-semibold">Register</a>
+      </div>
+      <div id="auth-user" class="hidden relative flex items-center gap-2">
+        <div id="profile-btn" class="flex items-center gap-2 bg-white border border-cupidPink/20 rounded-full px-2 py-1 shadow-sm cursor-pointer">
+          <div id="user-avatar" class="w-8 h-8 rounded-full bg-cupidPink text-white flex items-center justify-center font-semibold text-sm"></div>
+          <span id="user-name" class="text-cupidPink font-medium text-sm max-w-[120px] truncate"></span>
+        </div>
+        <div id="profile-menu"
+             class="absolute right-0 top-full mt-2 w-44 bg-white rounded-lg shadow-lg border border-cupidPink/10 z-50 overflow-hidden
+                    transform transition-all duration-150 origin-top-right opacity-0 -translate-y-2 scale-95 pointer-events-none">
+          <div class="py-1">
+            <a href="settings.html" class="block px-4 py-2 text-sm text-cupidPink hover:bg-cupidPink/5">Settings</a>
+            <button id="logout-btn" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 px-8 py-12">
+    <div class="max-w-4xl mx-auto">
+      
+      <div class="mb-8">
+        <h1 class="ext-5xl sm:text-6xl lg:text-7xl font-script text-cupidPink mb-6 animate-float">Terms and Conditions</h1>
+        <p class="text-gray-600">Last updated: October 7, 2025</p>
+      </div>
+
+      <div class="bg-white rounded-xl p-6 mb-6 border border-cupidPink/10">
+        <p class="text-gray-700 leading-relaxed">
+          Welcome to Course Cupid! These Terms and Conditions outline the rules and regulations for using our course recommendation platform. 
+          By accessing or using Course Cupid, you agree to be bound by these terms. If you disagree with any part of these terms, 
+          please do not use our service.
+        </p>
+      </div>
+
+      <div class="space-y-6">
+
+        <section class="bg-white rounded-xl p-6 border border-cupidPink/10">
+          <h2 class="text-2xl font-semibold text-cupidPink mb-4">1. Acceptance of Terms</h2>
+          <div class="prose prose-gray max-w-none">
+            <p class="text-gray-700 mb-3">
+              By accessing and using Course Cupid, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions, 
+              as well as our Privacy Policy. These terms apply to all visitors, users, and others who access or use the service.
+            </p>
+            <p class="text-gray-700">
+              If you are using Course Cupid on behalf of an organization, you represent and warrant that you have the authority to bind 
+              that organization to these terms.
+            </p>
+          </div>
+        </section>
+
+        <section class="bg-white rounded-xl p-6 border border-cupidPink/10">
+          <h2 class="text-2xl font-semibold text-cupidPink mb-4">2. Use of Service</h2>
+          <div class="prose prose-gray max-w-none">
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">2.1 Eligibility</h3>
+            <p class="text-gray-700 mb-4">
+              Course Cupid is intended for students and prospective students of the University of Otago. You must be at least 13 years old to use this service. 
+            </p>
+            
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">2.2 Account Registration</h3>
+            <p class="text-gray-700 mb-4">
+              To access certain features, you may need to create an account. You agree to:
+            </p>
+            <ul class="list-disc list-inside text-gray-700 space-y-2 mb-4">
+              <li>Provide accurate, current, and complete information</li>
+              <li>Maintain and update your information to keep it accurate</li>
+              <li>Maintain the security of your password and account</li>
+              <li>Notify us immediately of any unauthorized use of your account</li>
+              <li>Accept responsibility for all activities that occur under your account</li>
+            </ul>
+
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">2.3 Acceptable Use</h3>
+            <p class="text-gray-700 mb-2">You agree NOT to:</p>
+            <ul class="list-disc list-inside text-gray-700 space-y-2">
+              <li>Use the service for any illegal or unauthorized purpose</li>
+              <li>Violate any laws in your jurisdiction</li>
+              <li>Infringe upon the rights of others</li>
+              <li>Transmit any malicious code, viruses, or harmful content</li>
+              <li>Attempt to gain unauthorized access to our systems</li>
+              <li>Interfere with or disrupt the service or servers</li>
+              <li>Use automated means to access the service without permission</li>
+              <li>Impersonate any person or entity</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="bg-white rounded-xl p-6 border border-cupidPink/10">
+          <h2 class="text-2xl font-semibold text-cupidPink mb-4">3. Course Recommendations and Advice</h2>
+          <div class="prose prose-gray max-w-none">
+            <p class="text-gray-700 mb-3">
+              <strong class="text-cupidPink">IMPORTANT DISCLAIMER:</strong> Course Cupid provides course recommendations and information as a guidance tool only. 
+              Our recommendations are based on algorithms, user input, and available course data.
+            </p>
+            <p class="text-gray-700 mb-3">
+              <strong>Course Cupid does NOT:</strong>
+            </p>
+            <ul class="list-disc list-inside text-gray-700 space-y-2 mb-4">
+              <li>Guarantee enrollment in any course</li>
+              <li>Replace official academic advising from the University of Otago</li>
+              <li>Provide official degree planning or graduation requirements</li>
+              <li>Guarantee the accuracy or completeness of course information</li>
+              <li>Accept liability for course selection decisions</li>
+            </ul>
+            <p class="text-gray-700">
+              <strong>You are responsible for:</strong> Verifying all course information with the University of Otago, consulting with official academic advisors, 
+              ensuring courses meet your degree requirements, and making your own informed decisions about course enrollment.
+            </p>
+          </div>
+        </section>
+
+        <section class="bg-white rounded-xl p-6 border border-cupidPink/10">
+          <h2 class="text-2xl font-semibold text-cupidPink mb-4">4. Intellectual Property Rights</h2>
+          <div class="prose prose-gray max-w-none">
+            <p class="text-gray-700 mb-3">
+              The Course Cupid service, including its original content, features, and functionality, is owned by Course Cupid and is protected by 
+              international copyright, trademark, patent, trade secret, and other intellectual property laws.
+            </p>
+            <p class="text-gray-700 mb-3">
+              Course information is sourced from the University of Otago and remains the property of the University. We display this information 
+              under fair use for educational purposes.
+            </p>
+            <p class="text-gray-700">
+              You may not reproduce, distribute, modify, create derivative works, publicly display, or exploit any part of our service without 
+              express written permission.
+            </p>
+          </div>
+        </section>
+
+        <section class="bg-white rounded-xl p-6 border border-cupidPink/10">
+          <h2 class="text-2xl font-semibold text-cupidPink mb-4">5. User-Generated Content</h2>
+          <div class="prose prose-gray max-w-none">
+            <p class="text-gray-700 mb-3">
+              By submitting content (such as quiz responses, reviews, or feedback), you grant Course Cupid a non-exclusive, worldwide, 
+              royalty-free license to use, reproduce, modify, and display that content for the purpose of operating and improving our service.
+            </p>
+            <p class="text-gray-700">
+              You retain ownership of your content and are responsible for ensuring it does not violate any laws or third-party rights.
+            </p>
+          </div>
+        </section>
+
+        <section class="bg-white rounded-xl p-6 border border-cupidPink/10">
+          <h2 class="text-2xl font-semibold text-cupidPink mb-4">6. Third-Party Links and Services</h2>
+          <div class="prose prose-gray max-w-none">
+            <p class="text-gray-700 mb-3">
+              Course Cupid may contain links to third-party websites or services (including the University of Otago website) that are not owned or controlled by us. 
+              We have no control over, and assume no responsibility for, the content, privacy policies, or practices of any third-party sites or services.
+            </p>
+            <p class="text-gray-700">
+              You acknowledge and agree that Course Cupid shall not be responsible or liable for any damage or loss caused by use of or reliance on 
+              any third-party content, goods, or services.
+            </p>
+          </div>
+        </section>
+
+        <section class="bg-white rounded-xl p-6 border border-cupidPink/10">
+          <h2 class="text-2xl font-semibold text-cupidPink mb-4">7. Limitation of Liability</h2>
+          <div class="prose prose-gray max-w-none">
+            <p class="text-gray-700 mb-3">
+              TO THE MAXIMUM EXTENT PERMITTED BY LAW, COURSE CUPID AND ITS AFFILIATES SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, 
+              CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, 
+              USE, GOODWILL, OR OTHER INTANGIBLE LOSSES.
+            </p>
+            <p class="text-gray-700">
+              This includes, but is not limited to, damages resulting from: course selection decisions, academic outcomes, enrollment issues, 
+              inaccurate information, service interruptions, or any other matter relating to Course Cupid.
+            </p>
+          </div>
+        </section>
+
+        <section class="bg-white rounded-xl p-6 border border-cupidPink/10">
+          <h2 class="text-2xl font-semibold text-cupidPink mb-4">8. Disclaimer of Warranties</h2>
+          <div class="prose prose-gray max-w-none">
+            <p class="text-gray-700 mb-3">
+              THE SERVICE IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS WITHOUT ANY WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED. 
+              COURSE CUPID DISCLAIMS ALL WARRANTIES, INCLUDING BUT NOT LIMITED TO MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+            </p>
+            <p class="text-gray-700">
+              We do not warrant that the service will be uninterrupted, secure, or error-free, that defects will be corrected, 
+              or that the service or servers are free of viruses or other harmful components.
+            </p>
+          </div>
+        </section>
+
+        <section class="bg-white rounded-xl p-6 border border-cupidPink/10">
+          <h2 class="text-2xl font-semibold text-cupidPink mb-4">9. Changes to Terms</h2>
+          <div class="prose prose-gray max-w-none">
+            <p class="text-gray-700 mb-3">
+              We reserve the right to modify these Terms and Conditions at any time. We will notify users of any material changes by 
+              posting the new terms on this page and updating the "Last Updated" date.
+            </p>
+            <p class="text-gray-700">
+              Your continued use of Course Cupid after any changes constitutes acceptance of the new terms.
+            </p>
+          </div>
+        </section>
+
+        <section class="bg-white rounded-xl p-6 border border-cupidPink/10">
+          <h2 class="text-2xl font-semibold text-cupidPink mb-4">10. Termination</h2>
+          <div class="prose prose-gray max-w-none">
+            <p class="text-gray-700 mb-3">
+              We may terminate or suspend your account and access to the service immediately, without prior notice or liability, for any reason, 
+              including if you breach these Terms and Conditions.
+            </p>
+            <p class="text-gray-700">
+              Upon termination, your right to use the service will immediately cease. All provisions that should reasonably survive termination 
+              shall survive, including ownership provisions, warranty disclaimers, and limitations of liability.
+            </p>
+          </div>
+        </section>
+
+        <section class="bg-white rounded-xl p-6 border border-cupidPink/10">
+          <h2 class="text-2xl font-semibold text-cupidPink mb-4">11. Governing Law</h2>
+          <div class="prose prose-gray max-w-none">
+            <p class="text-gray-700">
+              These Terms and Conditions shall be governed by and construed in accordance with the laws of New Zealand. 
+              Any disputes arising from these terms shall be subject to the exclusive jurisdiction of the courts of New Zealand.
+            </p>
+          </div>
+        </section>
+
+        <section class="bg-white rounded-xl p-6 border border-cupidPink/10">
+          <h2 class="text-2xl font-semibold text-cupidPink mb-4">12. Contact Information</h2>
+          <div class="prose prose-gray max-w-none">
+            <p class="text-gray-700 mb-3">
+              If you have any questions about these Terms and Conditions, please contact us:
+            </p>
+            <ul class="list-none text-gray-700 space-y-2">
+              <li><strong>Email:</strong> coursecupid@gmail.com</li>
+              <li><strong>Website:</strong> <a href="contact.html" class="text-cupidPink hover:underline">Contact Us</a></li>
+            </ul>
+          </div>
+        </section>
+
+      </div>
+
+      <div class="mt-8 bg-cupidPink/5 border border-cupidPink/20 rounded-xl p-6">
+        <p class="text-gray-700 text-center">
+          By using Course Cupid, you acknowledge that you have read and understood these Terms and Conditions and agree to be bound by them.
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="bg-white border-t border-cupidPink/10 mt-auto">
+    <div class="max-w-6xl mx-auto px-8 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+        <div class="lg:col-span-1">
+          <div class="flex items-center gap-3 mb-4">
+            <img src="images/cupid_logo.png" alt="Course Cupid" class="h-8">
+            <span class="text-lg font-semibold text-cupidPink">Course Cupid</span>
+          </div>
+          <p class="text-sm text-gray-600 mb-4">Helping students find their perfect course match at the University of Otago.</p>
+        </div>
+        <div>
+          <h3 class="font-semibold text-cupidPink mb-4">Quick Links</h3>
+          <ul class="space-y-2 text-sm">
+            <li><a href="index.html" class="text-gray-600 hover:text-cupidPink transition-colors">Home</a></li>
+            <li><a href="aboutus.html" class="text-gray-600 hover:text-cupidPink transition-colors">About Us</a></li>
+            <li><a href="quiz.html" class="text-gray-600 hover:text-cupidPink transition-colors">Quiz</a></li>
+            <li><a href="papers.html" class="text-gray-600 hover:text-cupidPink transition-colors">Papers</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-semibold text-cupidPink mb-4">Resources</h3>
+          <ul class="space-y-2 text-sm">
+            <li><a href="faq.html" class="text-gray-600 hover:text-cupidPink transition-colors">FAQ</a></li>
+            <li><a href="contact.html" class="text-gray-600 hover:text-cupidPink transition-colors">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-semibold text-cupidPink mb-4">Legal</h3>
+          <ul class="space-y-2 text-sm">
+            <li><a href="terms.html" class="text-gray-600 hover:text-cupidPink transition-colors">Terms & Conditions</a></li>
+            <li><a href="privacy.html" class="text-gray-600 hover:text-cupidPink transition-colors">Privacy Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-cupidPink/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <p class="text-sm text-gray-500">© <span class="copyright-year">2025</span> Course Cupid. Made with <span class="text-cupidPink">♥</span> for Otago students.</p>
+        <div class="flex gap-6 text-sm">
+          <a href="privacy.html" class="text-gray-500 hover:text-cupidPink transition-colors">Privacy</a>
+          <a href="terms.html" class="text-gray-500 hover:text-cupidPink transition-colors">Terms</a>
+          <a href="faq.html" class="text-gray-500 hover:text-cupidPink transition-colors">FAQ</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+<script src="/frontend/app.js"></script>
+  <script src="server.js"></script>
+    <script src="/frontend/app.js"></script>
+  <script>
+    async function refreshAuthUI_Safe() {
+      if (typeof refreshAuthUI === 'function') return refreshAuthUI();
+      try {
+        const res = await fetch('/api/me', { credentials: 'same-origin' });
+        const d = await res.json();
+        const guest = document.getElementById('auth-guest');
+        const userBox = document.getElementById('auth-user');
+        if (d.loggedIn) {
+          guest.classList.add('hidden');
+          userBox.classList.remove('hidden');
+          const name = d.user?.username || 'User';
+          const userNameEl = document.getElementById('user-name');
+          userNameEl.textContent = name;
+          const avatar = document.getElementById('user-avatar');
+          const parts = name.trim().split(/\s+/).filter(Boolean);
+          const initials = parts.length === 1 ? (/[A-ZaZ]/.test(parts[0][0]) ? parts[0][0].toUpperCase() : '#') : (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+          avatar.textContent = initials;
+        } else {
+          guest.classList.remove('hidden');
+          userBox.classList.add('hidden');
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    function initProfileMenu_Fallback() {
+      if (typeof initProfileMenu === 'function') return initProfileMenu();
+      const btn = document.getElementById('profile-btn');
+      const menu = document.getElementById('profile-menu');
+      if (!btn || !menu) return;
+      const openCls = ['opacity-100','translate-y-2','scale-100','pointer-events-auto'];
+      const closedCls = ['opacity-0','-translate-y-2','scale-95','pointer-events-none'];
+      menu.classList.remove(...openCls); menu.classList.add(...closedCls);
+      btn.setAttribute('aria-haspopup','true'); btn.setAttribute('aria-expanded','false');
+      const open = () => { menu.classList.remove(...closedCls); menu.classList.add(...openCls); btn.setAttribute('aria-expanded','true'); };
+      const close = () => { menu.classList.remove(...openCls); menu.classList.add(...closedCls); btn.setAttribute('aria-expanded','false'); };
+      btn.addEventListener('click', e => { e.stopPropagation(); (menu.classList.contains('pointer-events-auto') ? close() : open()); });
+      document.addEventListener('click', () => close());
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      refreshAuthUI_Safe().then(initProfileMenu_Fallback);
+      document.getElementById('logout-btn')?.addEventListener('click', async () => {
+        try {
+          const r = await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
+          const j = await r.json();
+          if (j.success) { await refreshAuthUI_Safe(); window.location = '/'; }
+        } catch (err) { console.error(err); }
+      });
+    });
+  </script>
+
+  
+</body>
+</html>

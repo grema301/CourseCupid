@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>FAQ • Course Cupid</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cupidPink: '#C05A66',
+            cupidCream: '#FAF5EF',
+          },
+          fontFamily: {
+            script: ['"Great Vibes"', 'cursive'],
+            sans: ['Inter', 'sans-serif'],
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.6s ease-out',
+            'slide-up': 'slideUp 0.8s ease-out',
+            'float': 'float 3s ease-in-out infinite',
+            'bounce-gentle': 'bounceGentle 2s infinite',
+            'scale-in': 'scaleIn 0.6s ease-out',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' }
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(30px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-10px)' }
+            },
+            bounceGentle: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-5px)' }
+            },
+            scaleIn: {
+              '0%': { opacity: '0', transform: 'scale(0.9)' },
+              '100%': { opacity: '1', transform: 'scale(1)' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    .hover-lift {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .hover-lift:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(192, 90, 102, 0.2);
+    }
+
+    .animated-gradient {
+      background: linear-gradient(-45deg, #C05A66, #d67580, #C05A66, #b8525c);
+      background-size: 400% 400%;
+      animation: gradientShift 6s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(192, 90, 102, 0.1);
+    }
+
+    /* FAQ Toggle Styles */
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease-out, padding 0.3s ease;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+    
+    .faq-answer.open {
+      max-height: 2000px;
+      transition: max-height 0.5s ease-in, padding 0.3s ease;
+      padding-top: 1rem;
+      padding-bottom: 1.25rem;
+    }
+    
+    .faq-icon {
+      transition: transform 0.3s ease;
+    }
+    
+    .faq-icon.open {
+      transform: rotate(180deg);
+    }
+
+    .faq-question:hover {
+      background-color: rgba(192, 90, 102, 0.05);
+    }
+
+    /* IMPROVED SPACING */
+    #getting-started,
+    #using-features,
+    #recommendations,
+    #account {
+      scroll-margin-top: 100px;
+    }
+
+    main > div > .space-y-8 > section {
+      margin-bottom: 4rem !important;
+      padding-bottom: 2rem;
+    }
+
+    .faq-item {
+      margin-bottom: 1.5rem !important;
+    }
+
+    section h2 {
+      margin-bottom: 2rem !important;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid rgba(192, 90, 102, 0.1);
+    }
+
+    .faq-answer p {
+      margin-bottom: 1rem;
+      line-height: 1.7;
+    }
+
+    .faq-answer p:last-child {
+      margin-bottom: 0;
+    }
+
+    .faq-answer ul,
+    .faq-answer ol {
+      margin-top: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .faq-answer li {
+      padding-left: 0.5rem;
+      line-height: 1.8;
+      margin-bottom: 0.5rem;
+    }
+
+    section:not(:last-child)::after {
+      content: '';
+      display: block;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(192, 90, 102, 0.1), transparent);
+      margin-top: 3rem;
+    }
+
+    @media (max-width: 768px) {
+      main > div > .space-y-8 > section {
+        margin-bottom: 3rem !important;
+      }
+
+      section h2 {
+        font-size: 1.75rem !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-cupidCream min-h-screen text-slate-900 flex flex-col">
+
+  <header class="flex items-center justify-between px-8 py-6">
+    <a href="index.html" class="flex items-center gap-3">
+      <img src="images/cupid_logo.png" alt="Course Cupid" class="h-8">
+      <span class="text-lg font-semibold text-cupidPink">Course Cupid</span>
+    </a>
+    <nav class="hidden md:flex gap-6 lg:gap-10 text-sm">
+      <a href="index.html" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+        Home
+        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+      </a>
+      <a href="aboutus.html" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+        About Us
+        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+      </a>
+      <a href="quiz.html" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+        Quiz
+        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+      </a>
+      <a href="papers.html" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+        Papers
+        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+      </a>
+      <a href="/chat/default" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+        Chatbot
+        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+      </a>
+      <a href="contact.html" class="hover:text-cupidPink transition-all duration-300 hover:scale-105 relative group">
+        Contact
+        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
+      </a>
+    </nav>
+    <div id="auth-controls" class="flex items-center gap-4">
+      <div id="auth-guest" class="flex gap-3 items-center">
+        <a id="login-link" href="login.html" class="px-4 py-2 rounded-full bg-cupidPink/10 text-cupidPink hover:bg-cupidPink/20 font-medium">Log In</a>
+        <a id="signup-link" href="signup.html" class="px-4 py-2 rounded-full bg-cupidPink text-white font-semibold">Register</a>
+      </div>
+      <div id="auth-user" class="hidden relative flex items-center gap-2">
+        <div id="profile-btn" class="flex items-center gap-2 bg-white border border-cupidPink/20 rounded-full px-2 py-1 shadow-sm cursor-pointer">
+          <div id="user-avatar" class="w-8 h-8 rounded-full bg-cupidPink text-white flex items-center justify-center font-semibold text-sm"></div>
+          <span id="user-name" class="text-cupidPink font-medium text-sm max-w-[120px] truncate"></span>
+        </div>
+        <div id="profile-menu" class="absolute right-0 top-full mt-2 w-44 bg-white rounded-lg shadow-lg border border-cupidPink/10 z-50 overflow-hidden transform transition-all duration-150 origin-top-right opacity-0 -translate-y-2 scale-95 pointer-events-none">
+          <div class="py-1">
+            <a href="settings.html" class="block px-4 py-2 text-sm text-cupidPink hover:bg-cupidPink/5">Settings</a>
+            <button id="logout-btn" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 px-8 py-12">
+    <div class="max-w-4xl mx-auto">
+      
+      <div class="mb-12 text-center">
+        <h1 class="text-5xl sm:text-6xl lg:text-7xl font-script text-cupidPink mb-6 animate-float">Frequently Asked Questions</h1>
+        <p class="text-gray-600 text-lg">Find answers to common questions about Course Cupid</p>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16 animate-scale-in">
+        <a href="#getting-started" class="text-center p-6 bg-white rounded-xl border border-cupidPink/10 hover:border-cupidPink/30 transition-all hover-lift">
+          <div class="text-4xl mb-3 animate-bounce-gentle">🚀</div>
+          <div class="text-sm font-semibold text-cupidPink">Getting Started</div>
+        </a>
+        <a href="#using-features" class="text-center p-6 bg-white rounded-xl border border-cupidPink/10 hover:border-cupidPink/30 transition-all hover-lift">
+          <div class="text-4xl mb-3 animate-bounce-gentle">✨</div>
+          <div class="text-sm font-semibold text-cupidPink">Using Features</div>
+        </a>
+        <a href="#recommendations" class="text-center p-6 bg-white rounded-xl border border-cupidPink/10 hover:border-cupidPink/30 transition-all hover-lift">
+          <div class="text-4xl mb-3 animate-bounce-gentle">💡</div>
+          <div class="text-sm font-semibold text-cupidPink">Recommendations</div>
+        </a>
+        <a href="#account" class="text-center p-6 bg-white rounded-xl border border-cupidPink/10 hover:border-cupidPink/30 transition-all hover-lift">
+          <div class="text-4xl mb-3 animate-bounce-gentle">👤</div>
+          <div class="text-sm font-semibold text-cupidPink">Account</div>
+        </a>
+      </div>
+
+      <!-- FAQ Categories -->
+      <div class="space-y-8">
+
+        <!-- Getting Started -->
+        <section id="getting-started">
+          <h2 class="text-3xl font-bold text-cupidPink mb-6 flex items-center gap-3">
+            <span class="text-4xl">🚀</span> Getting Started
+          </h2>
+          <div class="space-y-4">
+            
+            <div class="faq-item glass-effect rounded-xl overflow-hidden hover-lift">
+              <button class="faq-question w-full text-left px-6 py-5 flex justify-between items-center hover:bg-cupidPink/5 transition-colors">
+                <span class="font-semibold text-gray-800 text-lg">What is Course Cupid?</span>
+                <svg class="faq-icon w-6 h-6 text-cupidPink flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div class="faq-answer px-6">
+                <p class="text-gray-700 leading-relaxed">
+                  Course Cupid is an AI-powered course recommendation platform designed for University of Otago students. 
+                  We help you discover papers that match your interests, career goals, and academic path. Think of us as your 
+                  personal course matchmaker, using smart algorithms to suggest the perfect courses for you.
+                </p>
+              </div>
+            </div>
+
+            <div class="faq-item glass-effect rounded-xl overflow-hidden hover-lift">
+              <button class="faq-question w-full text-left px-6 py-5 flex justify-between items-center hover:bg-cupidPink/5 transition-colors">
+                <span class="font-semibold text-gray-800 text-lg">How do I get started?</span>
+                <svg class="faq-icon w-6 h-6 text-cupidPink flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div class="faq-answer px-6">
+                <p class="text-gray-700 mb-3 leading-relaxed">
+                  Getting started is easy! You can use Course Cupid in three ways:
+                </p>
+                <ol class="list-decimal list-inside text-gray-700 space-y-2 ml-2">
+                  <li><strong class="text-cupidPink">Take the Quiz:</strong> Answer questions about your interests and goals for personalized recommendations</li>
+                  <li><strong class="text-cupidPink">Chat with AI:</strong> Have a conversation with our chatbot to explore course options</li>
+                  <li><strong class="text-cupidPink">Browse Papers:</strong> Search and filter through all available University of Otago courses</li>
+                </ol>
+                <p class="text-gray-700 mt-3 leading-relaxed">
+                  No account required to browse, but creating one lets you save your preferences and track your favorite courses.
+                </p>
+              </div>
+            </div>
+
+            <div class="faq-item glass-effect rounded-xl overflow-hidden hover-lift">
+              <button class="faq-question w-full text-left px-6 py-5 flex justify-between items-center hover:bg-cupidPink/5 transition-colors">
+                <span class="font-semibold text-gray-800 text-lg">Do I need to create an account?</span>
+                <svg class="faq-icon w-6 h-6 text-cupidPink flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div class="faq-answer px-6">
+                <p class="text-gray-700 leading-relaxed">
+                  You can browse courses and get basic recommendations without an account. However, creating a free account gives you 
+                  access to personalized features like saving quiz results, tracking favorite courses, getting tailored recommendations 
+                  based on your profile, and accessing your chat history.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Using Features -->
+        <section id="using-features">
+          <h2 class="text-3xl font-bold text-cupidPink mb-6 flex items-center gap-3">
+            <span class="text-4xl">✨</span> Using Course Cupid Features
+          </h2>
+          <div class="space-y-4">
+
+            <div class="faq-item glass-effect rounded-xl overflow-hidden hover-lift">
+              <button class="faq-question w-full text-left px-6 py-5 flex justify-between items-center hover:bg-cupidPink/5 transition-colors">
+                <span class="font-semibold text-gray-800 text-lg">How does the quiz work?</span>
+                <svg class="faq-icon w-6 h-6 text-cupidPink flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div class="faq-answer px-6">
+                <p class="text-gray-700 mb-3 leading-relaxed">
+                  The Course Cupid quiz is a series of questions designed to understand your interests, learning style, career goals, 
+                  and academic preferences. Based on your answers, our AI algorithm generates personalized course recommendations.
+                </p>
+                <p class="text-gray-700 leading-relaxed">
+                  The quiz typically takes 5-10 minutes to complete. You can retake it anytime to get updated recommendations as 
+                  your interests evolve.
+                </p>
+              </div>
+            </div>
+
+            <div class="faq-item glass-effect rounded-xl overflow-hidden hover-lift">
+              <button class="faq-question w-full text-left px-6 py-5 flex justify-between items-center hover:bg-cupidPink/5 transition-colors">
+                <span class="font-semibold text-gray-800 text-lg">What can I ask the chatbot?</span>
+                <svg class="faq-icon w-6 h-6 text-cupidPink flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div class="faq-answer px-6">
+                <p class="text-gray-700 mb-3 leading-relaxed">
+                  Our AI chatbot can help you with:
+                </p>
+                <ul class="list-disc list-inside text-gray-700 space-y-2 ml-2">
+                  <li>Finding courses related to specific topics or subjects</li>
+                  <li>Understanding course prerequisites and requirements</li>
+                  <li>Exploring career pathways and relevant courses</li>
+                  <li>Comparing different papers</li>
+                  <li>Getting suggestions for electives</li>
+                  <li>Learning about course difficulty and workload</li>
+                </ul>
+                <p class="text-gray-700 mt-3 leading-relaxed">
+                  Just type your question naturally - the chatbot understands conversational language!
+                </p>
+              </div>
+            </div>
+
+            <div class="faq-item glass-effect rounded-xl overflow-hidden hover-lift">
+              <button class="faq-question w-full text-left px-6 py-5 flex justify-between items-center hover:bg-cupidPink/5 transition-colors">
+                <span class="font-semibold text-gray-800 text-lg">How do I browse courses?</span>
+                <svg class="faq-icon w-6 h-6 text-cupidPink flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div class="faq-answer px-6">
+                <p class="text-gray-700 leading-relaxed">
+                  Visit the Papers page to browse all available University of Otago courses. You can search by course code, name, 
+                  or filter by subject area, and more. Click on any course to see detailed information including 
+                  description, prerequisites, and enrollment details.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Recommendations -->
+        <section id="recommendations">
+          <h2 class="text-3xl font-bold text-cupidPink mb-6 flex items-center gap-3">
+            <span class="text-4xl">💡</span> Course Recommendations
+          </h2>
+          <div class="space-y-4">
+
+            <div class="faq-item glass-effect rounded-xl overflow-hidden hover-lift">
+              <button class="faq-question w-full text-left px-6 py-5 flex justify-between items-center hover:bg-cupidPink/5 transition-colors">
+                <span class="font-semibold text-gray-800 text-lg">How accurate are the recommendations?</span>
+                <svg class="faq-icon w-6 h-6 text-cupidPink flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div class="faq-answer px-6">
+                <p class="text-gray-700 mb-3 leading-relaxed">
+                  Our AI-powered recommendations are based on advanced algorithms that analyze your interests, academic history, 
+                  and goals. While we strive for accuracy, recommendations are guidance tools, not guarantees.
+                </p>
+                <p class="text-gray-700 leading-relaxed">
+                  <strong class="text-cupidPink">Important:</strong> Always verify course information with the official University of Otago course catalogue 
+                  and consult with academic advisors before making enrollment decisions.
+                </p>
+              </div>
+            </div>
+
+            <div class="faq-item glass-effect rounded-xl overflow-hidden hover-lift">
+              <button class="faq-question w-full text-left px-6 py-5 flex justify-between items-center hover:bg-cupidPink/5 transition-colors">
+                <span class="font-semibold text-gray-800 text-lg">Can Course Cupid guarantee I'll get into a course?</span>
+                <svg class="faq-icon w-6 h-6 text-cupidPink flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div class="faq-answer px-6">
+                <p class="text-gray-700 leading-relaxed">
+                  No. Course Cupid is a recommendation tool only. We don't handle course enrollment or registration. 
+                  Actual enrollment depends on meeting prerequisites, course availability, and the University's enrollment process. 
+                  Always check with the University of Otago for enrollment requirements and availability.
+                </p>
+              </div>
+            </div>
+
+            <div class="faq-item glass-effect rounded-xl overflow-hidden hover-lift">
+              <button class="faq-question w-full text-left px-6 py-5 flex justify-between items-center hover:bg-cupidPink/5 transition-colors">
+                <span class="font-semibold text-gray-800 text-lg">What if I don't like the recommendations?</span>
+                <svg class="faq-icon w-6 h-6 text-cupidPink flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div class="faq-answer px-6">
+                <p class="text-gray-700 mb-3 leading-relaxed">
+                  You can improve recommendations by:
+                </p>
+                <ul class="list-disc list-inside text-gray-700 space-y-2 ml-2">
+                  <li>Retaking the quiz with updated preferences</li>
+                  <li>Being more specific in your chatbot conversations</li>
+                  <li>Updating your profile interests if you have an account</li>
+                  <li>Browsing the Papers page to explore courses manually</li>
+                  <li>Providing feedback on recommendations (if logged in)</li>
+                </ul>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Account & Privacy -->
+        <section id="account">
+          <h2 class="text-3xl font-bold text-cupidPink mb-6 flex items-center gap-3">
+            <span class="text-4xl">👤</span> Account & Privacy
+          </h2>
+          <div class="space-y-4">
+
+            <div class="faq-item glass-effect rounded-xl overflow-hidden hover-lift">
+              <button class="faq-question w-full text-left px-6 py-5 flex justify-between items-center hover:bg-cupidPink/5 transition-colors">
+                <span class="font-semibold text-gray-800 text-lg">How do I create an account?</span>
+                <svg class="faq-icon w-6 h-6 text-cupidPink flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div class="faq-answer px-6">
+                <p class="text-gray-700 leading-relaxed">
+                  Click the "Register" button in the top right corner of any page. You'll need to provide an email address and 
+                  create a password. We recommend using your University of Otago email for the best experience.
+                </p>
+              </div>
+            </div>
+
+            <div class="faq-item glass-effect rounded-xl overflow-hidden hover-lift">
+              <button class="faq-question w-full text-left px-6 py-5 flex justify-between items-center hover:bg-cupidPink/5 transition-colors">
+                <span class="font-semibold text-gray-800 text-lg">Is my data safe?</span>
+                <svg class="faq-icon w-6 h-6 text-cupidPink flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div class="faq-answer px-6">
+                <p class="text-gray-700 mb-3 leading-relaxed">
+                  Yes! We take your privacy seriously. Your data is encrypted and stored securely. We never sell your personal 
+                  information to third parties.
+                </p>
+                <p class="text-gray-700 leading-relaxed">
+                  For more details, read our <a href="privacy.html" class="text-cupidPink hover:underline font-semibold">Privacy Policy</a>.
+                </p>
+              </div>
+            </div>
+
+            <div class="faq-item glass-effect rounded-xl overflow-hidden hover-lift">
+              <button class="faq-question w-full text-left px-6 py-5 flex justify-between items-center hover:bg-cupidPink/5 transition-colors">
+                <span class="font-semibold text-gray-800 text-lg">How do I delete my account?</span>
+                <svg class="faq-icon w-6 h-6 text-cupidPink flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div class="faq-answer px-6">
+                <p class="text-gray-700 leading-relaxed">
+                  Go to your account Settings page and select "Delete Account" at the bottom. This will permanently remove your 
+                  data from our system. Alternatively, you can contact us at coursecupid@gmail.com to request account deletion.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Technical Issues -->
+        <section>
+          <h2 class="text-3xl font-bold text-cupidPink mb-6 flex items-center gap-3">
+            <span class="text-4xl">🔧</span> Technical Issues
+          </h2>
+          <div class="space-y-4">
+
+            <div class="faq-item glass-effect rounded-xl overflow-hidden hover-lift">
+              <button class="faq-question w-full text-left px-6 py-5 flex justify-between items-center hover:bg-cupidPink/5 transition-colors">
+                <span class="font-semibold text-gray-800 text-lg">The chatbot isn't responding. What should I do?</span>
+                <svg class="faq-icon w-6 h-6 text-cupidPink flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div class="faq-answer px-6">
+                <p class="text-gray-700 mb-3 leading-relaxed">
+                  Try these troubleshooting steps:
+                </p>
+                <ol class="list-decimal list-inside text-gray-700 space-y-2 ml-2">
+                  <li>Refresh the page</li>
+                  <li>Clear your browser cache and cookies</li>
+                  <li>Try a different browser</li>
+                  <li>Check your internet connection</li>
+                  <li>Wait a few minutes and try again (the server might be experiencing high traffic)</li>
+                </ol>
+                <p class="text-gray-700 mt-3 leading-relaxed">
+                  If the problem persists, please <a href="contact.html" class="text-cupidPink hover:underline font-semibold">contact us</a>.
+                </p>
+              </div>
+            </div>
+
+            <div class="faq-item glass-effect rounded-xl overflow-hidden hover-lift">
+              <button class="faq-question w-full text-left px-6 py-5 flex justify-between items-center hover:bg-cupidPink/5 transition-colors">
+                <span class="font-semibold text-gray-800 text-lg">I forgot my password. How do I reset it?</span>
+                <svg class="faq-icon w-6 h-6 text-cupidPink flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div class="faq-answer px-6">
+                <p class="text-gray-700 leading-relaxed">
+                  Click "Log In" and then select "Forgot Password" on the login page. Enter your email address, and we'll send 
+                  you a password reset link. If you don't receive the email within a few minutes, check your spam folder.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Still Have Questions CTA -->
+      <div class="mt-20 animated-gradient rounded-2xl p-10 text-center text-white animate-scale-in">
+        <h2 class="text-3xl font-bold mb-4">Still Have Questions?</h2>
+        <p class="text-white/90 mb-8 text-lg">
+          Can't find what you're looking for? We're here to help!
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a href="contact.html" class="px-8 py-4 bg-white text-cupidPink rounded-full font-semibold hover:bg-cupidCream transition-all hover-lift">
+            Contact Support
+          </a>
+          <a href="/chat/default" class="px-8 py-4 bg-cupidPink/20 text-white rounded-full font-semibold border-2 border-white hover:bg-white hover:text-cupidPink transition-all hover-lift">
+            Chat with AI
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-cupidPink/10 mt-auto">
+    <div class="max-w-6xl mx-auto px-8 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+        <div class="lg:col-span-1">
+          <div class="flex items-center gap-3 mb-4">
+            <img src="images/cupid_logo.png" alt="Course Cupid" class="h-8">
+            <span class="text-lg font-semibold text-cupidPink">Course Cupid</span>
+          </div>
+          <p class="text-sm text-gray-600 mb-4">Helping students find their perfect course match at the University of Otago.</p>
+        </div>
+        <div>
+          <h3 class="font-semibold text-cupidPink mb-4">Quick Links</h3>
+          <ul class="space-y-2 text-sm">
+            <li><a href="index.html" class="text-gray-600 hover:text-cupidPink transition-colors">Home</a></li>
+            <li><a href="aboutus.html" class="text-gray-600 hover:text-cupidPink transition-colors">About Us</a></li>
+            <li><a href="quiz.html" class="text-gray-600 hover:text-cupidPink transition-colors">Quiz</a></li>
+            <li><a href="papers.html" class="text-gray-600 hover:text-cupidPink transition-colors">Papers</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-semibold text-cupidPink mb-4">Resources</h3>
+          <ul class="space-y-2 text-sm">
+            <li><a href="faq.html" class="text-gray-600 hover:text-cupidPink transition-colors">FAQ</a></li>
+            <li><a href="contact.html" class="text-gray-600 hover:text-cupidPink transition-colors">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-semibold text-cupidPink mb-4">Legal</h3>
+          <ul class="space-y-2 text-sm">
+            <li><a href="terms.html" class="text-gray-600 hover:text-cupidPink transition-colors">Terms & Conditions</a></li>
+            <li><a href="privacy.html" class="text-gray-600 hover:text-cupidPink transition-colors">Privacy Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-cupidPink/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <p class="text-sm text-gray-500">© 2025 Course Cupid. Made with <span class="text-cupidPink">♥</span> for Otago students.</p>
+        <div class="flex gap-6 text-sm">
+          <a href="privacy.html" class="text-gray-500 hover:text-cupidPink transition-colors">Privacy</a>
+          <a href="terms.html" class="text-gray-500 hover:text-cupidPink transition-colors">Terms</a>
+          <a href="faq.html" class="text-gray-500 hover:text-cupidPink transition-colors">FAQ</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/frontend/app.js"></script>
+  <script src="server.js"></script>
+  <script src="/frontend/app.js"></script>
+  <script>
+    // FAQ Toggle JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get all FAQ question buttons
+      const faqQuestions = document.querySelectorAll('.faq-question');
+      
+      faqQuestions.forEach(question => {
+        question.addEventListener('click', function() {
+          const faqItem = this.closest('.faq-item');
+          const answer = faqItem.querySelector('.faq-answer');
+          const icon = this.querySelector('.faq-icon');
+          
+          // Check if currently open
+          const isOpen = answer.classList.contains('open');
+          
+          // Toggle current FAQ
+          if (isOpen) {
+            answer.classList.remove('open');
+            icon.classList.remove('open');
+            this.setAttribute('aria-expanded', 'false');
+          } else {
+            answer.classList.add('open');
+            icon.classList.add('open');
+            this.setAttribute('aria-expanded', 'true');
+          }
+        });
+        
+        // Keyboard accessibility
+        question.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            this.click();
+          }
+        });
+      });
+      
+      // Smooth scroll for quick links
+      document.querySelectorAll('a[href^="#"]').forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const targetId = this.getAttribute('href');
+          const targetSection = document.querySelector(targetId);
+          
+          if (targetSection) {
+            targetSection.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        });
+      });
+    });
+
+    // Auth UI functions
+    async function refreshAuthUI_Safe() {
+      if (typeof refreshAuthUI === 'function') return refreshAuthUI();
+      try {
+        const res = await fetch('/api/me', { credentials: 'same-origin' });
+        const d = await res.json();
+        const guest = document.getElementById('auth-guest');
+        const userBox = document.getElementById('auth-user');
+        if (d.loggedIn) {
+          guest.classList.add('hidden');
+          userBox.classList.remove('hidden');
+          const name = d.user?.username || 'User';
+          document.getElementById('user-name').textContent = name;
+          const avatar = document.getElementById('user-avatar');
+          const parts = name.trim().split(/\s+/).filter(Boolean);
+          const initials = parts.length === 1 ? (parts[0][0] || '#').toUpperCase() : (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+          avatar.textContent = initials;
+        } else {
+          guest.classList.remove('hidden');
+          userBox.classList.add('hidden');
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    function initProfileMenu_Fallback() {
+      if (typeof initProfileMenu === 'function') return initProfileMenu();
+      const btn = document.getElementById('profile-btn');
+      const menu = document.getElementById('profile-menu');
+      if (!btn || !menu) return;
+      const openCls = ['opacity-100','translate-y-2','scale-100','pointer-events-auto'];
+      const closedCls = ['opacity-0','-translate-y-2','scale-95','pointer-events-none'];
+      const open = () => { menu.classList.remove(...closedCls); menu.classList.add(...openCls); btn.setAttribute('aria-expanded','true'); };
+      const close = () => { menu.classList.remove(...openCls); menu.classList.add(...closedCls); btn.setAttribute('aria-expanded','false'); };
+      btn.addEventListener('click', e => { e.stopPropagation(); (menu.classList.contains('pointer-events-auto') ? close() : open()); });
+      document.addEventListener('click', () => close());
+    }
+
+    refreshAuthUI_Safe().then(initProfileMenu_Fallback);
+    
+    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+      try {
+        const r = await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
+        const j = await r.json();
+        if (j.success) { await refreshAuthUI_Safe(); window.location = '/'; }
+      } catch (err) { console.error(err); }
+    });
+  </script>
+</body>
+</html>

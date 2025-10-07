@@ -146,6 +146,82 @@
       }
     }
   </style>
+  <!--Styling for the collapsible menu-->
+  <style>
+/* Mobile Menu Scrolling Styles */
+#mobile-menu {
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+#mobile-menu:not(.open) {
+  transform: translateX(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+#mobile-menu.open {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Scrollable content area */
+#mobile-menu .overflow-y-auto {
+  /* Smooth scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+  /* Hide scrollbar for cleaner look (optional) */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(192, 90, 102, 0.3) transparent;
+}
+
+/* Custom scrollbar styling (WebKit browsers) */
+#mobile-menu .overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+#mobile-menu .overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#mobile-menu .overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: rgba(192, 90, 102, 0.3);
+  border-radius: 3px;
+}
+
+#mobile-menu .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(192, 90, 102, 0.5);
+}
+
+/* Backdrop styling */
+#mobile-menu-backdrop {
+  transition: opacity 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+#mobile-menu:not(.open) #mobile-menu-backdrop {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#mobile-menu.open #mobile-menu-backdrop {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Close button hover effect */
+#mobile-menu-close {
+  cursor: pointer;
+}
+
+#mobile-menu-close:hover {
+  transform: scale(1.1);
+}
+
+/* Prevent body scroll when menu is open */
+body.menu-open {
+  overflow: hidden;
+}
+</style>
 </head>
 <body class="bg-cupidCream min-h-screen text-slate-900 flex flex-col">
 
@@ -200,7 +276,77 @@
         </div>
       </div>
     </div>
+
+    <!-- ========== HAMBURGER BUTTON - ADD THIS ========== -->
+    <button id="hamburger-btn" class="md:hidden flex flex-col gap-1.5 p-2 hamburger z-50" aria-label="Toggle menu">
+      <span class="hamburger-line line1 w-6 h-0.5 bg-cupidPink block"></span>
+      <span class="hamburger-line line2 w-6 h-0.5 bg-cupidPink block"></span>
+      <span class="hamburger-line line3 w-6 h-0.5 bg-cupidPink block"></span>
+    </button>
+    <!-- ========== END HAMBURGER BUTTON ========== -->
   </header>
+
+<!-- MOBILE MENU - Updated with Scrollable Content -->
+<div id="mobile-menu" class="fixed inset-0 z-50 md:hidden">
+  <!-- Backdrop -->
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="mobile-menu-backdrop"></div>
+  
+  <!-- Menu Panel - UPDATED: Added overflow and height management -->
+  <div class="absolute right-0 top-0 h-full w-64 bg-white shadow-xl flex flex-col">
+    
+    <!-- Close Button - Fixed at top, outside scrollable area -->
+    <div class="flex-shrink-0 relative h-16 border-b border-cupidPink/10">
+      <button id="mobile-menu-close" 
+              class="absolute top-4 right-4 p-2 text-cupidPink hover:bg-cupidPink/10 rounded-lg transition-colors z-10"
+              aria-label="Close menu">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Scrollable Content Area - IMPORTANT: This div scrolls -->
+    <div class="flex-1 overflow-y-auto overscroll-contain">
+      <div class="p-6">
+        
+        <!-- Mobile Auth Section -->
+        <div id="mobile-auth" class="mb-8 pb-6 border-b border-cupidPink/10">
+          <!-- Guest buttons -->
+          <div id="mobile-auth-guest" class="flex flex-col gap-3">
+            <a href="login.html" class="px-4 py-2 rounded-full bg-cupidPink/10 text-cupidPink hover:bg-cupidPink/20 font-medium text-center transition-colors">Log In</a>
+            <a href="signup.html" class="px-4 py-2 rounded-full bg-cupidPink text-white font-semibold text-center hover:bg-cupidPink/90 transition-colors">Register</a>
+          </div>
+          
+          <!-- Logged in user -->
+          <div id="mobile-auth-user" class="hidden">
+            <div class="flex items-center gap-3 mb-4">
+              <div id="mobile-user-avatar" class="w-10 h-10 rounded-full bg-cupidPink text-white flex items-center justify-center font-semibold"></div>
+              <span id="mobile-user-name" class="text-cupidPink font-medium"></span>
+            </div>
+            <div class="flex flex-col gap-2">
+              <a href="settings.html" class="px-4 py-2 text-sm text-cupidPink hover:bg-cupidPink/5 rounded-lg transition-colors">Settings</a>
+              <button id="mobile-logout-btn" class="px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg text-left transition-colors">Logout</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile Navigation Links -->
+        <nav class="flex flex-col gap-2">
+          <a href="index.html" class="text-lg hover:text-cupidPink hover:bg-cupidPink/5 px-4 py-3 rounded-lg transition-colors">Home</a>
+          <a href="aboutus.html" class="text-lg hover:text-cupidPink hover:bg-cupidPink/5 px-4 py-3 rounded-lg transition-colors">About Us</a>
+          <a href="quiz.html" class="text-lg hover:text-cupidPink hover:bg-cupidPink/5 px-4 py-3 rounded-lg transition-colors">Quiz</a>
+          <a href="papers.html" class="text-lg hover:text-cupidPink hover:bg-cupidPink/5 px-4 py-3 rounded-lg transition-colors">Papers</a>
+          <a href="/chat/default" class="text-lg hover:text-cupidPink hover:bg-cupidPink/5 px-4 py-3 rounded-lg transition-colors">Chatbot</a>
+          <a href="contact.html" class="text-lg hover:text-cupidPink hover:bg-cupidPink/5 px-4 py-3 rounded-lg transition-colors">Contact</a>
+          <a href="faq.html" class="text-lg hover:text-cupidPink hover:bg-cupidPink/5 px-4 py-3 rounded-lg transition-colors">FAQ</a>
+        </nav>
+
+        <!-- Extra bottom padding for better scroll experience -->
+        <div class="h-8"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
   <main class="flex-1 px-8 py-12">
     <div class="max-w-4xl mx-auto">
@@ -556,6 +702,101 @@
         } catch (err) { console.error(err); }
       });
     });
+
+    document.addEventListener('DOMContentLoaded', function() {
+  const hamburgerBtn = document.getElementById('hamburger-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const mobileMenuClose = document.getElementById('mobile-menu-close');
+  const mobileMenuBackdrop = document.getElementById('mobile-menu-backdrop');
+  const mobileNavLinks = document.querySelectorAll('#mobile-menu nav a');
+
+  function openMenu() {
+    mobileMenu.classList.add('open');
+    hamburgerBtn?.classList.add('open');
+    document.body.classList.add('menu-open'); // Prevent background scrolling
+    syncMobileAuth();
+  }
+
+  function closeMenu() {
+    mobileMenu.classList.remove('open');
+    hamburgerBtn?.classList.remove('open');
+    document.body.classList.remove('menu-open'); // Restore scrolling
+  }
+
+  // Hamburger button
+  if (hamburgerBtn) {
+    hamburgerBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      mobileMenu.classList.contains('open') ? closeMenu() : openMenu();
+    });
+  }
+
+  // Close button
+  if (mobileMenuClose) {
+    mobileMenuClose.addEventListener('click', function(e) {
+      e.stopPropagation();
+      closeMenu();
+    });
+  }
+
+  // Backdrop click
+  if (mobileMenuBackdrop) {
+    mobileMenuBackdrop.addEventListener('click', closeMenu);
+  }
+
+  // Close when clicking nav links
+  mobileNavLinks.forEach(link => {
+    link.addEventListener('click', closeMenu);
+  });
+
+  // Close on escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && mobileMenu.classList.contains('open')) {
+      closeMenu();
+    }
+  });
+
+  // Prevent menu panel clicks from closing menu
+  const menuPanel = mobileMenu?.querySelector('.absolute.right-0');
+  if (menuPanel) {
+    menuPanel.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+  }
+
+  // Sync mobile auth state
+  function syncMobileAuth() {
+    const desktopUser = document.getElementById('auth-user');
+    const mobileGuest = document.getElementById('mobile-auth-guest');
+    const mobileUser = document.getElementById('mobile-auth-user');
+
+    if (desktopUser && !desktopUser.classList.contains('hidden')) {
+      const userName = document.getElementById('user-name')?.textContent;
+      const userAvatar = document.getElementById('user-avatar')?.textContent;
+      
+      mobileGuest?.classList.add('hidden');
+      mobileUser?.classList.remove('hidden');
+      
+      if (userName) document.getElementById('mobile-user-name').textContent = userName;
+      if (userAvatar) document.getElementById('mobile-user-avatar').textContent = userAvatar;
+    } else {
+      mobileGuest?.classList.remove('hidden');
+      mobileUser?.classList.add('hidden');
+    }
+  }
+
+  document.getElementById('mobile-logout-btn')?.addEventListener('click', async function() {
+    try {
+      const r = await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
+      const j = await r.json();
+      if (j.success) window.location = '/';
+    } catch (err) {
+      console.error(err);
+    }
+  });
+
+  setTimeout(syncMobileAuth, 200);
+});
   </script>
 
   

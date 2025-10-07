@@ -132,63 +132,6 @@
 
   <!-- chat app script -->
   <script src="/js/chat.js"></script>
-  <script>
-    function getCurrentSessionID() {
-      const path = window.location.pathname;
-      const match = path.match(/\/chat\/(.+)/);
-      return match ? match[1] : null;
-    }
-
-    async function deleteSession(){
-      try {
-        const sessionID = getCurrentSessionID();
-
-        //Add a confirm deletion with user? somewhere eventually
-        //const response = await fetch(`/api/chat-sessions/${sessionID}`, {
-        const response = await fetch(`/api/chat-sessions/${sessionID}`, {
-            method: 'DELETE'
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.success) {
-            alert('Session deleted successfully!');
-            
-            //redirect to default page
-            window.location.href = '/'; 
-            
-        } else {
-            throw new Error(data.message || 'Failed to delete session');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        alert('Failed to delete session');
-      }
-    }
-
-    /**Function to let user create a new chat session, is redirected */
-    async function startCreateSession() {
-        try {
-        console.log('Creating chat session...');
-        
-        const response = await fetch('/api/chat-sessions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-        });
-        
-        const data = await response.json();
-        console.log('Created session:', data);
-        
-        if (data.session_id) {
-            alert(`Success! Created session: ${data.session_id}`);
-            window.location.href = `/chat/${data.session_id}`;
-        }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Failed to create session');
-        }
-    }
-
-  </script>
+  <script src="../app.js"></script>
 </body>
 </html>

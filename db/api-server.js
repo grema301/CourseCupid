@@ -355,20 +355,26 @@ router.post('/chat-sessions', async (req, res) => {
   }
 });
 
-//DO NOT TOUCH Handle deleting a session
-router.delete('/chat-sessions/:sessionID', async (req, res) => {
+
+// Handles deleting a cupid chat session, and a paper match session 
+router.delete('/chat-sessions/:identifier', async (req, res) => {
   try {
-    const { sessionID } = req.params;
+    const { identifier } = req.params;
+
+    // See if user is logged in
+    const userId = req.session?.userId || null;
+
+    // Check if its a UUID chat session, or a Paper chat
+    const isSessionId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
     
-    if (!sessionID) {
-      return res.status(400).json({ success: false, message: 'Session ID is required'});
+    if (isSessionId){ // Delete a cupid chat session
+      await pool.query('DELETE FROM Chat_Session WHERE session_id = $1', [identifier]);
+    }else{ // Delete a paper match chat session
+      await pool.query('DELETE FROM user_paper_matches WHERE user_id = $1 AND paper_code = $2;', [userId, identifier]);
     }
 
-    //should add cascade to schema, deal with dependencies
-    await pool.query('DELETE FROM Chat_Session WHERE session_id = $1', [sessionID]);
-    
     res.json({ 
-      success: true, message: 'Session deleted successfully', sessionID: sessionID
+      success: true, message: 'Session deleted successfully', identifier: identifier
     });
     
   } catch (error) {
@@ -376,6 +382,8 @@ router.delete('/chat-sessions/:sessionID', async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to delete session' });
   }
 });
+
+
 
 // Gets chat sessions to display based on login status
 router.get('/chat-sessions', async (req, res) => {

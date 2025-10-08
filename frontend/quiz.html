@@ -141,6 +141,83 @@
       }
     }
   </style>
+
+  <!--Styling for the collapsible menu-->
+  <style>
+/* Mobile Menu Scrolling Styles */
+#mobile-menu {
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+#mobile-menu:not(.open) {
+  transform: translateX(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+#mobile-menu.open {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Scrollable content area */
+#mobile-menu .overflow-y-auto {
+  /* Smooth scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+  /* Hide scrollbar for cleaner look (optional) */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(192, 90, 102, 0.3) transparent;
+}
+
+/* Custom scrollbar styling (WebKit browsers) */
+#mobile-menu .overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+#mobile-menu .overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#mobile-menu .overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: rgba(192, 90, 102, 0.3);
+  border-radius: 3px;
+}
+
+#mobile-menu .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(192, 90, 102, 0.5);
+}
+
+/* Backdrop styling */
+#mobile-menu-backdrop {
+  transition: opacity 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+#mobile-menu:not(.open) #mobile-menu-backdrop {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#mobile-menu.open #mobile-menu-backdrop {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Close button hover effect */
+#mobile-menu-close {
+  cursor: pointer;
+}
+
+#mobile-menu-close:hover {
+  transform: scale(1.1);
+}
+
+/* Prevent body scroll when menu is open */
+body.menu-open {
+  overflow: hidden;
+}
+</style>
 </head>
 
 <body class="gradient-bg min-h-screen flex flex-col overflow-x-hidden">
@@ -177,25 +254,97 @@
         <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
       </a>
     </nav>
-
-    <div id="auth-controls" class="flex items-center gap-2 sm:gap-4">
-      <div id="auth-guest" class="flex gap-2 sm:gap-3 items-center mobile-stack">
-        <a href="login.html" class="px-3 sm:px-4 py-2 rounded-full bg-cupidPink/10 text-cupidPink hover:bg-cupidPink/20 font-medium text-sm transition-all duration-300 hover-lift">
-          Log In
-        </a>
-        <a href="signup.html" class="px-3 sm:px-4 py-2 rounded-full animated-gradient text-white font-semibold text-sm hover-lift">
-          Register
-        </a>
+    <div id="auth-controls" class="flex items-center gap-4">
+      <div id="auth-guest" class="flex gap-3 items-center">
+        <a id="login-link" href="login.html" class="px-4 py-2 rounded-full bg-cupidPink/10 text-cupidPink hover:bg-cupidPink/20 font-medium">Log In</a>
+        <a id="signup-link" href="signup.html" class="px-4 py-2 rounded-full bg-cupidPink text-white font-semibold">Register</a>
       </div>
-      <div id="auth-user" class="hidden flex items-center gap-2">
-        <div class="flex items-center gap-2 bg-white border border-cupidPink/20 rounded-full px-2 py-1 shadow-sm hover-lift">
+      <div id="auth-user" class="hidden relative flex items-center gap-2">
+        <div id="profile-btn" class="flex items-center gap-2 bg-white border border-cupidPink/20 rounded-full px-2 py-1 shadow-sm cursor-pointer">
           <div id="user-avatar" class="w-8 h-8 rounded-full bg-cupidPink text-white flex items-center justify-center font-semibold text-sm"></div>
           <span id="user-name" class="text-cupidPink font-medium text-sm max-w-[120px] truncate"></span>
         </div>
-        <button id="logout-btn" class="ml-1 px-3 py-1 rounded-full bg-transparent border border-cupidPink/20 text-cupidPink hover:bg-cupidPink/10 text-sm transition-all duration-300 hover-lift">Logout</button>
+        <div id="profile-menu"
+             class="absolute right-0 top-full mt-2 w-44 bg-white rounded-lg shadow-lg border border-cupidPink/10 z-50 overflow-hidden
+                    transform transition-all duration-150 origin-top-right opacity-0 -translate-y-2 scale-95 pointer-events-none">
+          <div class="py-1">
+            <a href="settings.html" class="block px-4 py-2 text-sm text-cupidPink hover:bg-cupidPink/5">Settings</a>
+            <button id="logout-btn" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Logout</button>
+          </div>
+        </div>
       </div>
     </div>
+
+    <!-- ========== HAMBURGER BUTTON - ADD THIS ========== -->
+    <button id="hamburger-btn" class="md:hidden flex flex-col gap-1.5 p-2 hamburger z-50" aria-label="Toggle menu">
+      <span class="hamburger-line line1 w-6 h-0.5 bg-cupidPink block"></span>
+      <span class="hamburger-line line2 w-6 h-0.5 bg-cupidPink block"></span>
+      <span class="hamburger-line line3 w-6 h-0.5 bg-cupidPink block"></span>
+    </button>
+    <!-- ========== END HAMBURGER BUTTON ========== -->
   </header>
+
+<!-- MOBILE MENU - Updated with Scrollable Content -->
+<div id="mobile-menu" class="fixed inset-0 z-50 md:hidden">
+  <!-- Backdrop -->
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="mobile-menu-backdrop"></div>
+  
+  <!-- Menu Panel - UPDATED: Added overflow and height management -->
+  <div class="absolute right-0 top-0 h-full w-64 bg-white shadow-xl flex flex-col">
+    
+    <!-- Close Button - Fixed at top, outside scrollable area -->
+    <div class="flex-shrink-0 relative h-16 border-b border-cupidPink/10">
+      <button id="mobile-menu-close" 
+              class="absolute top-4 right-4 p-2 text-cupidPink hover:bg-cupidPink/10 rounded-lg transition-colors z-10"
+              aria-label="Close menu">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Scrollable Content Area - IMPORTANT: This div scrolls -->
+    <div class="flex-1 overflow-y-auto overscroll-contain">
+      <div class="p-6">
+        
+        <!-- Mobile Auth Section -->
+        <div id="mobile-auth" class="mb-8 pb-6 border-b border-cupidPink/10">
+          <!-- Guest buttons -->
+          <div id="mobile-auth-guest" class="flex flex-col gap-3">
+            <a href="login.html" class="px-4 py-2 rounded-full bg-cupidPink/10 text-cupidPink hover:bg-cupidPink/20 font-medium text-center transition-colors">Log In</a>
+            <a href="signup.html" class="px-4 py-2 rounded-full bg-cupidPink text-white font-semibold text-center hover:bg-cupidPink/90 transition-colors">Register</a>
+          </div>
+          
+          <!-- Logged in user -->
+          <div id="mobile-auth-user" class="hidden">
+            <div class="flex items-center gap-3 mb-4">
+              <div id="mobile-user-avatar" class="w-10 h-10 rounded-full bg-cupidPink text-white flex items-center justify-center font-semibold"></div>
+              <span id="mobile-user-name" class="text-cupidPink font-medium"></span>
+            </div>
+            <div class="flex flex-col gap-2">
+              <a href="settings.html" class="px-4 py-2 text-sm text-cupidPink hover:bg-cupidPink/5 rounded-lg transition-colors">Settings</a>
+              <button id="mobile-logout-btn" class="px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg text-left transition-colors">Logout</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile Navigation Links -->
+        <nav class="flex flex-col gap-2">
+          <a href="index.html" class="text-lg hover:text-cupidPink hover:bg-cupidPink/5 px-4 py-3 rounded-lg transition-colors">Home</a>
+          <a href="aboutus.html" class="text-lg hover:text-cupidPink hover:bg-cupidPink/5 px-4 py-3 rounded-lg transition-colors">About Us</a>
+          <a href="quiz.html" class="text-lg text-cupidPink font-semibold hover:bg-cupidPink/5 px-4 py-3 rounded-lg transition-colors">Quiz</a>
+          <a href="papers.html" class="text-lg hover:text-cupidPink hover:bg-cupidPink/5 px-4 py-3 rounded-lg transition-colors">Papers</a>
+          <a href="/chat/default" class="text-lg hover:text-cupidPink hover:bg-cupidPink/5 px-4 py-3 rounded-lg transition-colors">Chatbot</a>
+          <a href="contact.html" class="text-lg hover:text-cupidPink hover:bg-cupidPink/5 px-4 py-3 rounded-lg transition-colors">Contact</a>
+          <a href="faq.html" class="text-lg hover:text-cupidPink hover:bg-cupidPink/5 px-4 py-3 rounded-lg transition-colors">FAQ</a>
+        </nav>
+
+        <!-- Extra bottom padding for better scroll experience -->
+        <div class="h-8"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
   <!-- Floating background elements -->
   <div class="fixed inset-0 overflow-hidden pointer-events-none">
@@ -223,119 +372,376 @@
             <p class="text-lg font-semibold text-gray-800 mb-4">What area are you most interested in?</p>
             <div class="space-y-3">
               <label class="block cursor-pointer">
-                <input type="radio" name="q1" value="Computer Science" required class="sr-only">
+                <input type="radio" name="q1" value="Science & Tech: I'm fascinated by how the world works and love problem-solving." required class="sr-only">
                 <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
-                  <div class="font-medium text-gray-800">Computer Science</div>
-                  <div class="text-sm text-gray-600">Programming, AI, Software Development</div>
+                  <div class="font-medium text-gray-800">Science & Technology</div>
+                  <div class="text-sm text-gray-600">Programming, AI, Health Sciences, Engineering, Problem-Solving</div>
                 </div>
               </label>
               
               <label class="block cursor-pointer">
-                <input type="radio" name="q1" value="Business" required class="sr-only">
+                <input type="radio" name="q1" value="Business & Society: I'm interested in how organizations and people interact." required class="sr-only">
                 <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
-                  <div class="font-medium text-gray-800">Business</div>
-                  <div class="text-sm text-gray-600">Management, Finance, Marketing</div>
+                  <div class="font-medium text-gray-800">Business & Society</div>
+                  <div class="text-sm text-gray-600">Management, Finance, Marketing, Law, Social Impact</div>
                 </div>
               </label>
               
               <label class="block cursor-pointer">
-                <input type="radio" name="q1" value="Health Sciences" required class="sr-only">
+                <input type="radio" name="q1" value="The Arts: I love to create, design, or perform." required class="sr-only">
                 <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
-                  <div class="font-medium text-gray-800">Health Sciences</div>
-                  <div class="text-sm text-gray-600">Medicine, Nursing, Public Health</div>
+                  <div class="font-medium text-gray-800">The Arts & Creative Industries</div>
+                  <div class="text-sm text-gray-600">Design, performance, music, visual arts, innovation</div>
                 </div>
               </label>
               
               <label class="block cursor-pointer">
-                <input type="radio" name="q1" value="Humanities" required class="sr-only">
+                <input type="radio" name="q1" value="Communication & Culture: I enjoy studying languages, history, or media." required class="sr-only">
                 <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
-                  <div class="font-medium text-gray-800">Humanities</div>
-                  <div class="text-sm text-gray-600">Literature, History, Philosophy</div>
+                  <div class="font-medium text-gray-800">Humanities & Communication</div>
+                  <div class="text-sm text-gray-600">Literature, History, Philosophy, Media, Languages</div>
                 </div>
               </label>
             </div>
           </div>
 
-          <!-- Question 2 -->
           <div class="mb-6">
             <p class="text-lg font-semibold text-gray-800 mb-4">What type of learning do you prefer?</p>
             <div class="space-y-3">
               <label class="block cursor-pointer">
-                <input type="radio" name="q2" value="Hands-on / Practical" required class="sr-only">
+                <input type="radio" name="q2" value="Project-based: I learn best by doing and creating something tangible." required class="sr-only">
                 <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
-                  <div class="font-medium text-gray-800">Hands-on / Practical</div>
-                  <div class="text-sm text-gray-600">Learning by doing, labs, projects</div>
+                  <div class="font-medium text-gray-800">Project-based / Hands-on</div>
+                  <div class="text-sm text-gray-600">Learning by doing, labs, creating something tangible</div>
                 </div>
               </label>
               
               <label class="block cursor-pointer">
-                <input type="radio" name="q2" value="Theoretical" required class="sr-only">
+                <input type="radio" name="q2" value="Analytical: I like working with data, numbers, and logical problems." required class="sr-only">
                 <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
-                  <div class="font-medium text-gray-800">Theoretical</div>
-                  <div class="text-sm text-gray-600">Concepts, principles, abstract thinking</div>
+                  <div class="font-medium text-gray-800">Analytical / Theoretical</div>
+                  <div class="text-sm text-gray-600">Concepts, numbers, logical problems, abstract thinking</div>
                 </div>
               </label>
               
               <label class="block cursor-pointer">
-                <input type="radio" name="q2" value="Research-based" required class="sr-only">
+                <input type="radio" name="q2" value="Discussion-based: I enjoy debating ideas and collaborating with others." required class="sr-only">
                 <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
-                  <div class="font-medium text-gray-800">Research-based</div>
-                  <div class="text-sm text-gray-600">Investigation, analysis, discovery</div>
+                  <div class="font-medium text-gray-800">Discussion-based / Collaborative</div>
+                  <div class="text-sm text-gray-600">Debating ideas, teamwork, finding consensus</div>
                 </div>
               </label>
               
               <label class="block cursor-pointer">
-                <input type="radio" name="q2" value="Creative projects" required class="sr-only">
+                <input type="radio" name="q2" value="Reading & Writing: I prefer to dive deep into topics through reading and written analysis." required class="sr-only">
                 <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
-                  <div class="font-medium text-gray-800">Creative projects</div>
-                  <div class="text-sm text-gray-600">Design, innovation, artistic expression</div>
+                  <div class="font-medium text-gray-800">Reading & Writing / Research-based</div>
+                  <div class="text-sm text-gray-600">In-depth reading, written analysis, investigation, discovery</div>
                 </div>
               </label>
             </div>
           </div>
 
-          <!-- Question 3 -->
           <div class="mb-6">
             <p class="text-lg font-semibold text-gray-800 mb-4">What is your career goal?</p>
             <div class="space-y-3">
               <label class="block cursor-pointer">
-                <input type="radio" name="q3" value="Industry job" required class="sr-only">
+                <input type="radio" name="q3" value="I want to solve complex problems and build new things." required class="sr-only">
                 <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
-                  <div class="font-medium text-gray-800">Industry job</div>
-                  <div class="text-sm text-gray-600">Corporate career, private sector</div>
+                  <div class="font-medium text-gray-800">Solve problems and build new things</div>
+                  <div class="text-sm text-gray-600">Technology, engineering, innovation, entrepreneurship</div>
                 </div>
               </label>
               
               <label class="block cursor-pointer">
-                <input type="radio" name="q3" value="Academic research" required class="sr-only">
+                <input type="radio" name="q3" value="I want to lead teams or manage organizations." required class="sr-only">
                 <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
-                  <div class="font-medium text-gray-800">Academic research</div>
-                  <div class="text-sm text-gray-600">University, research institutions</div>
+                  <div class="font-medium text-gray-800">Lead teams or manage organizations</div>
+                  <div class="text-sm text-gray-600">Corporate career, private sector management, leadership</div>
                 </div>
               </label>
               
               <label class="block cursor-pointer">
-                <input type="radio" name="q3" value="Entrepreneurship" required class="sr-only">
+                <input type="radio" name="q3" value="I want to help people or improve my community." required class="sr-only">
                 <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
-                  <div class="font-medium text-gray-800">Entrepreneurship</div>
-                  <div class="text-sm text-gray-600">Start your own business, innovation</div>
+                  <div class="font-medium text-gray-800">Help people or my community</div>
+                  <div class="text-sm text-gray-600">Public service, social impact, healthcare, NGO work</div>
                 </div>
               </label>
               
               <label class="block cursor-pointer">
-                <input type="radio" name="q3" value="Government/NGO work" required class="sr-only">
+                <input type="radio" name="q3" value="I want to explore new ideas and contribute to human knowledge." required class="sr-only">
                 <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
-                  <div class="font-medium text-gray-800">Government/NGO work</div>
-                  <div class="text-sm text-gray-600">Public service, social impact</div>
+                  <div class="font-medium text-gray-800">Explore new ideas and knowledge</div>
+                  <div class="text-sm text-gray-600">Academic research, writing, deeper understanding of the world</div>
+                </div>
+              </label>
+            </div>
+          </div>
+          
+          <div class="mb-6">
+            <p class="text-lg font-semibold text-gray-800 mb-4">What is your favorite hobby or pastime?</p>
+            <div class="space-y-3">
+              <label class="block cursor-pointer">
+                <input type="radio" name="q4" value="Playing video games or board games." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">Playing video games or board games</div>
+                  <div class="text-sm text-gray-600">Indicates interest in systems, strategy, and rules</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q4" value="Creating art, music, or writing stories." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">Creating art, music, or writing stories</div>
+                  <div class="text-sm text-gray-600">Indicates interest in creative expression and design</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q4" value="Reading fiction or watching movies/TV shows." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">Reading or watching movies/TV shows</div>
+                  <div class="text-sm text-gray-600">Indicates interest in narrative, culture, and analysis</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q4" value="Sports, hiking, or other outdoor activities." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">Sports, hiking, or other outdoor activities</div>
+                  <div class="text-sm text-gray-600">Indicates interest in health, environment, or teamwork</div>
                 </div>
               </label>
             </div>
           </div>
 
-          <!-- Question 4 -->
           <div class="mb-6">
-            <p class="text-lg font-semibold text-gray-800 mb-4">Tell us more about what you enjoy:</p>
-            <textarea name="q4" rows="4" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-cupidPink focus:ring-cupidPink focus:outline-none transition-all duration-300" placeholder="E.g., I love coding and building apps, working with data, or helping people..." required></textarea>
+            <p class="text-lg font-semibold text-gray-800 mb-4">How do you handle a new, challenging topic?</p>
+            <div class="space-y-3">
+              <label class="block cursor-pointer">
+                <input type="radio" name="q5" value="I break it down into smaller, manageable pieces." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">I break it down into smaller, manageable pieces</div>
+                  <div class="text-sm text-gray-600">Systematic and logical approach (e.g., Computer Science, Engineering)</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q5" value="I look for real-world examples to make sense of the theory." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">I look for real-world examples to make sense of the theory</div>
+                  <div class="text-sm text-gray-600">Prefer practical application (e.g., Business, Health)</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q5" value="I try to find a mentor or ask for help from a knowledgeable person." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">I try to find a mentor or ask for help from a knowledgeable person</div>
+                  <div class="text-sm text-gray-600">Collaborative and communicative approach (e.g., Social Sciences)</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q5" value="I practice and experiment until I figure it out." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">I practice and experiment until I figure it out</div>
+                  <div class="text-sm text-gray-600">Self-directed and hands-on learning (e.g., Arts, Lab Sciences)</div>
+                </div>
+              </label>
+            </div>
+          </div>
+          
+          <div class="mb-6">
+            <p class="text-lg font-semibold text-gray-800 mb-4">What kind of problems do you enjoy solving most?</p>
+            <div class="space-y-3">
+              <label class="block cursor-pointer">
+                <input type="radio" name="q6" value="Logical Puzzles: I enjoy problems with a single, correct answer, like in math or coding." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">Logical Puzzles</div>
+                  <div class="text-sm text-gray-600">Problems with a single, correct answer (e.g., math, coding)</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q6" value="Creative Challenges: I prefer open-ended problems that require innovative and artistic solutions." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">Creative Challenges</div>
+                  <div class="text-sm text-gray-600">Open-ended problems, innovative and artistic solutions</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q6" value="People-Oriented Problems: I like finding solutions to issues that affect groups or communities." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">People-Oriented Problems</div>
+                  <div class="text-sm text-gray-600">Issues affecting groups, communities, or individuals</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q6" value="Systemic Issues: I enjoy understanding how complex systems (e.g., economic, biological) work and how to improve them." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">Systemic Issues</div>
+                  <div class="text-sm text-gray-600">Understanding and improving complex systems (e.g., economic, biological)</div>
+                </div>
+              </label>
+            </div>
+          </div>
+          
+          <div class="mb-6">
+            <p class="text-lg font-semibold text-gray-800 mb-4">In a group project, what role do you typically take on?</p>
+            <div class="space-y-3">
+              <label class="block cursor-pointer">
+                <input type="radio" name="q7" value="The Leader: I like to organize the team and make sure we meet our goals." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">The Leader</div>
+                  <div class="text-sm text-gray-600">Organizing the team, meeting goals, strategic planning</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q7" value="The Researcher: I prefer to dive deep into a topic and gather all the necessary information." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">The Researcher</div>
+                  <div class="text-sm text-gray-600">Diving deep into a topic, gathering necessary information, analysis</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q7" value="The Creator: I enjoy putting ideas into action and building the final product." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">The Creator</div>
+                  <div class="text-sm text-gray-600">Putting ideas into action, building the final product, hands-on work</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q7" value="The Communicator: I'm good at presenting our findings and ensuring everyone is on the same page." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">The Communicator</div>
+                  <div class="text-sm text-gray-600">Presenting findings, mediating, ensuring clear communication</div>
+                </div>
+              </label>
+            </div>
+          </div>
+          
+          <div class="mb-6">
+            <p class="text-lg font-semibold text-gray-800 mb-4">What kind of books or articles do you gravitate towards?</p>
+            <div class="space-y-3">
+              <label class="block cursor-pointer">
+                <input type="radio" name="q8" value="Non-fiction on scientific or historical topics." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">Non-fiction on scientific or historical topics</div>
+                  <div class="text-sm text-gray-600">Seeking objective knowledge and understanding systems</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q8" value="Fiction, poetry, or plays." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">Fiction, poetry, or plays</div>
+                  <div class="text-sm text-gray-600">Interest in human emotion, narrative, and artistic language</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q8" value="Biographies or business articles." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">Biographies or business articles</div>
+                  <div class="text-sm text-gray-600">Interest in leadership, strategy, and real-world success</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q8" value="News and current events." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">News and current events</div>
+                  <div class="text-sm text-gray-600">Focus on policy, society, and public discourse</div>
+                </div>
+              </label>
+            </div>
+          </div>
+          
+          <div class="mb-6">
+            <p class="text-lg font-semibold text-gray-800 mb-4">How do you feel about public speaking and presentations?</p>
+            <div class="space-y-3">
+              <label class="block cursor-pointer">
+                <input type="radio" name="q9" value="I love it and feel energized by it." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">I love it and feel energized by it</div>
+                  <div class="text-sm text-gray-600">Confident communicator, enjoys persuasion and performance</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q9" value="I'm comfortable with it but prefer to work in the background." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">I'm comfortable with it but prefer to work in the background</div>
+                  <div class="text-sm text-gray-600">Team player, skilled in analysis and support</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q9" value="I get nervous, but I'm willing to do it if I have to." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">I get nervous, but I'm willing to do it if I have to</div>
+                  <div class="text-sm text-gray-600">Focus is on content, not delivery; willing to push comfort zone</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q9" value="I would rather avoid it if possible." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">I would rather avoid it if possible</div>
+                  <div class="text-sm text-gray-600">Prefers focused, solo, or written communication</div>
+                </div>
+              </label>
+            </div>
+          </div>
+          
+          <div class="mb-6">
+            <p class="text-lg font-semibold text-gray-800 mb-4">Which of these environments feels the most exciting to you?</p>
+            <div class="space-y-3">
+              <label class="block cursor-pointer">
+                <input type="radio" name="q10" value="A lab filled with equipment and experiments." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">A lab filled with equipment and experiments</div>
+                  <div class="text-sm text-gray-600">A setting for empirical research and hands-on testing</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q10" value="A studio with art supplies or instruments." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">A studio with art supplies or instruments</div>
+                  <div class="text-sm text-gray-600">A space for creative production and design</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q10" value="A bustling office or a community center." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">A bustling office or a community center</div>
+                  <div class="text-sm text-gray-600">A dynamic setting for collaboration and social interaction</div>
+                </div>
+              </label>
+              
+              <label class="block cursor-pointer">
+                <input type="radio" name="q10" value="A library or a quiet study room." required class="sr-only">
+                <div class="radio-content border-2 border-gray-200 rounded-xl p-4 transition-all duration-300 hover:bg-cupidPink/5 hover:border-cupidPink/30 hover-lift">
+                  <div class="font-medium text-gray-800">A library or a quiet study room</div>
+                  <div class="text-sm text-gray-600">An environment for deep focus, reading, and contemplation</div>
+                </div>
+              </label>
+            </div>
+          </div>
+          
+          <div class="mb-6">
+            <p class="text-lg font-semibold text-gray-800 mb-4">Tell us more about your interests:</p>
+            <textarea name="q11" rows="4" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-cupidPink focus:ring-cupidPink focus:outline-none transition-all duration-300" placeholder="E.g., I love coding and building apps, working with data, or helping people..."></textarea>
+            <p class="text-sm text-gray-500 mt-2">Feel free to describe what you enjoy, what you're good at, or any specific course ideas you have.</p>
           </div>
 
         </div>
@@ -374,7 +780,202 @@
     </div>
   </main>
 
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-cupidPink/10 mt-auto">
+    <div class="max-w-6xl mx-auto px-8 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+        <div class="lg:col-span-1">
+          <div class="flex items-center gap-3 mb-4">
+            <img src="images/cupid_logo.png" alt="Course Cupid" class="h-8">
+            <span class="text-lg font-semibold text-cupidPink">Course Cupid</span>
+          </div>
+          <p class="text-sm text-gray-600 mb-4">Helping students find their perfect course match at the University of Otago.</p>
+        </div>
+        <div>
+          <h3 class="font-semibold text-cupidPink mb-4">Quick Links</h3>
+          <ul class="space-y-2 text-sm">
+            <li><a href="index.html" class="text-gray-600 hover:text-cupidPink transition-colors">Home</a></li>
+            <li><a href="aboutus.html" class="text-gray-600 hover:text-cupidPink transition-colors">About Us</a></li>
+            <li><a href="quiz.html" class="text-gray-600 hover:text-cupidPink transition-colors">Quiz</a></li>
+            <li><a href="papers.html" class="text-gray-600 hover:text-cupidPink transition-colors">Papers</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-semibold text-cupidPink mb-4">Resources</h3>
+          <ul class="space-y-2 text-sm">
+            <li><a href="faq.html" class="text-gray-600 hover:text-cupidPink transition-colors">FAQ</a></li>
+            <li><a href="contact.html" class="text-gray-600 hover:text-cupidPink transition-colors">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-semibold text-cupidPink mb-4">Legal</h3>
+          <ul class="space-y-2 text-sm">
+            <li><a href="terms.html" class="text-gray-600 hover:text-cupidPink transition-colors">Terms & Conditions</a></li>
+            <li><a href="privacy.html" class="text-gray-600 hover:text-cupidPink transition-colors">Privacy Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-cupidPink/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <p class="text-sm text-gray-500">© <span class="copyright-year">2025</span> Course Cupid. Made with <span class="text-cupidPink">♥</span> for Otago students.</p>
+        <div class="flex gap-6 text-sm">
+          <a href="privacy.html" class="text-gray-500 hover:text-cupidPink transition-colors">Privacy</a>
+          <a href="terms.html" class="text-gray-500 hover:text-cupidPink transition-colors">Terms</a>
+          <a href="faq.html" class="text-gray-500 hover:text-cupidPink transition-colors">FAQ</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
   <script src="/frontend/app.js"></script>
   <script src="/js/quiz.js"></script>
+   <script src="server.js"></script>
+    <script src="/frontend/app.js"></script>
+  <script>
+    async function refreshAuthUI_Safe() {
+      if (typeof refreshAuthUI === 'function') return refreshAuthUI();
+      try {
+        const res = await fetch('/api/me', { credentials: 'same-origin' });
+        const d = await res.json();
+        const guest = document.getElementById('auth-guest');
+        const userBox = document.getElementById('auth-user');
+        if (d.loggedIn) {
+          guest.classList.add('hidden');
+          userBox.classList.remove('hidden');
+          const name = d.user?.username || 'User';
+          const userNameEl = document.getElementById('user-name');
+          userNameEl.textContent = name;
+          const avatar = document.getElementById('user-avatar');
+          const parts = name.trim().split(/\s+/).filter(Boolean);
+          const initials = parts.length === 1 ? (/[A-ZaZ]/.test(parts[0][0]) ? parts[0][0].toUpperCase() : '#') : (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+          avatar.textContent = initials;
+        } else {
+          guest.classList.remove('hidden');
+          userBox.classList.add('hidden');
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    function initProfileMenu_Fallback() {
+      if (typeof initProfileMenu === 'function') return initProfileMenu();
+      const btn = document.getElementById('profile-btn');
+      const menu = document.getElementById('profile-menu');
+      if (!btn || !menu) return;
+      const openCls = ['opacity-100','translate-y-2','scale-100','pointer-events-auto'];
+      const closedCls = ['opacity-0','-translate-y-2','scale-95','pointer-events-none'];
+      menu.classList.remove(...openCls); menu.classList.add(...closedCls);
+      btn.setAttribute('aria-haspopup','true'); btn.setAttribute('aria-expanded','false');
+      const open = () => { menu.classList.remove(...closedCls); menu.classList.add(...openCls); btn.setAttribute('aria-expanded','true'); };
+      const close = () => { menu.classList.remove(...openCls); menu.classList.add(...closedCls); btn.setAttribute('aria-expanded','false'); };
+      btn.addEventListener('click', e => { e.stopPropagation(); (menu.classList.contains('pointer-events-auto') ? close() : open()); });
+      document.addEventListener('click', () => close());
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      refreshAuthUI_Safe().then(initProfileMenu_Fallback);
+      document.getElementById('logout-btn')?.addEventListener('click', async () => {
+        try {
+          const r = await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
+          const j = await r.json();
+          if (j.success) { await refreshAuthUI_Safe(); window.location = '/'; }
+        } catch (err) { console.error(err); }
+      });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+  const hamburgerBtn = document.getElementById('hamburger-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const mobileMenuClose = document.getElementById('mobile-menu-close');
+  const mobileMenuBackdrop = document.getElementById('mobile-menu-backdrop');
+  const mobileNavLinks = document.querySelectorAll('#mobile-menu nav a');
+
+  function openMenu() {
+    mobileMenu.classList.add('open');
+    hamburgerBtn?.classList.add('open');
+    document.body.classList.add('menu-open'); // Prevent background scrolling
+    syncMobileAuth();
+  }
+
+  function closeMenu() {
+    mobileMenu.classList.remove('open');
+    hamburgerBtn?.classList.remove('open');
+    document.body.classList.remove('menu-open'); // Restore scrolling
+  }
+
+  // Hamburger button
+  if (hamburgerBtn) {
+    hamburgerBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      mobileMenu.classList.contains('open') ? closeMenu() : openMenu();
+    });
+  }
+
+  // Close button
+  if (mobileMenuClose) {
+    mobileMenuClose.addEventListener('click', function(e) {
+      e.stopPropagation();
+      closeMenu();
+    });
+  }
+
+  // Backdrop click
+  if (mobileMenuBackdrop) {
+    mobileMenuBackdrop.addEventListener('click', closeMenu);
+  }
+
+  // Close when clicking nav links
+  mobileNavLinks.forEach(link => {
+    link.addEventListener('click', closeMenu);
+  });
+
+  // Close on escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && mobileMenu.classList.contains('open')) {
+      closeMenu();
+    }
+  });
+
+  // Prevent menu panel clicks from closing menu
+  const menuPanel = mobileMenu?.querySelector('.absolute.right-0');
+  if (menuPanel) {
+    menuPanel.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+  }
+
+  // Sync mobile auth state
+  function syncMobileAuth() {
+    const desktopUser = document.getElementById('auth-user');
+    const mobileGuest = document.getElementById('mobile-auth-guest');
+    const mobileUser = document.getElementById('mobile-auth-user');
+
+    if (desktopUser && !desktopUser.classList.contains('hidden')) {
+      const userName = document.getElementById('user-name')?.textContent;
+      const userAvatar = document.getElementById('user-avatar')?.textContent;
+      
+      mobileGuest?.classList.add('hidden');
+      mobileUser?.classList.remove('hidden');
+      
+      if (userName) document.getElementById('mobile-user-name').textContent = userName;
+      if (userAvatar) document.getElementById('mobile-user-avatar').textContent = userAvatar;
+    } else {
+      mobileGuest?.classList.remove('hidden');
+      mobileUser?.classList.add('hidden');
+    }
+  }
+
+  document.getElementById('mobile-logout-btn')?.addEventListener('click', async function() {
+    try {
+      const r = await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
+      const j = await r.json();
+      if (j.success) window.location = '/';
+    } catch (err) {
+      console.error(err);
+    }
+  });
+
+  setTimeout(syncMobileAuth, 200);
+});
+  </script>
 </body>
 </html>

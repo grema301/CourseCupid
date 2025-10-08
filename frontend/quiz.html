@@ -141,6 +141,83 @@
       }
     }
   </style>
+
+  <!--Styling for the collapsible menu-->
+  <style>
+/* Mobile Menu Scrolling Styles */
+#mobile-menu {
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+#mobile-menu:not(.open) {
+  transform: translateX(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+#mobile-menu.open {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Scrollable content area */
+#mobile-menu .overflow-y-auto {
+  /* Smooth scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+  /* Hide scrollbar for cleaner look (optional) */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(192, 90, 102, 0.3) transparent;
+}
+
+/* Custom scrollbar styling (WebKit browsers) */
+#mobile-menu .overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+#mobile-menu .overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#mobile-menu .overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: rgba(192, 90, 102, 0.3);
+  border-radius: 3px;
+}
+
+#mobile-menu .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(192, 90, 102, 0.5);
+}
+
+/* Backdrop styling */
+#mobile-menu-backdrop {
+  transition: opacity 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+#mobile-menu:not(.open) #mobile-menu-backdrop {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#mobile-menu.open #mobile-menu-backdrop {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Close button hover effect */
+#mobile-menu-close {
+  cursor: pointer;
+}
+
+#mobile-menu-close:hover {
+  transform: scale(1.1);
+}
+
+/* Prevent body scroll when menu is open */
+body.menu-open {
+  overflow: hidden;
+}
+</style>
 </head>
 
 <body class="gradient-bg min-h-screen flex flex-col overflow-x-hidden">
@@ -177,25 +254,97 @@
         <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-cupidPink transition-all duration-300 group-hover:w-full"></span>
       </a>
     </nav>
-
-    <div id="auth-controls" class="flex items-center gap-2 sm:gap-4">
-      <div id="auth-guest" class="flex gap-2 sm:gap-3 items-center mobile-stack">
-        <a href="login.html" class="px-3 sm:px-4 py-2 rounded-full bg-cupidPink/10 text-cupidPink hover:bg-cupidPink/20 font-medium text-sm transition-all duration-300 hover-lift">
-          Log In
-        </a>
-        <a href="signup.html" class="px-3 sm:px-4 py-2 rounded-full animated-gradient text-white font-semibold text-sm hover-lift">
-          Register
-        </a>
+    <div id="auth-controls" class="flex items-center gap-4">
+      <div id="auth-guest" class="flex gap-3 items-center">
+        <a id="login-link" href="login.html" class="px-4 py-2 rounded-full bg-cupidPink/10 text-cupidPink hover:bg-cupidPink/20 font-medium">Log In</a>
+        <a id="signup-link" href="signup.html" class="px-4 py-2 rounded-full bg-cupidPink text-white font-semibold">Register</a>
       </div>
-      <div id="auth-user" class="hidden flex items-center gap-2">
-        <div class="flex items-center gap-2 bg-white border border-cupidPink/20 rounded-full px-2 py-1 shadow-sm hover-lift">
+      <div id="auth-user" class="hidden relative flex items-center gap-2">
+        <div id="profile-btn" class="flex items-center gap-2 bg-white border border-cupidPink/20 rounded-full px-2 py-1 shadow-sm cursor-pointer">
           <div id="user-avatar" class="w-8 h-8 rounded-full bg-cupidPink text-white flex items-center justify-center font-semibold text-sm"></div>
           <span id="user-name" class="text-cupidPink font-medium text-sm max-w-[120px] truncate"></span>
         </div>
-        <button id="logout-btn" class="ml-1 px-3 py-1 rounded-full bg-transparent border border-cupidPink/20 text-cupidPink hover:bg-cupidPink/10 text-sm transition-all duration-300 hover-lift">Logout</button>
+        <div id="profile-menu"
+             class="absolute right-0 top-full mt-2 w-44 bg-white rounded-lg shadow-lg border border-cupidPink/10 z-50 overflow-hidden
+                    transform transition-all duration-150 origin-top-right opacity-0 -translate-y-2 scale-95 pointer-events-none">
+          <div class="py-1">
+            <a href="settings.html" class="block px-4 py-2 text-sm text-cupidPink hover:bg-cupidPink/5">Settings</a>
+            <button id="logout-btn" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Logout</button>
+          </div>
+        </div>
       </div>
     </div>
+
+    <!-- ========== HAMBURGER BUTTON - ADD THIS ========== -->
+    <button id="hamburger-btn" class="md:hidden flex flex-col gap-1.5 p-2 hamburger z-50" aria-label="Toggle menu">
+      <span class="hamburger-line line1 w-6 h-0.5 bg-cupidPink block"></span>
+      <span class="hamburger-line line2 w-6 h-0.5 bg-cupidPink block"></span>
+      <span class="hamburger-line line3 w-6 h-0.5 bg-cupidPink block"></span>
+    </button>
+    <!-- ========== END HAMBURGER BUTTON ========== -->
   </header>
+
+<!-- MOBILE MENU - Updated with Scrollable Content -->
+<div id="mobile-menu" class="fixed inset-0 z-50 md:hidden">
+  <!-- Backdrop -->
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="mobile-menu-backdrop"></div>
+  
+  <!-- Menu Panel - UPDATED: Added overflow and height management -->
+  <div class="absolute right-0 top-0 h-full w-64 bg-white shadow-xl flex flex-col">
+    
+    <!-- Close Button - Fixed at top, outside scrollable area -->
+    <div class="flex-shrink-0 relative h-16 border-b border-cupidPink/10">
+      <button id="mobile-menu-close" 
+              class="absolute top-4 right-4 p-2 text-cupidPink hover:bg-cupidPink/10 rounded-lg transition-colors z-10"
+              aria-label="Close menu">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Scrollable Content Area - IMPORTANT: This div scrolls -->
+    <div class="flex-1 overflow-y-auto overscroll-contain">
+      <div class="p-6">
+        
+        <!-- Mobile Auth Section -->
+        <div id="mobile-auth" class="mb-8 pb-6 border-b border-cupidPink/10">
+          <!-- Guest buttons -->
+          <div id="mobile-auth-guest" class="flex flex-col gap-3">
+            <a href="login.html" class="px-4 py-2 rounded-full bg-cupidPink/10 text-cupidPink hover:bg-cupidPink/20 font-medium text-center transition-colors">Log In</a>
+            <a href="signup.html" class="px-4 py-2 rounded-full bg-cupidPink text-white font-semibold text-center hover:bg-cupidPink/90 transition-colors">Register</a>
+          </div>
+          
+          <!-- Logged in user -->
+          <div id="mobile-auth-user" class="hidden">
+            <div class="flex items-center gap-3 mb-4">
+              <div id="mobile-user-avatar" class="w-10 h-10 rounded-full bg-cupidPink text-white flex items-center justify-center font-semibold"></div>
+              <span id="mobile-user-name" class="text-cupidPink font-medium"></span>
+            </div>
+            <div class="flex flex-col gap-2">
+              <a href="settings.html" class="px-4 py-2 text-sm text-cupidPink hover:bg-cupidPink/5 rounded-lg transition-colors">Settings</a>
+              <button id="mobile-logout-btn" class="px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg text-left transition-colors">Logout</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile Navigation Links -->
+        <nav class="flex flex-col gap-2">
+          <a href="index.html" class="text-lg hover:text-cupidPink hover:bg-cupidPink/5 px-4 py-3 rounded-lg transition-colors">Home</a>
+          <a href="aboutus.html" class="text-lg hover:text-cupidPink hover:bg-cupidPink/5 px-4 py-3 rounded-lg transition-colors">About Us</a>
+          <a href="quiz.html" class="text-lg text-cupidPink font-semibold hover:bg-cupidPink/5 px-4 py-3 rounded-lg transition-colors">Quiz</a>
+          <a href="papers.html" class="text-lg hover:text-cupidPink hover:bg-cupidPink/5 px-4 py-3 rounded-lg transition-colors">Papers</a>
+          <a href="/chat/default" class="text-lg hover:text-cupidPink hover:bg-cupidPink/5 px-4 py-3 rounded-lg transition-colors">Chatbot</a>
+          <a href="contact.html" class="text-lg hover:text-cupidPink hover:bg-cupidPink/5 px-4 py-3 rounded-lg transition-colors">Contact</a>
+          <a href="faq.html" class="text-lg hover:text-cupidPink hover:bg-cupidPink/5 px-4 py-3 rounded-lg transition-colors">FAQ</a>
+        </nav>
+
+        <!-- Extra bottom padding for better scroll experience -->
+        <div class="h-8"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
   <!-- Floating background elements -->
   <div class="fixed inset-0 overflow-hidden pointer-events-none">
@@ -647,52 +796,202 @@
     </div>
   </main>
 
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-cupidPink/10 mt-auto">
+    <div class="max-w-6xl mx-auto px-8 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+        <div class="lg:col-span-1">
+          <div class="flex items-center gap-3 mb-4">
+            <img src="images/cupid_logo.png" alt="Course Cupid" class="h-8">
+            <span class="text-lg font-semibold text-cupidPink">Course Cupid</span>
+          </div>
+          <p class="text-sm text-gray-600 mb-4">Helping students find their perfect course match at the University of Otago.</p>
+        </div>
+        <div>
+          <h3 class="font-semibold text-cupidPink mb-4">Quick Links</h3>
+          <ul class="space-y-2 text-sm">
+            <li><a href="index.html" class="text-gray-600 hover:text-cupidPink transition-colors">Home</a></li>
+            <li><a href="aboutus.html" class="text-gray-600 hover:text-cupidPink transition-colors">About Us</a></li>
+            <li><a href="quiz.html" class="text-gray-600 hover:text-cupidPink transition-colors">Quiz</a></li>
+            <li><a href="papers.html" class="text-gray-600 hover:text-cupidPink transition-colors">Papers</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-semibold text-cupidPink mb-4">Resources</h3>
+          <ul class="space-y-2 text-sm">
+            <li><a href="faq.html" class="text-gray-600 hover:text-cupidPink transition-colors">FAQ</a></li>
+            <li><a href="contact.html" class="text-gray-600 hover:text-cupidPink transition-colors">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-semibold text-cupidPink mb-4">Legal</h3>
+          <ul class="space-y-2 text-sm">
+            <li><a href="terms.html" class="text-gray-600 hover:text-cupidPink transition-colors">Terms & Conditions</a></li>
+            <li><a href="privacy.html" class="text-gray-600 hover:text-cupidPink transition-colors">Privacy Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-cupidPink/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <p class="text-sm text-gray-500">© <span class="copyright-year">2025</span> Course Cupid. Made with <span class="text-cupidPink">♥</span> for Otago students.</p>
+        <div class="flex gap-6 text-sm">
+          <a href="privacy.html" class="text-gray-500 hover:text-cupidPink transition-colors">Privacy</a>
+          <a href="terms.html" class="text-gray-500 hover:text-cupidPink transition-colors">Terms</a>
+          <a href="faq.html" class="text-gray-500 hover:text-cupidPink transition-colors">FAQ</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/frontend/app.js"></script>
+  <script src="/js/quiz.js"></script>
+   <script src="server.js"></script>
+    <script src="/frontend/app.js"></script>
   <script>
-    // This is the fetch-based logic that checks the server via /api/me
     async function refreshAuthUI_Safe() {
+      if (typeof refreshAuthUI === 'function') return refreshAuthUI();
       try {
         const res = await fetch('/api/me', { credentials: 'same-origin' });
         const d = await res.json();
         const guest = document.getElementById('auth-guest');
         const userBox = document.getElementById('auth-user');
-        
         if (d.loggedIn) {
           guest.classList.add('hidden');
           userBox.classList.remove('hidden');
-          
           const name = d.user?.username || 'User';
-          document.getElementById('user-name').textContent = name;
-          
-          // (Handle avatar initials update if needed, but skipping for simplicity)
-          
-          // --- Custom Integration Point: Call your reminder function after auth is stable ---
-          if (typeof checkLoginStatusAndDisplayReminder === 'function') {
-               checkLoginStatusAndDisplayReminder(true); 
-          }
+          const userNameEl = document.getElementById('user-name');
+          userNameEl.textContent = name;
+          const avatar = document.getElementById('user-avatar');
+          const parts = name.trim().split(/\s+/).filter(Boolean);
+          const initials = parts.length === 1 ? (/[A-ZaZ]/.test(parts[0][0]) ? parts[0][0].toUpperCase() : '#') : (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+          avatar.textContent = initials;
         } else {
           guest.classList.remove('hidden');
           userBox.classList.add('hidden');
-          
-          // --- Custom Integration Point: Call your reminder function after auth is stable ---
-          if (typeof checkLoginStatusAndDisplayReminder === 'function') {
-               checkLoginStatusAndDisplayReminder(false); 
-          }
         }
-      } catch (e) { 
-          console.error('Auth UI error', e); 
-          // If the status check fails, assume logged out and show reminder
-          if (typeof checkLoginStatusAndDisplayReminder === 'function') {
-               checkLoginStatusAndDisplayReminder(false); 
-          }
-      }
+      } catch (e) { console.error(e); }
+    }
+
+    function initProfileMenu_Fallback() {
+      if (typeof initProfileMenu === 'function') return initProfileMenu();
+      const btn = document.getElementById('profile-btn');
+      const menu = document.getElementById('profile-menu');
+      if (!btn || !menu) return;
+      const openCls = ['opacity-100','translate-y-2','scale-100','pointer-events-auto'];
+      const closedCls = ['opacity-0','-translate-y-2','scale-95','pointer-events-none'];
+      menu.classList.remove(...openCls); menu.classList.add(...closedCls);
+      btn.setAttribute('aria-haspopup','true'); btn.setAttribute('aria-expanded','false');
+      const open = () => { menu.classList.remove(...closedCls); menu.classList.add(...openCls); btn.setAttribute('aria-expanded','true'); };
+      const close = () => { menu.classList.remove(...openCls); menu.classList.add(...closedCls); btn.setAttribute('aria-expanded','false'); };
+      btn.addEventListener('click', e => { e.stopPropagation(); (menu.classList.contains('pointer-events-auto') ? close() : open()); });
+      document.addEventListener('click', () => close());
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        refreshAuthUI_Safe(); 
+      refreshAuthUI_Safe().then(initProfileMenu_Fallback);
+      document.getElementById('logout-btn')?.addEventListener('click', async () => {
+        try {
+          const r = await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
+          const j = await r.json();
+          if (j.success) { await refreshAuthUI_Safe(); window.location = '/'; }
+        } catch (err) { console.error(err); }
+      });
     });
-</script>
 
-  <script src="/frontend/app.js"></script>
-  <script src="/js/quiz.js"></script>
+    document.addEventListener('DOMContentLoaded', function() {
+  const hamburgerBtn = document.getElementById('hamburger-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const mobileMenuClose = document.getElementById('mobile-menu-close');
+  const mobileMenuBackdrop = document.getElementById('mobile-menu-backdrop');
+  const mobileNavLinks = document.querySelectorAll('#mobile-menu nav a');
+
+  function openMenu() {
+    mobileMenu.classList.add('open');
+    hamburgerBtn?.classList.add('open');
+    document.body.classList.add('menu-open'); // Prevent background scrolling
+    syncMobileAuth();
+  }
+
+  function closeMenu() {
+    mobileMenu.classList.remove('open');
+    hamburgerBtn?.classList.remove('open');
+    document.body.classList.remove('menu-open'); // Restore scrolling
+  }
+
+  // Hamburger button
+  if (hamburgerBtn) {
+    hamburgerBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      mobileMenu.classList.contains('open') ? closeMenu() : openMenu();
+    });
+  }
+
+  // Close button
+  if (mobileMenuClose) {
+    mobileMenuClose.addEventListener('click', function(e) {
+      e.stopPropagation();
+      closeMenu();
+    });
+  }
+
+  // Backdrop click
+  if (mobileMenuBackdrop) {
+    mobileMenuBackdrop.addEventListener('click', closeMenu);
+  }
+
+  // Close when clicking nav links
+  mobileNavLinks.forEach(link => {
+    link.addEventListener('click', closeMenu);
+  });
+
+  // Close on escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && mobileMenu.classList.contains('open')) {
+      closeMenu();
+    }
+  });
+
+  // Prevent menu panel clicks from closing menu
+  const menuPanel = mobileMenu?.querySelector('.absolute.right-0');
+  if (menuPanel) {
+    menuPanel.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+  }
+
+  // Sync mobile auth state
+  function syncMobileAuth() {
+    const desktopUser = document.getElementById('auth-user');
+    const mobileGuest = document.getElementById('mobile-auth-guest');
+    const mobileUser = document.getElementById('mobile-auth-user');
+
+    if (desktopUser && !desktopUser.classList.contains('hidden')) {
+      const userName = document.getElementById('user-name')?.textContent;
+      const userAvatar = document.getElementById('user-avatar')?.textContent;
+      
+      mobileGuest?.classList.add('hidden');
+      mobileUser?.classList.remove('hidden');
+      
+      if (userName) document.getElementById('mobile-user-name').textContent = userName;
+      if (userAvatar) document.getElementById('mobile-user-avatar').textContent = userAvatar;
+    } else {
+      mobileGuest?.classList.remove('hidden');
+      mobileUser?.classList.add('hidden');
+    }
+  }
+
+  document.getElementById('mobile-logout-btn')?.addEventListener('click', async function() {
+    try {
+      const r = await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
+      const j = await r.json();
+      if (j.success) window.location = '/';
+    } catch (err) {
+      console.error(err);
+    }
+  });
+
+  setTimeout(syncMobileAuth, 200);
+});
+  </script>
 </body>
 </html>

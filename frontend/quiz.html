@@ -852,6 +852,11 @@ body.menu-open {
       try {
         const res = await fetch('/api/me', { credentials: 'same-origin' });
         const d = await res.json();
+
+        if (typeof checkLoginStatusAndDisplayReminder === 'function') {
+            checkLoginStatusAndDisplayReminder(d.loggedIn); 
+        }
+
         const guest = document.getElementById('auth-guest');
         const userBox = document.getElementById('auth-user');
         if (d.loggedIn) {

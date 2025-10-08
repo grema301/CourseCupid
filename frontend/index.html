@@ -253,7 +253,7 @@
         </a>-->
 
         <button id="start-chat-btn" 
-          onclick="startCreateSession()" 
+          onclick="checkLogIn()" 
           class="inline-flex items-center justify-center rounded-full animated-gradient text-white px-6 sm:px-8 py-3 font-semibold hover-lift group transition-all duration-300">
           <span id="chat-btn-text">Start Chatting Now →</span>
           <span id="chat-btn-loading" class="hidden">Creating Session...</span>
@@ -347,6 +347,26 @@
   <script src="app.js"></script>
   <script src="server.js"></script>
   <script>
+    async function checkLogIn(){
+
+      try {
+        const res = await fetch('/api/me', { credentials: 'same-origin' });
+        const data = await res.json();
+
+        if (data.loggedIn) {
+          // If already logged in, go straight to chats
+          window.location.href = '/chat';
+        } else {
+          // If not logged in, create a new session
+          await startCreateSession();
+        }
+      } catch (err) {
+        console.error('Error checking login:', err);
+        alert('Could not check login status');
+      } 
+
+    }
+
     async function refreshAuthUI_Safe() {
       if (typeof refreshAuthUI === 'function') return refreshAuthUI();
       try {

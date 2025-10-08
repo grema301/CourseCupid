@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Reset password • Course Cupid</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body class="bg-cupidCream min-h-screen flex items-center justify-center">
+  <div class="w-full max-w-md bg-white p-6 rounded-lg shadow">
+    <h1 class="text-2xl text-cupidPink mb-4">Reset password</h1>
+    <form id="reset-form" class="space-y-3">
+      <input id="password" type="password" required placeholder="New password" class="w-full border rounded px-3 py-2" />
+      <input id="confirm" type="password" required placeholder="Confirm password" class="w-full border rounded px-3 py-2" />
+      <div class="flex items-center gap-3">
+        <button type="submit" class="px-4 py-2 rounded bg-cupidPink text-white">Set new password</button>
+        <div id="status" class="text-sm text-gray-600"></div>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const token = params.get('token');
+    if (!token) {
+      document.body.innerHTML = '<div class="p-8">Invalid reset link.</div>';
+      throw new Error('no token');
+    }
+
+    document.getElementById('reset-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const p = document.getElementById('password').value;
+      const c = document.getElementById('confirm').value;
+      const status = document.getElementById('status');
+      if (p !== c) { status.textContent = 'Passwords do not match.'; return; }
+      status.textContent = 'Setting password…';
+      try {
+        const r = await fetch('/api/reset-password/' + encodeURIComponent(token), {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ password: p })
+        });
+        const j = await r.json().catch(() => ({}));
+        if (r.ok && j.success) {
+          status.textContent = 'Password updated. Redirecting to login…';
+          setTimeout(() => location = '/login.html', 1200);
+        } else {
+          status.textContent = j.error || j.message || 'Failed to reset password.';
+        }
+      } catch (err) {
+        console.error(err);
+        status.textContent = 'Network error.';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,13 +1,33 @@
 function checkLoginStatusAndDisplayReminder(isLoggedIn) {
+    // Hide the old in-page reminder if it exists (for cleanup)
     const loginReminder = document.getElementById('loginReminder');
-    if (!loginReminder) return;
-
-    if (isLoggedIn) {
-        // Logged In: Hide the reminder
+    if (loginReminder) {
         loginReminder.classList.add('hidden');
+    }
+
+    const loginModal = document.getElementById('loginModal');
+    if (!loginModal) return;
+
+    if (!isLoggedIn) {
+        // Show the modal
+        loginModal.classList.remove('hidden');
+        loginModal.classList.add('flex'); // Use flex to center the content
+        document.body.classList.add('menu-open'); // Use the class that prevents body scrolling
+
+        // Add event listener to the "Take Quiz Anyway" button
+        const closeModalButton = document.getElementById('closeModal');
+        if (closeModalButton) {
+            closeModalButton.onclick = () => {
+                loginModal.classList.add('hidden');
+                loginModal.classList.remove('flex');
+                document.body.classList.remove('menu-open');
+            };
+        }
     } else {
-        // Logged Out: Show the reminder
-        loginReminder.classList.remove('hidden');
+        // Logged In: Ensure modal is hidden
+        loginModal.classList.add('hidden');
+        loginModal.classList.remove('flex');
+        document.body.classList.remove('menu-open');
     }
 }
 

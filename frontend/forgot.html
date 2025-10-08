@@ -5,15 +5,11 @@
   <title>Forgot Password • Course Cupid</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="/images/cupid_logo.png" />
+  <link rel="stylesheet" href="/style.css" />
   <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, Helvetica, sans-serif; margin: 0; background: #fff; color: #111; }
-    header { border-bottom: 1px solid #e5e5e5; padding: 12px 16px; }
-    header a { text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 8px; }
-    header img { height: 28px; }
-    main { max-width: 480px; margin: 40px auto; padding: 0 16px; }
-    h1 { margin: 0 0 8px; font-size: 22px; }
-    p { margin: 0 0 16px; color: #444; }
-    form { display: grid; gap: 12px; }
+    body { background:#fff; }
+    .page { max-width: 720px; margin: 32px auto; padding: 0 16px; }
+    form { display: grid; gap: 12px; max-width: 480px; }
     label { font-size: 14px; color: #333; }
     input[type="email"] { padding: 10px 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; width: 100%; }
     button { padding: 10px 14px; font-size: 16px; border: 1px solid #c05a66; background: #c05a66; color: #fff; border-radius: 6px; cursor: pointer; }
@@ -27,85 +23,79 @@
   </style>
 </head>
 <body>
-  <header>
-    <a href="/index.html" aria-label="Course Cupid home">
-      <img src="/images/cupid_logo.png" alt="" />
-      <strong>Course Cupid</strong>
-    </a>
-  </header>
 
-  <main>
-    <h1>Forgot your password?</h1>
-    <p>Enter your account email and we’ll send a reset link.</p>
+<main class="page">
+  <h1>Forgot your password?</h1>
+  <p>Enter your account email and we’ll send a reset link.</p>
 
-    <form id="forgot-form" novalidate>
-      <label for="email">Email</label>
-      <input id="email" type="email" required placeholder="you@example.com" />
-      <div class="row">
-        <button id="btn-send" type="submit">Send reset link</button>
-        <span id="status" class="status"></span>
-      </div>
-    </form>
-    <div id="alert" class="alert hidden" role="status"></div>
-  </main>
+  <form id="forgot-form" novalidate>
+    <label for="email">Email</label>
+    <input id="email" type="email" required placeholder="you@example.com" />
+    <div class="row">
+      <button id="btn-send" type="submit">Send reset link</button>
+      <span id="status" class="status"></span>
+    </div>
+  </form>
+  <div id="alert" class="alert hidden" role="status"></div>
+</main>
 
-  <script>
-    (function () {
-      const form = document.getElementById('forgot-form');
-      const email = document.getElementById('email');
-      const statusEl = document.getElementById('status');
-      const btn = document.getElementById('btn-send');
-      const alertEl = document.getElementById('alert');
+<script>
+  (function () {
+    const form = document.getElementById('forgot-form');
+    const email = document.getElementById('email');
+    const statusEl = document.getElementById('status');
+    const btn = document.getElementById('btn-send');
+    const alertEl = document.getElementById('alert');
 
-      function setBusy(b) {
-        btn.disabled = b;
-        btn.textContent = b ? 'Sending…' : 'Send reset link';
-        if (b) statusEl.textContent = 'Sending link…';
+    function setBusy(b) {
+      btn.disabled = b;
+      btn.textContent = b ? 'Sending…' : 'Send reset link';
+      if (b) statusEl.textContent = 'Sending link…';
+    }
+
+    function showSuccess(msgHtml) {
+      alertEl.className = 'alert alert-success';
+      alertEl.innerHTML = msgHtml;
+      alertEl.classList.remove('hidden');
+    }
+    function showError(msg) {
+      alertEl.className = 'alert alert-error';
+      alertEl.textContent = msg;
+      alertEl.classList.remove('hidden');
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertEl.classList.add('hidden');
+      const v = email.value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+        showError('Enter a valid email address.');
+        return;
       }
-
-      function showSuccess(msgHtml) {
-        alertEl.className = 'alert alert-success';
-        alertEl.innerHTML = msgHtml;
-        alertEl.classList.remove('hidden');
-      }
-      function showError(msg) {
-        alertEl.className = 'alert alert-error';
-        alertEl.textContent = msg;
-        alertEl.classList.remove('hidden');
-      }
-
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        alertEl.classList.add('hidden'); // clear previous alert
-        const v = email.value.trim();
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
-          showError('Enter a valid email address.');
-          return;
+      setBusy(true);
+      try {
+        const r = await fetch('/api/request-password-reset', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ email: v })
+        });
+        const j = await r.json().catch(() => ({}));
+        if (r.ok) {
+          showSuccess('If the email exists, a reset link has been sent to your email.');
+          form.reset();
+        } else {
+          showError(j.error || j.message || 'Error sending link.');
         }
-        setBusy(true);
-        try {
-          const r = await fetch('/api/request-password-reset', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'same-origin',
-            body: JSON.stringify({ email: v })
-          });
-          const j = await r.json().catch(() => ({}));
-          if (r.ok) {
-            showSuccess('If the email exists, a reset link has been sent to your email.');
-             form.reset();
-          } else {
-            showError(j.error || j.message || 'Error sending link.');
-          }
-        } catch (err) {
-          console.error(err);
-          showError('Network error.');
-        } finally {
-          setBusy(false);
-          statusEl.textContent = ''; 
-        }
-      });
-    })();
-  </script>
+      } catch (err) {
+        console.error(err);
+        showError('Network error.');
+      } finally {
+        setBusy(false);
+        statusEl.textContent = '';
+      }
+    });
+  })();
+</script>
 </body>
 </html>

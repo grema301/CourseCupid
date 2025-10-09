@@ -4,20 +4,19 @@
 /**Function to let user create a new chat session, is redirected */
 async function startCreateSession() {
     try {
-    console.log('Creating chat session...');
-    
-    const response = await fetch('/api/chat-sessions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-    });
-    
-    const data = await response.json();
-    console.log('Created session:', data);
-    
-    if (data.session_id) {
-        alert(`Success! Created session: ${data.session_id}`);
-        window.location.href = `/chat/${data.session_id}`;
-    }
+        console.log('Creating chat session...');
+        
+        const response = await fetch('/api/chat-sessions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        const data = await response.json();
+        console.log('Created session:', data);
+        
+        if (data.session_id) {
+            window.location.href = `/chat/${data.session_id}`;
+        }
     } catch (error) {
         console.error('Error:', error);
         alert('Failed to create session');
@@ -36,14 +35,14 @@ function getCurrentSessionID() {
 function updateSessionDisplay() {
     const sessionID = getCurrentSessionID();
     //shoudl show session title in the future
-    const sessionElement = document.getElementByID('current-session-id');
+    const sessionElement = document.getElementById('current-session-id');
     
     if (sessionID && sessionElement){
         sessionElement.textContent = sessionID;
         console.log('Session ID displayed:', sessionID);
 
         //for the future, maybe distinct between AI chat and paper chat
-        document.getElementByID('paperTitle').textContent = 'Dynamic title';
+        document.getElementById('paperTitle').textContent = 'Dynamic title';
 
     }else{
         console.log('No session ID found or element missing'); 
@@ -53,8 +52,42 @@ function updateSessionDisplay() {
     }
 }
 
+
+//Lets users delete a cupid and a paper session
+async function deleteSession(){
+    try {
+
+        // Check if identifier is a session ID or a paper match
+        const identifier = getCurrentSessionID();
+        
+        // Confirm deletion
+        const confirmed = confirm(`Are you sure you want to delete this chat?`);
+        if (!confirmed) return;
+        
+        const response = await fetch(`/api/chat-sessions/${identifier}`, {
+            method: 'DELETE'
+        });
+        
+        const data = await response.json();
+
+        if (response.ok && data.success) {    
+            alert('Deleted successfully!');    
+            // Refresh page, set the chatting session of the page to blank
+            window.location.href = "/chat";
+        } else {
+            throw new Error(data.message || 'Failed to delete session');
+        }
+    } catch (error) {
+    console.error('Error:', error);
+    alert('Failed to delete session');
+    }
+}
+
+
+
+
 document.addEventListener('DOMContentLoaded', async () => {
-  const miniList = document.getElementByID('miniList');
+  const miniList = document.getElementById('miniList');
 
   try {
     const res = await fetch('/api/my-matches');
@@ -72,9 +105,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     miniList.innerHTML = `<p class="error">Could not load matches.</p>`;
   }
 });
-
-
-
 
 //initialize when page loads
 document.addEventListener('DOMContentLoaded', () => {

@@ -606,8 +606,7 @@ router.post('/request-password-reset', async (req, res) => {
     const { email } = req.body || {};
     if (!email) return res.status(400).json({ error: 'email required' });
 
-    const userTable = await detectUserTable();
-    const u = await pool.query(`SELECT id, email FROM ${userTable} WHERE email = $1 LIMIT 1`, [email]);
+    const u = await pool.query('SELECT user_id, email FROM Web_User WHERE email = $1 LIMIT 1', [email]);
     if (u.rowCount === 0) {
       return res.json({ success: true });
     }
@@ -616,7 +615,7 @@ router.post('/request-password-reset', async (req, res) => {
     const token = crypto.randomBytes(24).toString('hex');
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
-    await pool.query('INSERT INTO password_resets(token, user_id, expires_at) VALUES($1,$2,$3)', [token, user.id, expiresAt]);
+    await pool.query('INSERT INTO password_resets(token, user_id, expires_at) VALUES($1,$2,$3)', [token, String(user.user_id), expiresAt]);
 
     const resetLink = `${req.protocol}://${req.get('host')}/reset.html?token=${encodeURIComponent(token)}`;
     console.log('Password reset link for', user.email, resetLink);
@@ -631,7 +630,7 @@ router.post('/request-password-reset', async (req, res) => {
         html: `<p>Use this link to reset your password (valid 1 hour):</p><p><a href="${resetLink}">${resetLink}</a></p>`
       });
     }
-    return res.json({ success: true, debugLink: resetLink });
+    return res.json({ success: true });
   } catch (err) {
     console.error('request-password-reset error:', err);
     return res.status(500).json({ error: 'server error' });
@@ -654,7 +653,7 @@ router.post('/reset-password/:token', async (req, res) => {
     }
 
     const hashed = await bcrypt.hash(password, 10);
-    await pool.query('UPDATE ' + (await detectUserTable()) + ' SET password_hash = $1 WHERE id = $2', [hashed, row.user_id]);
+    await pool.query('UPDATE Web_User SET password_hash = $1 WHERE user_id = $2', [hashed, String(row.user_id)]);
     await pool.query('DELETE FROM password_resets WHERE token = $1', [token]);
 
     return res.json({ success: true });
@@ -672,9 +671,21 @@ module.exports = { router, pool };
     await pool.query(`
       CREATE TABLE IF NOT EXISTS password_resets (
         token TEXT PRIMARY KEY,
-        user_id INTEGER NOT NULL,
+        user_id TEXT NOT NULL,
         expires_at TIMESTAMPTZ NOT NULL
       );
+    `);
+    await pool.query(`
+      DO $$
+      BEGIN
+        IF EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'password_resets' AND column_name = 'user_id' AND data_type <> 'text'
+        ) THEN
+          ALTER TABLE password_resets
+          ALTER COLUMN user_id TYPE TEXT USING user_id::text;
+        END IF;
+      END$$;
     `);
   } catch (err) {
     console.error('Failed to ensure password_resets table:', err);

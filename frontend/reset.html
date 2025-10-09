@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Reset Password • Course Cupid</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 24px; background: #fff; color:#111; }
+    main { max-width: 720px; margin: 0 auto; padding: 0 16px; }
+    h1 { margin: 0 0 8px; font-size: 22px; }
+    p  { margin: 0 0 16px; color: #444; }
+    form { display: grid; gap: 12px; max-width: 480px; }
+    label { font-size: 14px; color: #333; }
+    input[type="password"] { padding: 10px 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; width: 100%; }
+    button { padding: 10px 14px; font-size: 16px; border: 1px solid #c05a66; background: #c05a66; color: #fff; border-radius: 6px; cursor: pointer; }
+    button:disabled { opacity: .6; cursor: default; }
+    .row { display: flex; align-items: center; gap: 12px; }
+    .msg { margin-top: 10px; font-size: 14px; }
+    .ok { color: #185f2c; }
+    .err { color: #7a1a17; }
+    .link { color: #0b5cab; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Reset your password</h1>
+    <p>Enter a new password for your account.</p>
+
+    <form id="reset-form" novalidate>
+      <label for="password">New password</label>
+      <input id="password" type="password" minlength="8" required placeholder="At least 8 characters" />
+
+      <label for="confirm">Confirm password</label>
+      <input id="confirm" type="password" minlength="8" required placeholder="Repeat password" />
+
+      <div class="row">
+        <button id="btn" type="submit">Set new password</button>
+        <span id="status" class="msg"></span>
+      </div>
+    </form>
+    <p id="after" class="msg" style="display:none"></p>
+  </main>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(location.search);
+      const token = params.get('token');
+
+      const form = document.getElementById('reset-form');
+      const p = document.getElementById('password');
+      const c = document.getElementById('confirm');
+      const statusEl = document.getElementById('status');
+      const btn = document.getElementById('btn');
+      const after = document.getElementById('after');
+
+      if (!token) {
+        statusEl.textContent = 'Invalid or missing reset link.';
+        statusEl.classList.add('err');
+        form.style.display = 'none';
+        return;
+      }
+
+      function busy(b){ btn.disabled=b; btn.textContent=b?'Saving…':'Set new password'; }
+      function valid(){
+        statusEl.className = 'msg';
+        if (p.value.length < 8) { statusEl.textContent = 'Password must be at least 8 characters.'; statusEl.classList.add('err'); return false; }
+        if (p.value !== c.value) { statusEl.textContent = 'Passwords do not match.'; statusEl.classList.add('err'); return false; }
+        return true;
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!valid()) return;
+        busy(true);
+        try {
+          const r = await fetch('/api/reset-password/' + encodeURIComponent(token), {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ password: p.value })
+          });
+          const j = await r.json().catch(() => ({}));
+          if (r.ok && j.success) {
+            statusEl.textContent = 'Password updated. Redirecting to login…';
+            statusEl.className = 'msg ok';
+            setTimeout(() => location = '/login.html', 1200);
+          } else {
+            statusEl.textContent = j.error || j.message || 'Failed to reset password.';
+            statusEl.classList.add('err');
+          }
+        } catch (err) {
+          console.error(err);
+          statusEl.textContent = 'Network error.';
+          statusEl.classList.add('err');
+        } finally {
+          busy(false);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

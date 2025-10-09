@@ -8,6 +8,9 @@ const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs').promises;
 const path = require('path');
+const crypto = require('crypto');
+let nodemailer;
+try { nodemailer = require('nodemailer'); } catch { nodemailer = null; console.warn('nodemailer not installed — email sending disabled'); }
 
 router.use(cors());
 router.use(express.json());
@@ -565,6 +568,126 @@ router.get('/my-matches', async (req, res) => {
   }
 });
 
+function getMailer() {
+  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
+  if (!nodemailer) return null;
+  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) return null;
+  return nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: Number(SMTP_PORT || 587),
+    secure: Number(SMTP_PORT || 587) === 465,
+    auth: { user: SMTP_USER, pass: SMTP_PASS }
+  });
+}
+
+// Detect your user table (must have id + email columns)
+let _detectedUserTable = null;
+async function detectUserTable() {
+  if (_detectedUserTable) return _detectedUserTable;
+  const q = `
+    SELECT c1.table_schema, c1.table_name
+    FROM information_schema.columns c1
+    JOIN information_schema.columns c2
+      ON c1.table_schema = c2.table_schema AND c1.table_name = c2.table_name
+    WHERE c1.column_name = 'email' AND c2.column_name = 'id'
+      AND c1.table_schema NOT IN ('pg_catalog','information_schema')
+    ORDER BY (c1.table_schema = 'public') DESC
+    LIMIT 1
+  `;
+  const r = await pool.query(q);
+  if (r.rowCount === 0) throw new Error('No user table with email+id found');
+  const { table_schema, table_name } = r.rows[0];
+  _detectedUserTable = `"${table_schema}"."${table_name}"`;
+  return _detectedUserTable;
+}
+
+router.post('/request-password-reset', async (req, res) => {
+  try {
+    const { email } = req.body || {};
+    if (!email) return res.status(400).json({ error: 'email required' });
+
+    const u = await pool.query('SELECT user_id, email FROM Web_User WHERE email = $1 LIMIT 1', [email]);
+    if (u.rowCount === 0) {
+      return res.json({ success: true });
+    }
+
+    const user = u.rows[0];
+    const token = crypto.randomBytes(24).toString('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    await pool.query('INSERT INTO password_resets(token, user_id, expires_at) VALUES($1,$2,$3)', [token, String(user.user_id), expiresAt]);
+
+    const resetLink = `${req.protocol}://${req.get('host')}/reset.html?token=${encodeURIComponent(token)}`;
+    console.log('Password reset link for', user.email, resetLink);
+
+    const mailer = getMailer();
+    if (mailer) {
+      await mailer.sendMail({
+        from: process.env.SMTP_FROM || 'no-reply@example.com',
+        to: user.email,
+        subject: 'Course Cupid — Password reset',
+        text: `Use this link to reset your password (valid 1 hour): ${resetLink}`,
+        html: `<p>Use this link to reset your password (valid 1 hour):</p><p><a href="${resetLink}">${resetLink}</a></p>`
+      });
+    }
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('request-password-reset error:', err);
+    return res.status(500).json({ error: 'server error' });
+  }
+});
+
+router.post('/reset-password/:token', async (req, res) => {
+  try {
+    const token = req.params.token;
+    const { password } = req.body || {};
+    if (!token || !password) return res.status(400).json({ error: 'token and password required' });
+
+    const r = await pool.query('SELECT user_id, expires_at FROM password_resets WHERE token = $1 LIMIT 1', [token]);
+    if (r.rowCount === 0) return res.status(400).json({ error: 'Invalid or expired token' });
+    const row = r.rows[0];
+
+    if (new Date(row.expires_at) < new Date()) {
+      await pool.query('DELETE FROM password_resets WHERE token = $1', [token]);
+      return res.status(400).json({ error: 'Token expired' });
+    }
+
+    const hashed = await bcrypt.hash(password, 10);
+    await pool.query('UPDATE Web_User SET password_hash = $1 WHERE user_id = $2', [hashed, String(row.user_id)]);
+    await pool.query('DELETE FROM password_resets WHERE token = $1', [token]);
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('reset-password error:', err);
+    return res.status(500).json({ error: 'server error' });
+  }
+});
 
 // ensure both router and pool are exported for server.js to destructure
 module.exports = { router, pool };
+
+(async function ensurePasswordResetsTable() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS password_resets (
+        token TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        expires_at TIMESTAMPTZ NOT NULL
+      );
+    `);
+    await pool.query(`
+      DO $$
+      BEGIN
+        IF EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'password_resets' AND column_name = 'user_id' AND data_type <> 'text'
+        ) THEN
+          ALTER TABLE password_resets
+          ALTER COLUMN user_id TYPE TEXT USING user_id::text;
+        END IF;
+      END$$;
+    `);
+  } catch (err) {
+    console.error('Failed to ensure password_resets table:', err);
+  }
+})();

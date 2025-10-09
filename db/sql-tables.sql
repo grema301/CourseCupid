@@ -257,6 +257,12 @@ CREATE TABLE IF NOT EXISTS user_paper_matches (
   matched_at TIMESTAMP DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS password_resets (
+  token TEXT PRIMARY KEY,
+  user_id INTEGER NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL
+);
+
 --------------------------------------------------------------------------------
 --
 -- End of schema.

@@ -240,6 +240,8 @@ router.post('/chat/:identifier', async (req, res, next) => {
 router.get('/chat/:identifier/messages', async (req, res) => {
   try {
     const identifier = req.params.identifier;
+    const userId = req.session?.userId || null;
+
     
     // Check if it's a session ID (UUID pattern)
     const isSessionId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
@@ -255,12 +257,64 @@ router.get('/chat/:identifier/messages', async (req, res) => {
         return res.status(404).json({ error: 'Session not found' });
       }
       
+
+      // Get messages for this session
+      const messages = await pool.query(
+        `SELECT message_id, session_id, role as sender, content, created_at, user_preferences
+         FROM Chat_Message 
+         WHERE session_id = $1 
+         ORDER BY created_at ASC`,
+        [identifier]
+      );
+      
+      // Transform to match frontend expectations
+      const formattedMessages = messages.rows.map(msg => ({
+        sender: msg.sender, // 'user' or 'assistant'
+        content: msg.content,
+        created_at: msg.created_at,
+        message_id: msg.message_id
+      }));
+
       // Return empty array for now, implement message storage later)
-      return res.json([]);
+      return res.json(formattedMessages);
+
     } else {
+
+      // Paper code - get messages by finding the session for this paper
+      const sessionResult = await pool.query(
+        `SELECT session_id FROM Chat_Session 
+         WHERE (user_id = $1 OR (user_id IS NULL AND $1 IS NULL)) AND paper_code = $2 
+         ORDER BY created_at DESC LIMIT 1`,
+        [userId, identifier]
+      );
+
       // It's a paper code don't validate as UUID, just return empty for now
       // TODO: Implement paper message history from database
-      return res.json([]);
+      if (sessionResult.rows.length === 0) {
+        return res.json([]);
+      }
+
+      const sessionId = sessionResult.rows[0].session_id;
+
+      // Get messages for this session
+      const messages = await pool.query(
+        `SELECT message_id, session_id, role as sender, content, created_at, user_preferences
+         FROM Chat_Message 
+         WHERE session_id = $1 
+         ORDER BY created_at ASC`,
+        [sessionId]
+      );
+
+      // Transform to match frontend expectations
+      const formattedMessages = messages.rows.map(msg => ({
+        sender: msg.sender, // 'user' or 'assistant'
+        content: msg.content,
+        created_at: msg.created_at,
+        message_id: msg.message_id
+      }));
+      
+      return res.json(formattedMessages);
+
     }
     
   } catch (error) {
@@ -278,7 +332,9 @@ router.get('/chat/:identifier/history', async (req, res) => {
   try {
     const identifier = req.params.identifier;
     const isSessionId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
-    
+    const userId = req.session?.userId || null;
+
+
     if (isSessionId) {
       const sessionCheck = await pool.query(
         'SELECT session_id FROM Chat_Session WHERE session_id = $1', 
@@ -288,10 +344,53 @@ router.get('/chat/:identifier/history', async (req, res) => {
       if (sessionCheck.rows.length === 0) {
         return res.status(404).json({ error: 'Session not found' });
       }
+
+
+      const messages = await pool.query(
+        `SELECT message_id, session_id, role as sender, content, created_at
+         FROM Chat_Message 
+         WHERE session_id = $1 
+         ORDER BY created_at ASC`,
+        [identifier]
+      );
+
+
       
-      return res.json([]);
-    } else {
-      return res.json([]);
+      return res.json(messages.rows.map(msg => ({
+        sender: msg.sender,
+        content: msg.content,
+        created_at: msg.created_at
+      })));
+
+
+    } else { //Paper code
+
+      const sessionResult = await pool.query(
+        `SELECT session_id FROM Chat_Session 
+         WHERE user_id = $1 AND paper_code = $2 
+         ORDER BY created_at DESC LIMIT 1`,
+        [userId, identifier]
+      );
+      
+      if (sessionResult.rows.length === 0) {
+        return res.json([]);
+      }
+      
+      const messages = await pool.query(
+        `SELECT message_id, session_id, role as sender, content, created_at
+         FROM Chat_Message 
+         WHERE session_id = $1 
+         ORDER BY created_at ASC`,
+        [sessionResult.rows[0].session_id]
+      );
+
+
+
+      return res.json(msg => ({
+        sender: msg.sender,
+        content: msg.content,
+        created_at: msg.created_at
+      }));
     }
   } catch (error) {
     console.error('Error loading history:', error);
@@ -304,7 +403,8 @@ router.post('/chat/:identifier/first', async (req, res) => {
   try {
     const identifier = req.params.identifier;
     const isSessionId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
-    
+    const userId = req.session?.userId || null;
+
     if (isSessionId) {
       const sessionCheck = await pool.query(
         'SELECT session_id FROM Chat_Session WHERE session_id = $1', 
@@ -314,9 +414,44 @@ router.post('/chat/:identifier/first', async (req, res) => {
       if (sessionCheck.rows.length === 0) {
         return res.status(404).json({ error: 'Session not found' });
       }
+
+      const reply = "Hi there! This is a cupid chat";
+
+      // Store the first message
+      const messageId = uuidv4();
+      const now = new Date();
+      await pool.query(
+        `INSERT INTO Chat_Message (message_id, session_id, role, content, created_at, user_preferences) 
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+        [messageId, identifier, 'assistant', reply, now, null]
+      );
       
-      return res.json({ reply: "Hi there! This is a cupid chat" });
+      return res.json({reply});
     } else {
+
+      // Paper-based first message - check if session exists
+      const sessionResult = await pool.query(
+        `SELECT session_id FROM Chat_Session 
+         WHERE user_id = $1 AND paper_code = $2 
+         ORDER BY created_at DESC LIMIT 1`,
+        [userId, identifier]
+      );
+      
+      if (sessionResult.rows.length === 0) {
+        // No first message needed, let server.js handle it
+        return res.json({ reply: "" });
+      }
+      
+      // Check if there are already messages
+      const messageCheck = await pool.query(
+        'SELECT COUNT(*) as count FROM Chat_Message WHERE session_id = $1',
+        [sessionResult.rows[0].session_id]
+      );
+      
+      if (parseInt(messageCheck.rows[0].count) > 0) {
+        return res.json({ reply: "" }); // Already has messages
+      }
+
       //Handle paper-based first messages
       return res.json({ reply: "" });
     }
@@ -340,10 +475,10 @@ router.post('/chat-sessions', async (req, res) => {
     
     const result = await pool.query(`
       INSERT INTO Chat_Session (
-        session_id, user_id, created_at, updated_at
-      ) VALUES ($1, $2, $3, $4)
+        session_id, user_id, paper_code, created_at, updated_at, starred
+      ) VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING session_id, user_id
-    `, [session_ID, userId, now, now]); // null for anonymous users
+    `, [session_ID, userId, null, now, now, false]); // null for anonymous users
 
     res.json({
       session_id: result.rows[0].session_id,
@@ -368,9 +503,45 @@ router.delete('/chat-sessions/:identifier', async (req, res) => {
     const isSessionId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
     
     if (isSessionId){ // Delete a cupid chat session
-      await pool.query('DELETE FROM Chat_Session WHERE session_id = $1', [identifier]);
+
+      //Delete the messages before the session
+      await pool.query('DELETE FROM Chat_Message WHERE session_id = $1', [identifier]); 
+      const result = await pool.query('DELETE FROM Chat_Session WHERE session_id = $1 RETURNING session_id', [identifier]);
+
+      //await pool.query('DELETE FROM Chat_Session WHERE session_id = $1', [identifier]);
+
+
+      if (result.rowCount === 0) {
+        return res.status(404).json({ success: false, message: 'Session not found' });
+      }
+      
+      console.log(`Deleted Cupid session ${identifier} and its messages`);
+    
+
     }else{ // Delete a paper match chat session
+
+      // get chat session for specific user, for specific paper
+      const sessionResult = await pool.query(
+        'SELECT session_id FROM Chat_Session WHERE user_id = $1 AND paper_code = $2',
+        [userId, identifier]
+      );
+
+
+      if (sessionResult.rows.length > 0){
+        const sessionId = sessionResult.rows[0].session_id;
+        
+        // Delete messages for this session
+        await pool.query('DELETE FROM Chat_Message WHERE session_id = $1', [sessionId]);
+        
+        // Delete the session
+        await pool.query('DELETE FROM Chat_Session WHERE session_id = $1', [sessionId]);
+        
+        console.log(`Deleted paper session ${sessionId} for paper ${identifier}`);
+      }
+
+      // Delete the match
       await pool.query('DELETE FROM user_paper_matches WHERE user_id = $1 AND paper_code = $2;', [userId, identifier]);
+      console.log(`Deleted paper match ${identifier} for user ${userId}`);
     }
 
     res.json({ 

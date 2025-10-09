@@ -58,6 +58,7 @@ create table Web_User
 create table Chat_Session 
 (   session_id UUID PRIMARY KEY,
     user_id UUID REFERENCES Web_User (user_id) ON DELETE SET NULL,
+    paper_code VARCHAR,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     expires_at TIMESTAMP,

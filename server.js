@@ -32,6 +32,7 @@ app.use("/api", apiRouter);
 app.get("/chat", (req, res) =>
   res.sendFile(path.join(__dirname, "frontend", "chat.html"))
 );
+
 app.get("/chat/:paperId", (req, res) =>
   res.sendFile(path.join(__dirname, "frontend", "chat.html"))
 );
@@ -92,11 +93,15 @@ app.post("/api/chat/:paperId", async (req, res) => {
   const paperId = req.params.paperId;
   const message = req.body.message;
 
+  const userId = req.session?.userId || null;
+
+
   console.log(`Chat request for paper ID: ${paperId} with message: ${message}`);
 
   // Check if it's a session ID
   const isSessionId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(paperId);
   
+  /*   //shouldn't happen as api-server.js handles sessions aye?
   if (isSessionId) {
     // Handle session-based chat
     try {
@@ -119,26 +124,71 @@ app.post("/api/chat/:paperId", async (req, res) => {
     }
     
     return;
-  }
-
-
-  const result = await pool.query('SELECT * FROM paper WHERE paper_code = $1', [paperId]);
-  const paperData = result.rows[0];
-
-  console.log("Fetched paper data:", paperData);
-
-  if (!paperData) {
-    return res.status(404).json({ reply: "Error: Paper not found." });
-  }
-
-  const prompt = `You are ${paperData.title} (${paperData.paper_code}), a first-year university paper from the University of Otago. Description: ${paperData.description}.
-  You are on a dating app, trying to convince a prospective student to take you as a paper.
-  You are playful and flirty, but also informative about your course content and structure.
-  Answer the user's questions in short, engaging responses.`;
-
-  console.log(`Generated prompt for paper ID ${paperId}: ${prompt}`);
+  }*/
 
   try {
+    //get the paper code we're talking to
+    const result = await pool.query('SELECT * FROM paper WHERE paper_code = $1', [paperId]);
+    const paperData = result.rows[0];
+
+    console.log("Fetched paper data:", paperData);
+
+    if (!paperData) {
+      return res.status(404).json({ reply: "Error: Paper not found." });
+    }
+
+    // Get/create session for this paper chat
+    let sessionResult = await pool.query(
+      `SELECT session_id FROM Chat_Session 
+       WHERE user_id = $1 AND paper_code = $2 
+       ORDER BY created_at DESC LIMIT 1`,
+      [userId, paperId]
+    );
+    
+
+    let sessionId;
+    const now = new Date(); 
+    const { v4: uuidv4 } = require('uuid');
+
+
+    if (sessionResult.rows.length === 0) {
+      // Create new session for this paper
+      sessionId = uuidv4();
+      await pool.query(
+        `INSERT INTO Chat_Session (session_id, user_id, paper_code, created_at, updated_at, starred) 
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+        [sessionId, userId, paperId, now, now, false]
+      );
+      console.log(`Created new session ${sessionId} for paper ${paperId}`);
+    } else {
+      sessionId = sessionResult.rows[0].session_id;
+      // Update the session's updated_at timestamp
+      await pool.query(
+        'UPDATE Chat_Session SET updated_at = $1 WHERE session_id = $2',
+        [now, sessionId]
+      );
+    }
+
+    // Store user message
+    const userMessageId = uuidv4();
+    await pool.query(
+      `INSERT INTO Chat_Message (message_id, session_id, role, content, created_at, user_preferences) 
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [userMessageId, sessionId, 'user', message, now, null]
+    );
+    console.log(`Stored user message in session ${sessionId}`);
+
+
+
+    // Generate AI response
+    const prompt = `You are ${paperData.title} (${paperData.paper_code}), a first-year university paper from the University of Otago. Description: ${paperData.description}.
+    You are on a dating app, trying to convince a prospective student to take you as a paper.
+    You are playful and flirty, but also informative about your course content and structure.
+    Answer the user's questions in short, engaging responses.`;
+
+    console.log(`Generated prompt for paper ID ${paperId}: ${prompt}`);
+
+    
     // groq API call
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
@@ -157,7 +207,19 @@ app.post("/api/chat/:paperId", async (req, res) => {
 
     const data = await response.json();
     const reply = data.choices[0].message.content;
+
+    // Store AI reply
+    const assistantMessageId = uuidv4();
+    await pool.query(
+      `INSERT INTO Chat_Message (message_id, session_id, role, content, created_at, user_preferences) 
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [assistantMessageId, sessionId, 'assistant', reply, new Date(), null]
+    );
+    console.log(`Stored AI reply in session ${sessionId}`);
+
+
     res.json({ reply });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ reply: "Error: could not connect to AI." });

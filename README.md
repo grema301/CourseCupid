@@ -147,8 +147,6 @@ GROQ_API_KEY=your_groq_api_key
 
 ```
 
-> **Note**: Contact your team lead to get the actual database password and connection details.
-
 #### 4. Update Database Connection Code
 The `db/api-server.js` file is already configured for Supabase compatibility:
 
@@ -303,8 +301,8 @@ If for any reason you need to verify or re-import data:
 node -e "require('./db/api-server').pool.query('SELECT COUNT(*) FROM paper').then(r => console.log('Course count:', r.rows[0].count)).catch(e => console.error('Query failed:', e))"
 ```
 
-**Option B: Contact Team Lead**
-If you encounter any data-related issues, contact your team lead rather than attempting to modify the shared database.
+**Option B: Contact Team**
+If you encounter any data-related issues, contact the team rather than attempting to modify the shared database.
 
 #### 7. Test Your Deployment
 1. Visit your Render app URL
@@ -312,32 +310,6 @@ If you encounter any data-related issues, contact your team lead rather than att
 3. Try the personality quiz
 4. Test course chat functionality
 5. Verify all features work correctly
-
-### Render Free Tier Benefits
-- **$0 Cost**: Perfect for student projects and development
-- **Automatic HTTPS**: SSL certificates included
-- **GitHub Integration**: Auto-deploys when you push to GitHub
-- **750 hours/month**: More than enough for development and testing
-- **Custom domains**: Can add your own domain later
-- **Automatic restarts**: Service automatically restarts if it crashes
-
-### Managing Your Deployment
-
-#### Automatic Deployments
-- Every time you push to your connected GitHub branch, Render automatically rebuilds and deploys
-- Monitor deployments in the Render dashboard
-- View logs to debug any issues
-
-#### Updating Environment Variables
-1. Go to your Render service dashboard
-2. Click **"Environment"** tab
-3. Add/edit environment variables
-4. Service will automatically restart with new variables
-
-#### Monitoring Your App
-- **Logs**: View real-time logs in the Render dashboard
-- **Metrics**: Monitor CPU and memory usage
-- **Health**: Render automatically monitors your app's health
 
 ### Troubleshooting Common Issues
 
@@ -354,9 +326,8 @@ If you encounter any data-related issues, contact your team lead rather than att
 **Free Tier Limitations:**
 - Service sleeps after 15 minutes of inactivity (takes ~30 seconds to wake up)
 - 750 hours per month limit (about 1 month of continuous running)
-- Perfect for development, testing, and student projects
 
-### Upgrading Later
+### Possible Upgrading Later
 When ready for production:
 - Upgrade to Render's paid plans for 24/7 uptime
 - Add custom domain

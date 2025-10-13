@@ -108,6 +108,261 @@ Course Cupid presents University of Otago first-year papers as individual "perso
    - Create an account or use as a guest
    - Take the personality quiz to get course recommendations
 
+## External Cloud Database Hosting and Setup (Optional via Supabase)
+
+For production deployment or team collaboration, you can migrate from local PostgreSQL to Supabase cloud database.
+
+### Step-by-Step Supabase Migration
+
+#### 1. Create Supabase Branch
+```bash
+# Create and switch to new branch for cloud database
+git checkout -b supabase
+```
+
+#### 2. Use Shared Supabase Database
+We've already set up a shared Supabase database for the Course Cupid project. You don't need to create your own Supabase account or project.
+
+**Database Details:**
+- **Shared Database URL**: Available from project team
+- **Pre-configured Schema**: Database schema and tables already created
+- **Course Data**: University of Otago course data already imported
+
+#### 3. Update Environment Configuration
+Create or update your `.env` file with the shared Supabase credentials:
+
+```env
+# Shared Supabase Database Configuration (get actual URL from team)
+DATABASE_URL=postgresql://postgres.coursecupid:[PASSWORD]@aws-0-us-west-1.pooler.supabase.com:6543/postgres?sslmode=require
+
+# Alternative direct connection (for development)
+# DATABASE_URL=postgresql://postgres:[PASSWORD]@db.coursecupid.supabase.co:5432/postgres
+
+# Session Security
+SESSION_SECRET=your_secure_session_secret
+
+# AI API Keys
+GEMINI_API_KEY=your_google_gemini_api_key
+GROQ_API_KEY=your_groq_api_key
+
+```
+
+> **Note**: Contact your team lead to get the actual database password and connection details.
+
+#### 4. Update Database Connection Code
+The `db/api-server.js` file is already configured for Supabase compatibility:
+
+```javascript
+// Supabase connection configuration (already implemented)
+const pool = new Pool({ 
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  max: 20, // Maximum number of clients in the pool
+  idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
+  connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
+});
+```
+
+#### 5. Test Database Connection
+Since the database and schema are already set up, you can test your connection immediately:
+
+```bash
+# Test database connection with shared Supabase
+node -e "require('./db/api-server').pool.query('SELECT NOW()').then(r => console.log('Supabase connected:', r.rows[0])).catch(e => console.error('Connection failed:', e))"
+
+# Start application
+npm start
+```
+
+> **Note**: The shared database already contains all course data and required tables. No additional setup needed!
+
+### Migration Troubleshooting
+
+**Connection Issues:**
+- Verify you have the correct shared database URL and password
+- Check DATABASE_URL environment variable is set correctly
+- Ensure SSL configuration is correct for production
+- Contact team lead if connection issues persist
+
+**Schema Issues:**
+- The shared database already has the correct schema configured
+- No need to modify table structures
+- Check for case sensitivity in table/column names if custom queries fail
+
+**Performance Considerations:**
+- Use connection pooling URL for production (already configured in shared setup)
+- Database is optimized for multiple concurrent users
+- All course data is pre-loaded and regularly updated
+
+## 🚀 Production Deployment on Render (Optional)
+
+When using Supabase for your database, you can deploy Course Cupid to Render for a fully cloud-hosted solution using their free tier and simple web interface.
+
+### Prerequisites for Render Deployment
+- Supabase database setup completed (from previous section)  
+- Code pushed to GitHub repository
+- Free Render account
+
+### Simple Render Deployment via Web UI
+
+#### 1. Prepare Your Code for Deployment
+
+**Update `server.js` for Render compatibility:**
+```javascript
+// Change the port configuration to work with Render
+const PORT = process.env.PORT || 3000; // Render automatically sets PORT
+
+// Change the listen configuration
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Course Cupid server running on port ${PORT}`);
+});
+```
+
+**Update `package.json` scripts:**
+```json
+{
+  "scripts": {
+    "start": "node server.js",
+    "build": "pip install -r requirements.txt"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
+```
+
+#### 2. Push Code to GitHub
+```bash
+# Commit your changes
+git add .
+git commit -m "Prepare for Render deployment"
+git push origin supabase
+```
+
+#### 3. Create Free Render Account
+1. Go to [render.com](https://render.com)
+2. Click **"Get Started for Free"**
+3. Sign up using your **GitHub account** (recommended for easy repo access)
+4. Verify your email if prompted
+
+#### 4. Deploy via Render Dashboard
+
+**Step 1: Create New Web Service**
+1. On your Render dashboard, click **"New +"**
+2. Select **"Web Service"**
+3. Click **"Connect a repository"**
+4. Choose your Course Cupid repository from the list
+5. Select the **`supabase`** branch
+
+**Step 2: Configure Build Settings**
+1. **Name**: `course-cupid` (or any name you prefer)
+2. **Build Command**: `npm install && pip install -r requirements.txt`
+3. **Start Command**: `npm start`
+4. **Plan**: Select **"Free"** (perfect for development/testing)
+
+**Step 3: Add Environment Variables**
+Click **"Advanced"** then add these environment variables:
+
+| Key | Value |
+|-----|-------|
+| `NODE_ENV` | `production` |
+| `DATABASE_URL` | Your Supabase connection string |
+| `SESSION_SECRET` | A secure random string (min 32 characters) |
+| `GEMINI_API_KEY` | Your Google Gemini API key |
+| `GROQ_API_KEY` | Your Groq API key |
+
+**Example environment variables:**
+```
+NODE_ENV=production
+DATABASE_URL=postgresql://postgres.coursecupid:[PASSWORD]@aws-0-us-west-1.pooler.supabase.com:6543/postgres?sslmode=require
+SESSION_SECRET=your_32_character_minimum_secure_session_secret_here
+GEMINI_API_KEY=AIzaSyD...your_key_here
+GROQ_API_KEY=gsk_...your_key_here
+```
+
+> **Note**: Replace `[PASSWORD]` with the actual database password provided by your team lead.
+
+#### 5. Deploy Your Application
+1. Click **"Create Web Service"**
+2. Render will automatically:
+   - Clone your GitHub repository
+   - Install Node.js dependencies
+   - Install Python dependencies
+   - Start your application
+3. Wait for the build to complete (usually 2-5 minutes)
+4. Your app will be available at: https://*repo-name*.onrender.com
+
+#### 6. Import Course Data (One-time Setup)
+The shared Supabase database already contains all University of Otago course data. No additional data import is required!
+
+If for any reason you need to verify or re-import data:
+
+**Option A: Verify Data Exists**
+```bash
+# Check if course data is available
+node -e "require('./db/api-server').pool.query('SELECT COUNT(*) FROM paper').then(r => console.log('Course count:', r.rows[0].count)).catch(e => console.error('Query failed:', e))"
+```
+
+**Option B: Contact Team Lead**
+If you encounter any data-related issues, contact your team lead rather than attempting to modify the shared database.
+
+#### 7. Test Your Deployment
+1. Visit your Render app URL
+2. Test user registration and login
+3. Try the personality quiz
+4. Test course chat functionality
+5. Verify all features work correctly
+
+### Render Free Tier Benefits
+- **$0 Cost**: Perfect for student projects and development
+- **Automatic HTTPS**: SSL certificates included
+- **GitHub Integration**: Auto-deploys when you push to GitHub
+- **750 hours/month**: More than enough for development and testing
+- **Custom domains**: Can add your own domain later
+- **Automatic restarts**: Service automatically restarts if it crashes
+
+### Managing Your Deployment
+
+#### Automatic Deployments
+- Every time you push to your connected GitHub branch, Render automatically rebuilds and deploys
+- Monitor deployments in the Render dashboard
+- View logs to debug any issues
+
+#### Updating Environment Variables
+1. Go to your Render service dashboard
+2. Click **"Environment"** tab
+3. Add/edit environment variables
+4. Service will automatically restart with new variables
+
+#### Monitoring Your App
+- **Logs**: View real-time logs in the Render dashboard
+- **Metrics**: Monitor CPU and memory usage
+- **Health**: Render automatically monitors your app's health
+
+### Troubleshooting Common Issues
+
+**Build Failures:**
+- Check that all dependencies are listed in `package.json` and `requirements.txt`
+- Verify Node.js version compatibility
+- Review build logs in Render dashboard
+
+**Runtime Errors:**
+- Check environment variables are set correctly
+- Verify Supabase database connection string
+- Monitor application logs for error details
+
+**Free Tier Limitations:**
+- Service sleeps after 15 minutes of inactivity (takes ~30 seconds to wake up)
+- 750 hours per month limit (about 1 month of continuous running)
+- Perfect for development, testing, and student projects
+
+### Upgrading Later
+When ready for production:
+- Upgrade to Render's paid plans for 24/7 uptime
+- Add custom domain
+- Enable advanced monitoring and analytics
+- Scale resources as needed
+
 ## Project Structure
 
 ```
@@ -173,7 +428,7 @@ Course-Cupid/
   3. Cosine similarity matching for top 5 recommendations
 - **File**: `google_course_matcher.py`
 
-### Course Personalities (Groq/Llama)
+### Course Personalities (Groq)
 - **Purpose**: Create engaging course chatbots
 - **Process**:
   1. Dynamic prompt generation incorporating course details

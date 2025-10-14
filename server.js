@@ -24,9 +24,10 @@ app.use(
   })
 );
 
-// Mount API routes from api-server.js
-const api = require('./db/api-server');
-app.use('/api', api.router || api);
+const { router: apiRouter, pool: apiPool } = require("./db/api-server");
+const { Pool } = require("pg");
+const pool = apiPool || new Pool();
+app.use("/api", apiRouter);
 
 
 app.get("/chat", (req, res) =>

@@ -345,18 +345,19 @@ body.menu-open {
       <div class="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-4 animate-fade-in" style="animation-delay: 0.6s;">
         
         <!--
-        <a href="chat/default" class="inline-flex items-center justify-center rounded-full animated-gradient text-white px-6 sm:px-8 py-3 font-semibold hover-lift group transition-all duration-300">
+        <a href="/chat/default" 
+            class="inline-flex items-center justify-center rounded-full animated-gradient text-white px-6 sm:px-8 py-3 font-semibold hover-lift group transition-all duration-300">
           Start Chatting Now
           <svg class="ml-2 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
           </svg>
         </a>-->
 
-        <button id="start-chat-btn" 
-          onclick="startCreateSession()" 
-          class="inline-flex items-center justify-center rounded-full animated-gradient text-white px-6 sm:px-8 py-3 font-semibold hover-lift group transition-all duration-300">
-          <span id="chat-btn-text">Start Chatting Now →</span>
-          <span id="chat-btn-loading" class="hidden">Creating Session...</span>
+        <button type="button" onclick="checkLogIn()" class="inline-flex items-center justify-center rounded-full animated-gradient text-white px-6 sm:px-8 py-3 font-semibold hover-lift group transition-all duration-300">
+          Start Chatting Now
+          <svg class="ml-2 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+          </svg>
         </button>
 
         
@@ -444,10 +445,29 @@ body.menu-open {
     </div>
   </footer>
 
-  <script src="/frontend/app.js"></script>
+  <script src="app.js"></script>
   <script src="server.js"></script>
-    <script src="/frontend/app.js"></script>
   <script>
+    async function checkLogIn(){
+
+      try {
+        const res = await fetch('/api/me', { credentials: 'same-origin' });
+        const data = await res.json();
+
+        if (data.loggedIn) {
+          // If already logged in, go straight to chats
+          window.location.href = '/chat';
+        } else {
+          // If not logged in, create a new session
+          await startCreateSession();
+        }
+      } catch (err) {
+        console.error('Error checking login:', err);
+        alert('Could not check login status');
+      } 
+
+    }
+
     async function refreshAuthUI_Safe() {
       if (typeof refreshAuthUI === 'function') return refreshAuthUI();
       try {

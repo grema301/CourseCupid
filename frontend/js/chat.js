@@ -15,9 +15,8 @@
   const sessionIdEl = document.getElementById('current-session-id');
 
   let currentPaper = null;
-  let currentSessionId = null;  // Add this line
-  let currentChatType = null;   // Add this line too if not already there 
-
+  let currentSessionId = null;  
+  let currentChatType = null;  
 
   // Inline editing for chat title
   paperTitleEl.addEventListener('click', () => {
@@ -305,6 +304,10 @@
   // Open chat UI for a paper (paperCode, optional meta)
   async function openChat(paperCode, meta = {}) {
     currentPaper = paperCode;
+
+    currentChatType = 'paper'; // identify paper chat
+    currentSessionId = null;   // clear any session ID?
+
     // set UI
     placeholder.classList.add('hidden');
     chatPanel.classList.remove('hidden');

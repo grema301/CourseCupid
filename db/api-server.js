@@ -125,57 +125,6 @@ router.post('/logout', (req, res) => {
 });
 
 
-
-/*
-// Handle chat messages for a session (not paper)
-router.post('/chat/:sessionId', async (req, res) => {
-  const sessionId = req.params.sessionId;
-  const message = req.body.message;
-
-  // Validate session exists
-  const sessionCheck = await pool.query(
-    'SELECT session_id FROM Chat_Session WHERE session_id = $1', 
-    [sessionId]
-  );
-  
-  if (sessionCheck.rows.length === 0) {
-    return res.status(404).json({ reply: "Error: Session not found." });
-  }
-
-  // For now, return a simple response
-  const reply = "Hello! This is a Cupid chat session. How can I help you today?";
-  
-  // TODO: Save message to database and call AI service
-  
-  res.json({ reply });
-});*/
-
-/*
-// Get messages for a session (update the existing one)
-router.get('/chat/:sessionId/messages', async (req, res) => {
-  try {
-    const { sessionId } = req.params;
-    
-    // Validate session exists
-    const sessionCheck = await pool.query(
-      'SELECT session_id FROM Chat_Session WHERE session_id = $1', 
-      [sessionId]
-    );
-    
-    if (sessionCheck.rows.length === 0) {
-      return res.status(404).json({ error: 'Session not found' });
-    }
-    
-    // For now return empty, implement message storage later
-    res.json([]);
-    
-  } catch (error) {
-    console.error('Error loading session messages:', error);
-    res.status(500).json({ error: 'Failed to load messages' });
-  }
-});*/
-
-
 // Handle chat messages, handles both sessions and papers
 // If identifier is a UUID (session), handles it here. Otherwise calls next() 
 // to pass paper chats to server.js where the paper AI is implemented.
@@ -603,6 +552,28 @@ router.get('/chat-sessions', async (req, res) => {
   } catch (error) {
     console.error('Error fetching chat sessions:', error);
     res.status(500).json({ error: 'Failed to fetch chat sessions' });
+  }
+});
+
+
+// Update chat title
+router.put('/chat-sessions/:id/title', async (req, res) => {
+  const { id } = req.params;
+  const { title } = req.body;
+
+  if (!title || title.trim().length === 0) {
+    return res.status(400).json({ error: 'Invalid title' });
+  }
+
+  try {
+    await pool.query(
+      `UPDATE Chat_Session SET title = $1, updated_at = NOW() WHERE session_id = $2`,
+      [title.trim(), id]
+    );
+    res.json({ success: true, title: title.trim() });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update chat title' });
   }
 });
 

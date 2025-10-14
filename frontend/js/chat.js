@@ -18,6 +18,69 @@
   let currentSessionId = null;  // Add this line
   let currentChatType = null;   // Add this line too if not already there 
 
+
+  // Inline editing for chat title
+  paperTitleEl.addEventListener('click', () => {
+    // Only allow renaming for Cupid chats
+    if (currentChatType !== 'cupid' || !currentSessionId) return;
+
+    const oldTitle = paperTitleEl.textContent;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = oldTitle;
+    input.className = 'border border-cupidPink/30 rounded px-2 py-1 text-sm text-cupidPink font-medium focus:outline-none focus:ring-2 focus:ring-cupidPink/30';
+    input.style.width = '80%';
+
+    paperTitleEl.replaceWith(input);
+    input.focus();
+
+    // Save on Enter or click off
+    async function save() {
+      const newTitle = input.value.trim();
+      if (!newTitle || newTitle === oldTitle) {
+        input.replaceWith(paperTitleEl);
+        paperTitleEl.textContent = oldTitle;
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/chat-sessions/${encodeURIComponent(currentSessionId)}/title`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ title: newTitle })
+        });
+        if (!res.ok) throw new Error('Failed to update title');
+
+        // Replace back with updated text
+        input.replaceWith(paperTitleEl);
+        paperTitleEl.textContent = newTitle;
+
+        // Update sidebar list
+        loadCupidChats();
+      } catch (err) {
+        console.error(err);
+        alert('⚠️ Could not update title. Try again later.');
+        input.replaceWith(paperTitleEl);
+        paperTitleEl.textContent = oldTitle;
+      }
+    }
+
+    input.addEventListener('blur', save);
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        save();
+      } else if (e.key === 'Escape') {
+        input.replaceWith(paperTitleEl);
+        paperTitleEl.textContent = oldTitle;
+      }
+    });
+  });
+
+
+
+
   // Utility: get paperId from path if present (supports /chat and /chat/:paper)
   function getPaperIdFromPath() {
     const parts = window.location.pathname.split('/').filter(Boolean);

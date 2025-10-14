@@ -84,11 +84,12 @@
   // Utility: get paperId from path if present (supports /chat and /chat/:paper)
   function getPaperIdFromPath() {
     const parts = window.location.pathname.split('/').filter(Boolean);
-    // parts e.g. ['chat', 'COMP161'] or ['chat']
     if (parts.length >= 2 && parts[0] === 'chat') {
-      return decodeURIComponent(parts[1] || '').replace(/^:/, '');
+      const id = decodeURIComponent(parts[1]);
+      const isPaper = /^[A-Z]{4}\d{3}$/i.test(id); // 4 letters + 3 numbers
+      return { id, type: isPaper ? 'paper' : 'cupid' };
     }
-    return null;
+    return { id: null, type: null };
   }
 
   function setURLForPaper(paperCode, push = true) {
@@ -226,11 +227,11 @@
     cupidChatList.innerHTML = '';
     try {
       // Get current session ID from URL
-      const currentSessionId = getPaperIdFromPath();// This gets the identifier from /chat/:id
+      const { id, type } = getPaperIdFromPath();// This gets the identifier from /chat/:id
 
-      // Pass current session ID as query parameter
-      const url = currentSessionId 
-      ? `/api/chat-sessions?currentSessionId=${encodeURIComponent(currentSessionId)}`
+      // Pass current session ID as query parameter only if it's a cupid chat (UUID)
+      const url = (id && type === 'cupid')
+      ? `/api/chat-sessions?currentSessionId=${encodeURIComponent(id)}`
       : '/api/chat-sessions';
 
       const res = await fetch(url, { credentials: 'same-origin' });
@@ -391,8 +392,22 @@
   });
 
   // Listen to back/forward navigation to reopen correct chat
-  window.addEventListener('popstate', (ev) => {
-    const p = getPaperIdFromPath();
+  window.addEventListener('popstate', async (ev) => {
+    
+    const { id, type } = getPaperIdFromPath();
+
+    // No chat selected show empty placeholder state
+    if (!id) {
+      currentPaper = null;
+      currentSessionId = null;
+      currentChatType = null;
+      chatPanel.classList.add('hidden');
+      placeholder.classList.remove('hidden');
+      return;
+    }
+
+
+    /*
     if (p) {
       loadMatches(p);
 
@@ -413,22 +428,60 @@
       currentChatType = null;
       chatPanel.classList.add('hidden');
       placeholder.classList.remove('hidden');
+    }*/
+
+    if (type === 'paper') {
+      await loadMatches(id); // Reload paper matches and auto-select the paper from URL
+    } else { // Cupid Chat
+      await loadCupidChats(); // Load Cupid chats sidebar, then fetch and open the specific session
+      try {
+        const res = await fetch(`/api/chat-sessions/${encodeURIComponent(id)}`, { credentials: 'same-origin' });
+        if (res.ok) {
+          const session = await res.json();
+          openCupidChat(session);
+        }
+      } catch (err) {
+        console.error('popstate openCupidChat failed', err);
+      }
     }
+
   });
 
   // INIT
   (async function init() {
-    const initialPaper = getPaperIdFromPath();
+    //const initialPaper = getPaperIdFromPath();
+    const { id, type } = getPaperIdFromPath();
 
-    await loadMatches(initialPaper);
+
+    //await loadMatches(initialPaper);
+    // Always load both sidebars to show available matches and Cupid chats
+    await loadMatches();
     await loadCupidChats();
 
+    /*
     // If initialPaper didn't auto open via loadMatches (e.g., no match), try to open directly if it exists
     if (initialPaper && !currentPaper) {
       // attempt to open even if not matched (useful for dev/testing)
       openChat(initialPaper, {});
       setURLForPaper(initialPaper, false);
+    }*/
+
+    // If URL has an identifier open the corresponding chat automatically
+    if (type === 'paper') {
+      openChat(id, {});
+    } else if (type === 'cupid' && id){
+      // Fetch Cupid session data to restore chat on page reload
+      try {
+        const res = await fetch(`/api/chat-sessions/${encodeURIComponent(id)}`, { credentials: 'same-origin' });
+        if (res.ok) {
+          const session = await res.json();
+          openCupidChat(session);
+        }
+      } catch (err) {
+        console.error('Could not open Cupid chat on reload', err);
+      }
     }
+
   })();
 
 })();

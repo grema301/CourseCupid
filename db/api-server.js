@@ -555,6 +555,46 @@ router.get('/chat-sessions', async (req, res) => {
   }
 });
 
+// Get a single chat session by ID
+router.get('/chat-sessions/:identifier', async (req, res) => {
+  try {
+    const { identifier } = req.params;
+    const userId = req.session?.userId || null;
+    
+    // Check if it's a UUID (session ID)
+    const isSessionId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
+    
+    if (!isSessionId) {
+      return res.status(400).json({ error: 'Invalid session ID format' });
+    }
+    
+    // For logged-in users, verify they own session
+    // For anon users, allow access to any session through URL (should change later)
+    let query, params;
+    if (userId) {
+      query = 'SELECT session_id, user_id, created_at, updated_at, title FROM Chat_Session WHERE session_id = $1 AND user_id = $2';
+      params = [identifier, userId];
+    } else {
+      query = 'SELECT session_id, user_id, created_at, updated_at, title FROM Chat_Session WHERE session_id = $1';
+      params = [identifier];
+    }
+    
+    const result = await pool.query(query, params);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
+    
+    // Return the session object for openCupidChat() to use
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error fetching chat session:', error);
+    res.status(500).json({ error: 'Failed to fetch chat session' });
+  }
+});
+
+
+
 
 // Update chat title
 router.put('/chat-sessions/:id/title', async (req, res) => {

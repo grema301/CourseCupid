@@ -368,6 +368,114 @@ body.menu-open {
     </div>
   </section>
 
+<section aria-labelledby="contact-heading" class="py-12 sm:py-16">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-10">
+    <div class="glass-effect rounded-2xl shadow-xl max-w-2xl mx-auto p-6 sm:p-8">
+      <h2 id="contact-heading" class="text-3xl font-script text-cupidPink mb-2">Send us a message</h2>
+      <p class="text-gray-600 mb-6">We’d love to hear from you. Fill out the form and we’ll get back to you soon.</p>
+
+      <form id="contact-form" class="grid gap-4">
+        <div>
+          <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+          <input id="name" name="name" type="text"
+                 class="input-focus block w-full rounded-xl border border-cupidPink/20 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:border-cupidPink focus:outline-none"
+                 placeholder="Your name" />
+        </div>
+
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <input id="email" name="email" type="email" required
+                 class="input-focus block w-full rounded-xl border border-cupidPink/20 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:border-cupidPink focus:outline-none"
+                 placeholder="you@example.com" />
+        </div>
+
+        <div>
+          <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+          <textarea id="message" name="message" rows="5" required
+                    class="input-focus block w-full rounded-xl border border-cupidPink/20 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:border-cupidPink focus:outline-none"
+                    placeholder="How can we help?"></textarea>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button type="submit"
+                  class="inline-flex items-center gap-2 rounded-full bg-cupidPink text-white px-5 py-2.5 font-semibold hover:bg-cupidPink/90 focus:outline-none">
+            <span id="btn-spinner" class="loading-spinner hidden"></span>
+            <span id="btn-label">Send</span>
+          </button>
+          <p class="text-sm text-gray-500">We’ll email you a confirmation.</p>
+        </div>
+
+        <div id="contact-status" class="hidden mt-2 rounded-lg border p-3 text-sm" role="status" aria-live="polite"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    const form = document.getElementById('contact-form');
+    if (!form) return;
+
+    const nameEl = form.querySelector('#name');
+    const emailEl = form.querySelector('#email');
+    const msgEl = form.querySelector('#message');
+    const statusEl = document.getElementById('contact-status');
+    const btn = form.querySelector('button[type="submit"]');
+    const btnLabel = document.getElementById('btn-label');
+    const btnSpinner = document.getElementById('btn-spinner');
+
+    function showStatus(ok, msg) {
+      statusEl.classList.remove('hidden');
+      statusEl.textContent = msg;
+      statusEl.className =
+        'mt-2 rounded-lg border p-3 text-sm ' +
+        (ok
+          ? 'bg-green-50 border-green-200 text-green-700'
+          : 'bg-red-50 border-red-200 text-red-700');
+    }
+
+    function busy(b) {
+      btn.disabled = b;
+      btnLabel.textContent = b ? 'Sending…' : 'Send';
+      btnSpinner.classList.toggle('hidden', !b);
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = (nameEl?.value || '').trim();
+      const email = (emailEl?.value || '').trim();
+      const message = (msgEl?.value || '').trim();
+
+      statusEl.classList.add('hidden');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !message) {
+        showStatus(false, 'Enter a valid email and a message.');
+        return;
+      }
+
+      busy(true);
+      try {
+        const r = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, message })
+        });
+        const j = await r.json().catch(() => ({}));
+        if (r.ok && j.success) {
+          showStatus(true, 'Thanks! Your message has been sent. Check your email for a confirmation.');
+          form.reset();
+        } else {
+          showStatus(false, j.error || 'Could not send message.');
+        }
+      } catch (err) {
+        console.error(err);
+        showStatus(false, 'Network error.');
+      } finally {
+        busy(false);
+      }
+    });
+  })();
+</script>
+
   <!-- FOOTER -->
   <footer class="bg-white border-t border-cupidPink/10 mt-auto">
     <div class="max-w-6xl mx-auto px-8 py-12">

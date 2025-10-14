@@ -572,7 +572,7 @@ router.get('/chat-sessions', async (req, res) => {
       query = `
         SELECT session_id, user_id, created_at, updated_at, title
         FROM Chat_Session 
-        WHERE user_id = $1 
+        WHERE user_id = $1 AND paper_code IS NULL
         ORDER BY updated_at DESC
       `;
       params = [loggedInUserId];

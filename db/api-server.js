@@ -5,6 +5,7 @@ const cors = require('cors');
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
 const router = express.Router();
+router.use(express.json()); 
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs').promises;
 const path = require('path');
@@ -13,7 +14,6 @@ let nodemailer;
 try { nodemailer = require('nodemailer'); } catch { nodemailer = null; console.warn('nodemailer not installed — email sending disabled'); }
 
 router.use(cors());
-router.use(express.json());
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, options: "-c search_path=hogka652" });
 
@@ -568,100 +568,58 @@ router.get('/my-matches', async (req, res) => {
   }
 });
 
+let _tx;
 function getMailer() {
-  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
+  if (_tx) return _tx;
   if (!nodemailer) return null;
+  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
   if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) return null;
-  return nodemailer.createTransport({
+  _tx = nodemailer.createTransport({
     host: SMTP_HOST,
     port: Number(SMTP_PORT || 587),
     secure: Number(SMTP_PORT || 587) === 465,
     auth: { user: SMTP_USER, pass: SMTP_PASS }
   });
+  return _tx;
 }
 
-// Detect your user table (must have id + email columns)
-let _detectedUserTable = null;
-async function detectUserTable() {
-  if (_detectedUserTable) return _detectedUserTable;
-  const q = `
-    SELECT c1.table_schema, c1.table_name
-    FROM information_schema.columns c1
-    JOIN information_schema.columns c2
-      ON c1.table_schema = c2.table_schema AND c1.table_name = c2.table_name
-    WHERE c1.column_name = 'email' AND c2.column_name = 'id'
-      AND c1.table_schema NOT IN ('pg_catalog','information_schema')
-    ORDER BY (c1.table_schema = 'public') DESC
-    LIMIT 1
-  `;
-  const r = await pool.query(q);
-  if (r.rowCount === 0) throw new Error('No user table with email+id found');
-  const { table_schema, table_name } = r.rows[0];
-  _detectedUserTable = `"${table_schema}"."${table_name}"`;
-  return _detectedUserTable;
-}
-
-router.post('/request-password-reset', async (req, res) => {
+router.post('/contact', async (req, res) => {
   try {
-    const { email } = req.body || {};
-    if (!email) return res.status(400).json({ error: 'email required' });
-
-    const u = await pool.query('SELECT user_id, email FROM Web_User WHERE email = $1 LIMIT 1', [email]);
-    if (u.rowCount === 0) {
-      return res.json({ success: true });
+    const { name = '', email = '', message = '' } = req.body || {};
+    const fromEmail = String(email).trim();
+    const body = String(message).trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fromEmail) || !body) {
+      return res.status(400).json({ error: 'Valid email and message required' });
     }
+    const tx = getMailer();
+    if (!tx) return res.status(500).json({ error: 'Email not configured' });
 
-    const user = u.rows[0];
-    const token = crypto.randomBytes(24).toString('hex');
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    const supportTo = 'coursecupid@gmail.com';
+    const fromAddr = process.env.SMTP_FROM || process.env.SMTP_USER;
 
-    await pool.query('INSERT INTO password_resets(token, user_id, expires_at) VALUES($1,$2,$3)', [token, String(user.user_id), expiresAt]);
+    await tx.sendMail({
+      from: fromAddr,
+      to: supportTo,
+      replyTo: fromEmail,
+      subject: `Contact — ${name || fromEmail}`,
+      text: `Name: ${name || '(not provided)'}\nEmail: ${fromEmail}\n\n${body}`
+    });
 
-    const resetLink = `${req.protocol}://${req.get('host')}/reset.html?token=${encodeURIComponent(token)}`;
-    console.log('Password reset link for', user.email, resetLink);
+    await tx.sendMail({
+      from: fromAddr,
+      to: fromEmail,
+      subject: 'Course Cupid — We received your message',
+      text: `Hi${name ? ' ' + name : ''},\n\nThanks for contacting Course Cupid. We’ve received your message and will get back to you soon.\n\n— Course Cupid`
+    });
 
-    const mailer = getMailer();
-    if (mailer) {
-      await mailer.sendMail({
-        from: process.env.SMTP_FROM || 'no-reply@example.com',
-        to: user.email,
-        subject: 'Course Cupid — Password reset',
-        text: `Use this link to reset your password (valid 1 hour): ${resetLink}`,
-        html: `<p>Use this link to reset your password (valid 1 hour):</p><p><a href="${resetLink}">${resetLink}</a></p>`
-      });
-    }
     return res.json({ success: true });
   } catch (err) {
-    console.error('request-password-reset error:', err);
+    console.error('contact error:', err);
     return res.status(500).json({ error: 'server error' });
   }
 });
 
-router.post('/reset-password/:token', async (req, res) => {
-  try {
-    const token = req.params.token;
-    const { password } = req.body || {};
-    if (!token || !password) return res.status(400).json({ error: 'token and password required' });
 
-    const r = await pool.query('SELECT user_id, expires_at FROM password_resets WHERE token = $1 LIMIT 1', [token]);
-    if (r.rowCount === 0) return res.status(400).json({ error: 'Invalid or expired token' });
-    const row = r.rows[0];
-
-    if (new Date(row.expires_at) < new Date()) {
-      await pool.query('DELETE FROM password_resets WHERE token = $1', [token]);
-      return res.status(400).json({ error: 'Token expired' });
-    }
-
-    const hashed = await bcrypt.hash(password, 10);
-    await pool.query('UPDATE Web_User SET password_hash = $1 WHERE user_id = $2', [hashed, String(row.user_id)]);
-    await pool.query('DELETE FROM password_resets WHERE token = $1', [token]);
-
-    return res.json({ success: true });
-  } catch (err) {
-    console.error('reset-password error:', err);
-    return res.status(500).json({ error: 'server error' });
-  }
-});
 
 // ensure both router and pool are exported for server.js to destructure
 module.exports = { router, pool };
@@ -691,3 +649,95 @@ module.exports = { router, pool };
     console.error('Failed to ensure password_resets table:', err);
   }
 })();
+
+let RESOLVED_USER_TABLE;
+async function getUserTable() {
+  if (RESOLVED_USER_TABLE) return RESOLVED_USER_TABLE;
+  try {
+    const r = await pool.query(`
+      SELECT table_schema, table_name
+      FROM information_schema.tables
+      WHERE lower(table_name) = 'web_user'
+      ORDER BY CASE WHEN table_schema = current_schema() THEN 0 ELSE 1 END
+      LIMIT 1
+    `);
+    if (r.rowCount > 0) {
+      const { table_schema, table_name } = r.rows[0];
+      RESOLVED_USER_TABLE = `"${table_schema}"."${table_name}"`; 
+    } else {
+      RESOLVED_USER_TABLE = 'Web_User';
+    }
+  } catch {
+    RESOLVED_USER_TABLE = 'Web_User';
+  }
+  return RESOLVED_USER_TABLE;
+}
+
+router.post('/request-password-reset', async (req, res) => {
+  try {
+    const { email } = req.body || {};
+    if (!email) return res.status(400).json({ error: 'email required' });
+
+    const userTable = await getUserTable();
+    const u = await pool.query(`SELECT user_id, email FROM ${userTable} WHERE email = $1 LIMIT 1`, [email]);
+
+    if (u.rowCount > 0) {
+      const user = u.rows[0];
+      const token = crypto.randomBytes(24).toString('hex');
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000); 
+
+      await pool.query(
+        'INSERT INTO password_resets (token, user_id, expires_at) VALUES ($1, $2, $3)',
+        [token, String(user.user_id), expiresAt]
+      );
+
+      const resetLink = `${req.protocol}://${req.get('host')}/reset.html?token=${encodeURIComponent(token)}`;
+
+      const tx = getMailer && getMailer();
+      if (tx) {
+        tx.sendMail({
+          from: process.env.SMTP_FROM || process.env.SMTP_USER,
+          to: user.email,
+          subject: 'Course Cupid — Password reset',
+          text: `Use this link to reset your password (valid 1 hour): ${resetLink}`,
+          html: `<p>Use this link to reset your password (valid 1 hour):</p><p><a href="${resetLink}">${resetLink}</a></p>`
+        }).catch(err => console.warn('Reset email send failed:', err.message));
+      } else {
+        console.warn('SMTP not configured — reset email not sent');
+      }
+    }
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('request-password-reset error:', err);
+    return res.status(500).json({ error: 'server error' });
+  }
+});
+
+// Apply new password using token
+router.post('/reset-password/:token', async (req, res) => {
+  try {
+    const token = req.params.token;
+    const { password } = req.body || {};
+    if (!token || !password) return res.status(400).json({ error: 'token and password required' });
+
+    const r = await pool.query('SELECT user_id, expires_at FROM password_resets WHERE token = $1 LIMIT 1', [token]);
+    if (r.rowCount === 0) return res.status(400).json({ error: 'Invalid or expired token' });
+
+    const row = r.rows[0];
+    if (new Date(row.expires_at) < new Date()) {
+      await pool.query('DELETE FROM password_resets WHERE token = $1', [token]);
+      return res.status(400).json({ error: 'Token expired' });
+    }
+
+    const hashed = await bcrypt.hash(password, 10);
+    const userTable = await getUserTable();
+    await pool.query(`UPDATE ${userTable} SET password_hash = $1 WHERE user_id = $2`, [hashed, String(row.user_id)]);
+    await pool.query('DELETE FROM password_resets WHERE token = $1', [token]);
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('reset-password error:', err);
+    return res.status(500).json({ error: 'server error' });
+  }
+});

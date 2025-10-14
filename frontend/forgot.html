@@ -4,26 +4,18 @@
   <meta charset="utf-8" />
   <title>Forgot Password • Course Cupid</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" href="/images/cupid_logo.png" />
-  <link rel="stylesheet" href="/style.css" />
   <style>
-    body { background:#fff; }
-    .page { max-width: 720px; margin: 32px auto; padding: 0 16px; }
+    .page { max-width: 720px; margin: 32px auto; padding: 0 16px; font-family: system-ui, Segoe UI, Arial; }
     form { display: grid; gap: 12px; max-width: 480px; }
-    label { font-size: 14px; color: #333; }
-    input[type="email"] { padding: 10px 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; width: 100%; }
-    button { padding: 10px 14px; font-size: 16px; border: 1px solid #c05a66; background: #c05a66; color: #fff; border-radius: 6px; cursor: pointer; }
-    button:disabled { opacity: 0.6; cursor: default; }
-    .row { display: flex; align-items: center; gap: 12px; }
-    .status { font-size: 14px; color: #555; }
+    input, button { padding: 10px 12px; font-size: 16px; }
+    input { border: 1px solid #ccc; border-radius: 6px; }
+    button { border: 1px solid #c05a66; background: #c05a66; color: #fff; border-radius: 6px; cursor: pointer; }
     .alert { margin-top: 12px; padding: 10px 12px; border-radius: 6px; font-size: 14px; }
-    .alert-success { background:#e7f7ec; color:#185f2c; border:1px solid #b9e4c7; }
-    .alert-error { background:#fdecea; color:#611a15; border:1px solid #f5c2c0; }
-    .hidden { display:none; }
+    .ok { background:#e7f7ec; color:#185f2c; border:1px solid #b9e4c7; }
+    .err { background:#fdecea; color:#611a15; border:1px solid #f5c2c0; }
   </style>
 </head>
 <body>
-
 <main class="page">
   <h1>Forgot your password?</h1>
   <p>Enter your account email and we’ll send a reset link.</p>
@@ -31,68 +23,44 @@
   <form id="forgot-form" novalidate>
     <label for="email">Email</label>
     <input id="email" type="email" required placeholder="you@example.com" />
-    <div class="row">
-      <button id="btn-send" type="submit">Send reset link</button>
-      <span id="status" class="status"></span>
-    </div>
+    <button id="btn" type="submit">Send reset link</button>
   </form>
-  <div id="alert" class="alert hidden" role="status"></div>
+  <div id="msg" class="alert" style="display:none"></div>
 </main>
 
 <script>
-  (function () {
-    const form = document.getElementById('forgot-form');
-    const email = document.getElementById('email');
-    const statusEl = document.getElementById('status');
-    const btn = document.getElementById('btn-send');
-    const alertEl = document.getElementById('alert');
+  (function(){
+    const f = document.getElementById('forgot-form');
+    const emailEl = document.getElementById('email');
+    const btn = document.getElementById('btn');
+    const msg = document.getElementById('msg');
 
-    function setBusy(b) {
-      btn.disabled = b;
-      btn.textContent = b ? 'Sending…' : 'Send reset link';
-      if (b) statusEl.textContent = 'Sending link…';
+    function show(ok, text){
+      msg.className = 'alert ' + (ok ? 'ok' : 'err');
+      msg.textContent = text;
+      msg.style.display = 'block';
     }
 
-    function showSuccess(msgHtml) {
-      alertEl.className = 'alert alert-success';
-      alertEl.innerHTML = msgHtml;
-      alertEl.classList.remove('hidden');
-    }
-    function showError(msg) {
-      alertEl.className = 'alert alert-error';
-      alertEl.textContent = msg;
-      alertEl.classList.remove('hidden');
-    }
-
-    form.addEventListener('submit', async (e) => {
+    f.addEventListener('submit', async (e)=>{
       e.preventDefault();
-      alertEl.classList.add('hidden');
-      const v = email.value.trim();
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
-        showError('Enter a valid email address.');
-        return;
-      }
-      setBusy(true);
+      const email = emailEl.value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { show(false, 'Enter a valid email.'); return; }
+      btn.disabled = true; btn.textContent = 'Sending…';
       try {
         const r = await fetch('/api/request-password-reset', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          credentials: 'same-origin',
-          body: JSON.stringify({ email: v })
+          body: JSON.stringify({ email })
         });
-        const j = await r.json().catch(() => ({}));
-        if (r.ok) {
-          showSuccess('If the email exists, a reset link has been sent to your email.');
-          form.reset();
-        } else {
-          showError(j.error || j.message || 'Error sending link.');
+        if (r.ok) { show(true, 'If the email exists, a reset link has been sent.'); f.reset(); }
+        else {
+          const j = await r.json().catch(()=>({}));
+          show(false, j.error || 'Error sending link.');
         }
       } catch (err) {
-        console.error(err);
-        showError('Network error.');
+        console.error(err); show(false, 'Network error.');
       } finally {
-        setBusy(false);
-        statusEl.textContent = '';
+        btn.disabled = false; btn.textContent = 'Send reset link';
       }
     });
   })();

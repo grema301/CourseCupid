@@ -566,7 +566,25 @@ router.post('/chat/:identifier', async (req, res, next) => {
     `, [userMessageId, identifier, 'user', message, now, null]);
 
     // TODO: Replace with randomised responses
-    const reply = "Hello! I'm Cupid! How can I help you?";
+    //const reply = "Hello! I'm Cupid! How can I help you API-server?";
+
+    // Array of generic Cupid responses
+    const cupidResponses = [
+      "Hello! I'm Cupid! How can I help you find your perfect course match today?",
+      "Hi there! Ready to discover some papers you'll love? Tell me what you're interested in!",
+      "Hey! I'm here to help match you with courses that suit your academic goals. What are you looking for?",
+      "Welcome! Let's find you some amazing papers. What subject areas interest you?",
+      "Hi! I'm Cupid, your course matchmaker. What kind of papers are you hoping to explore?",
+      "Hello! Looking for course recommendations? I'm here to help you find the perfect match!",
+      "Hey there! I can help you discover papers that align with your interests. What would you like to know?",
+      "Hi! Ready to find some courses you'll be excited about? Let's chat about your preferences!",
+      "Welcome! I specialize in matching students with courses they'll love. What are you studying?",
+      "Hello! Tell me about your academic interests and I'll help you find suitable papers!",
+      "Hi there! I'm here to guide you through course selection. What subjects spark your curiosity?",
+    ];
+
+    // Select a random response
+    const reply = cupidResponses[Math.floor(Math.random() * cupidResponses.length)];
 
     //Save assistant reply to the database
     const assistantMessageId = uuidv4();
@@ -745,7 +763,8 @@ router.post('/chat/:identifier/first', async (req, res) => {
       }
 
       //TODO GET RID OF HARD CODED MESSAGE
-      const reply = "Hi there! This is a cupid chat";
+      // This never seems to hit
+      const reply = "Hello there! This is a cupid chat";
 
       // Store the first message
       const messageId = uuidv4();

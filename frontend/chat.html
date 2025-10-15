@@ -93,7 +93,7 @@
     </aside>
 
     <!-- MAIN -->
-    <main class="flex-1 flex flex-col">
+    <main class="flex-1 flex flex-col min-h-0">
       <!-- Placeholder when no paper selected -->
       <div id="placeholder" class="flex-1 flex flex-col items-center justify-center gap-4 text-center text-gray-600">
         <div class="text-7xl">❤</div>
@@ -102,7 +102,7 @@
       </div>
 
       <!-- Chat Panel (hidden until a paper selected) -->
-      <div id="chatPanel" class="hidden flex-1 flex flex-col bg-gradient-to-b from-white/60 to-cupidCream/40">
+      <div id="chatPanel" class="hidden flex-1 min-h-0 flex flex-col bg-gradient-to-b from-white/60 to-cupidCream/40">
         <!-- header -->
         <div class="flex items-center gap-3 px-4 py-3 border-b border-cupidPink/10 bg-white/70">
           <div id="paperAvatar" class="w-12 h-12 rounded-lg bg-cupidPink text-white flex items-center justify-center text-xl"></div>
@@ -117,7 +117,7 @@
         </div>
 
         <!-- messages -->
-        <div id="chatWindow" class="flex-1 p-4 overflow-y-auto flex flex-col gap-3">
+        <div id="chatWindow" class="flex-1 min-h-0 p-4 overflow-y-auto flex flex-col gap-3">
           <!-- messages appended here -->
         </div>
 

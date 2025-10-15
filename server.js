@@ -189,8 +189,24 @@ app.post("/api/chat/:paperId", async (req, res) => {
 
     console.log(`Generated prompt for paper ID ${paperId}: ${prompt}`);
 
-    
-    // groq API call
+    const histRes = await pool.query(
+      `SELECT role, content
+       FROM Chat_Message
+       WHERE session_id = $1
+       ORDER BY created_at DESC
+       LIMIT 8`,
+      [sessionId]
+    );
+    const recent = histRes.rows
+      .filter(r => r && r.content && (r.role === 'user' || r.role === 'assistant'))
+      .reverse() 
+      .map(r => ({ role: r.role, content: r.content }));
+
+    const messages = [
+      { role: "system", content: prompt },
+      ...recent
+    ];
+
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -198,11 +214,8 @@ app.post("/api/chat/:paperId", async (req, res) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "meta-llama/llama-4-scout-17b-16e-instruct", // model
-        messages: [
-          { role: "system", content: prompt },
-          { role: "user", content: message },
-        ],
+        model: "meta-llama/llama-4-scout-17b-16e-instruct",
+        messages
       }),
     });
 

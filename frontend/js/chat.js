@@ -55,8 +55,15 @@
         input.replaceWith(paperTitleEl);
         paperTitleEl.textContent = newTitle;
 
-        // Update sidebar list
-        loadCupidChats();
+        // Update just the sidebar card title instead of reloading everything
+        const sidebarCards = cupidChatList.querySelectorAll('.match-card');
+        sidebarCards.forEach(card => {
+          const titleEl = card.querySelector('.font-medium.text-sm.text-cupidPink');
+          if (titleEl && titleEl.textContent.includes(currentSessionId.slice(0, 8))) {
+            titleEl.textContent = newTitle;
+          }
+        });
+
       } catch (err) {
         console.error(err);
         alert('⚠️ Could not update title. Try again later.');

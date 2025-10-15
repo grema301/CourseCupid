@@ -85,16 +85,6 @@ function getMailer() {
   return _tx;
 }
 
-/*
-router.get('/test', async (req, res) => {
-  try {
-    const r = await pool.query('SELECT NOW()');
-    res.json({ ok: true, now: r.rows[0].now });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});*/
-
 /**
  * POST /api/signup
  * Creates a new user account with username, email, and password
@@ -799,20 +789,24 @@ router.post('/chat/:identifier/first', async (req, res) => {
   }
 });
 
-
-
-
-
+/**
+ * GET /api/papers
+ * Retrieves paginated list of university papers with filtering
+ * Supports search by code/title/description and filtering by year level
+ */
 router.get('/papers', async (req, res) => {
   try {
+    // Parse and validate query parameters
     const page = Math.max(1, parseInt(req.query.page || '1', 10));
     const pageSize = Math.min(100, Math.max(1, parseInt(req.query.pageSize || '20', 10)));
     const search = (req.query.search || '').trim().toLowerCase();
     const yearFilter = req.query.year ? String(req.query.year).trim() : null;
 
+    // Load paper data from filesystem
     const codesPath = path.join(__dirname, '..', 'webscrappers', 'paper_codes.txt');
     const dataPath = path.join(__dirname, '..', 'webscrappers', 'papers_data.json');
 
+    // Read paper codes list
     let codesText = '';
     try { codesText = await fs.readFile(codesPath, 'utf8'); } catch (err) { codesText = ''; }
     const codes = codesText
@@ -820,11 +814,13 @@ router.get('/papers', async (req, res) => {
       .map(s => s.trim())
       .filter(Boolean);
 
+    // Read additional paper metadata
     let extra = {};
     try {
       const dat = await fs.readFile(dataPath, 'utf8');
       const parsed = JSON.parse(dat);
 
+      // Handle both array and object formats
       if (Array.isArray(parsed)) {
         parsed.forEach(p => {
           if (!p) return;
@@ -842,10 +838,11 @@ router.get('/papers', async (req, res) => {
       extra = {};
     }
 
+    // Build complete paper objects
     const all = codes.map(code => {
       const clean = String(code || '').trim().toUpperCase();
       const matched = (clean.match(/\d+/) || [null])[0];
-      const year = matched ? String(matched)[0] : null;
+      const year = matched ? String(matched)[0] : null; // Extract year level from code
       const ed = extra[clean] || {};
       const title = ed.title || ed.name || ed.label || '';
       const description = ed.description || ed.summary || ed.desc || ed.abstract || '';
@@ -859,6 +856,7 @@ router.get('/papers', async (req, res) => {
       };
     });
 
+    // Apply filters
     let filtered = all;
     if (yearFilter) filtered = filtered.filter(p => String(p.year) === String(yearFilter));
     if (search) {
@@ -869,6 +867,7 @@ router.get('/papers', async (req, res) => {
       );
     }
 
+    // Paginate results
     const total = filtered.length;
     const start = (page - 1) * pageSize;
     const items = filtered.slice(start, start + pageSize);
@@ -880,16 +879,20 @@ router.get('/papers', async (req, res) => {
   }
 });
 
-
-
+/**
+ * POST /api/match
+ * Records a user's match (swipe right) on a paper
+ */
 router.post('/match', async (req, res) => {
   try {
     const userId = req.session?.userId;
+
     if (!userId) return res.status(401).json({ success: false, message: 'Not logged in' });
 
     const { paper_code } = req.body;
     if (!paper_code) return res.status(400).json({ success: false, message: 'Missing paper_code' });
 
+    // Insert match, ignore if already exists (ON CONFLICT DO NOTHING)
     await pool.query(
       'INSERT INTO user_paper_matches (user_id, paper_code) VALUES ($1, $2) ON CONFLICT DO NOTHING',
       [userId, paper_code]
@@ -901,9 +904,15 @@ router.post('/match', async (req, res) => {
   }
 });
 
+/**
+ * GET /api/my-matches
+ * Retrieves all papers a user has matched with
+ */
 router.get('/my-matches', async (req, res) => {
   try {
     const userId = req.session?.userId;
+
+    // Return empty array if not logged in
     if (!userId) return res.json([]);
 
     const result = await pool.query(
@@ -917,22 +926,28 @@ router.get('/my-matches', async (req, res) => {
   }
 });
 
-
-
+/**
+ * POST /api/contact
+ * Sends contact form message via email to support team and confirmation to user
+ */
 router.post('/contact', async (req, res) => {
   try {
     const { name = '', email = '', message = '' } = req.body || {};
     const fromEmail = String(email).trim();
     const body = String(message).trim();
+
+    // Validate email format and message content
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fromEmail) || !body) {
       return res.status(400).json({ error: 'Valid email and message required' });
     }
+
     const tx = getMailer();
     if (!tx) return res.status(500).json({ error: 'Email not configured' });
 
     const supportTo = 'coursecupid@gmail.com';
     const fromAddr = process.env.SMTP_FROM || process.env.SMTP_USER;
 
+    // Send message to support team
     await tx.sendMail({
       from: fromAddr,
       to: supportTo,
@@ -941,6 +956,7 @@ router.post('/contact', async (req, res) => {
       text: `Name: ${name || '(not provided)'}\nEmail: ${fromEmail}\n\n${body}`
     });
 
+    // Send confirmation to user
     await tx.sendMail({
       from: fromAddr,
       to: fromEmail,
@@ -955,9 +971,21 @@ router.post('/contact', async (req, res) => {
   }
 });
 
+/** 
+ * GET /api/test
+ * Basic connectivity test endpoint - returns current timestamp from database
+ */
+/*
+router.get('/test', async (req, res) => {
+  try {
+    const r = await pool.query('SELECT NOW()');
+    res.json({ ok: true, now: r.rows[0].now });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});*/
 
-
-// ensure both router and pool are exported for server.js to destructure
+// Export both router and pool for use in server.js
 module.exports = { router, pool };
 
 

@@ -133,9 +133,10 @@ Create or update your `.env` file with the shared Supabase credentials:
 
 ```env
 # Shared Supabase Database Configuration (get actual URL from team)
-DATABASE_URL=postgresql://postgres.coursecupid:[PASSWORD]@aws-0-us-west-1.pooler.supabase.com:6543/postgres?sslmode=require
+# Note: Use transaction pooler URL for free tier (required for IPv4 connections)
+DATABASE_URL=postgresql://postgres.coursecupid:[PASSWORD]@aws-0-us-west-1.pooler.supabase.com:6543/postgres
 
-# Alternative direct connection (for development)
+# Direct connection format (only available with paid plans)
 # DATABASE_URL=postgresql://postgres:[PASSWORD]@db.coursecupid.supabase.co:5432/postgres
 
 # Session Security

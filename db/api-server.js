@@ -22,14 +22,18 @@ const router = express.Router();
 router.use(express.json()); 
 router.use(cors());
 
-// Database Connection
+// Database Connection - Updated for Supabase
 const pool = new Pool({ 
-  connectionString: process.env.DATABASE_URL, options: "-c search_path=hogka652"
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  max: 20, // Maximum number of clients in the pool
+  idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
+  connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
 });
 
 pool.connect()
-  .then(() => console.log('Database connected'))
-  .catch(err => console.error('Database error:', err));
+  .then(() => console.log('Supabase database connected successfully'))
+  .catch(err => console.error('Supabase database connection error:', err));
 
 
 /**

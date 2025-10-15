@@ -2,9 +2,10 @@ const fs = require("fs");
 const { Pool } = require("pg");
 require("dotenv").config();
 
+// Updated connection for Supabase (uses public schema by default)
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  options: "-c search_path=hogka652"
+  ssl: { rejectUnauthorized: false } // Required for Supabase SSL connections
 });
 
 const rawData = fs.readFileSync("webscrappers/papers_data.json", "utf-8");
@@ -22,9 +23,9 @@ async function importPapers() {
         continue;
       }
 
-      // Insert only what you have
+      // Insert into Supabase (uses public schema by default)
       const result = await pool.query(
-        `INSERT INTO hogka652.paper (paper_code, title, description, points, is_active)
+        `INSERT INTO paper (paper_code, title, description, points, is_active)
          VALUES ($1, $2, $3, 18, true)
          ON CONFLICT (paper_code) DO NOTHING
          RETURNING paper_code`,

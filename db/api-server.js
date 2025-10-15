@@ -1,43 +1,91 @@
-/** api-server.js */
+/** 
+ * api-server.js 
+ * API Server - Course Cupid Backend
+ * Handles authentication, chat sessions, paper data, and messaging
+ * */
 
+// Dependencies & Set Up
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
-const router = express.Router();
-router.use(express.json()); 
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs').promises;
 const path = require('path');
 const crypto = require('crypto');
+
+// Nodemailer for email functionality
 let nodemailer;
 try { nodemailer = require('nodemailer'); } catch { nodemailer = null; console.warn('nodemailer not installed — email sending disabled'); }
 
+const router = express.Router();
+router.use(express.json()); 
 router.use(cors());
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL, options: "-c search_path=hogka652" });
+// Database Connection
+const pool = new Pool({ 
+  connectionString: process.env.DATABASE_URL, options: "-c search_path=hogka652"
+});
 
 pool.connect()
   .then(() => console.log('Database connected'))
   .catch(err => console.error('Database error:', err));
 
-/*
-// ensure users table exists
-(async () => {
-  try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        username VARCHAR(50) UNIQUE NOT NULL,
-        email VARCHAR(255) UNIQUE NOT NULL,
-        password_hash VARCHAR(255) NOT NULL
-      );
-    `);
-  } catch (err) {
-    console.error('Database error (creating tables):', err);
-  }
-})();*/
 
+/**
+ * Validates if a string matches UUID v4 format
+ * Used to distinguish between session IDs and paper codes
+ */
+function isValidUUID(identifier) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
+}
+
+/**
+ * Resolves the correct user table name (case-insensitive search)
+ * Caches result to avoid repeated database queries
+ */
+let RESOLVED_USER_TABLE;
+async function getUserTable() {
+  if (RESOLVED_USER_TABLE) return RESOLVED_USER_TABLE;
+  try {
+    const r = await pool.query(`
+      SELECT table_schema, table_name
+      FROM information_schema.tables
+      WHERE lower(table_name) = 'web_user'
+      ORDER BY CASE WHEN table_schema = current_schema() THEN 0 ELSE 1 END
+      LIMIT 1
+    `);
+    if (r.rowCount > 0) {
+      const { table_schema, table_name } = r.rows[0];
+      RESOLVED_USER_TABLE = `"${table_schema}"."${table_name}"`; 
+    } else {
+      RESOLVED_USER_TABLE = 'Web_User';
+    }
+  } catch {
+    RESOLVED_USER_TABLE = 'Web_User';
+  }
+  return RESOLVED_USER_TABLE;
+}
+
+/**
+ * Returns configured nodemailer transporter or null if not configured
+ */
+let _tx;
+function getMailer() {
+  if (_tx) return _tx;
+  if (!nodemailer) return null;
+  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
+  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) return null;
+  _tx = nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: Number(SMTP_PORT || 587),
+    secure: Number(SMTP_PORT || 587) === 465,
+    auth: { user: SMTP_USER, pass: SMTP_PASS }
+  });
+  return _tx;
+}
+
+/*
 router.get('/test', async (req, res) => {
   try {
     const r = await pool.query('SELECT NOW()');
@@ -45,15 +93,22 @@ router.get('/test', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-});
+});*/
 
-// Sign Up
+/**
+ * POST /api/signup
+ * Creates a new user account with username, email, and password
+ */
 router.post('/signup', async (req, res) => {
   const { username, email, password } = req.body;
+
+  // Validate required fields
   if (!username || !email || !password)
     return res.json({ success: false, message: 'Missing fields' });
+
   if (password.length < 8)
     return res.json({ success: false, message: 'Password must be at least 8 characters long' });
+  
   try {
     const hash = await bcrypt.hash(password, 10);
     const userID = uuidv4();
@@ -64,14 +119,17 @@ router.post('/signup', async (req, res) => {
       [userID, username, email, hash, now, now, true]
     );
 
-    // set session
+    // Create session for the new user
     if (req && req.session) {
       req.session.userId = insert.rows[0].id;
       req.session.username = insert.rows[0].username;
     }
+
     res.json({ success: true, message: 'Signup successful!' });
   } catch (err) {
     console.error('Signup error:', err);
+
+    // Handle duplicate username/email
     if (err.code === '23505') {
       res.json({ success: false, message: 'Username or email already exists' });
     } else {
@@ -80,21 +138,34 @@ router.post('/signup', async (req, res) => {
   }
 });
 
-// Login
+/**
+ * POST /api/login
+ * Authenticates user with username and password
+ */
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
+
   if (!username || !password)
     return res.json({ success: false, message: 'Missing fields' });
+
   try {
     const result = await pool.query('SELECT user_id, username, password_hash FROM Web_User WHERE username = $1', [username]);
-    if (result.rows.length === 0) return res.json({ success: false, message: 'Invalid credentials' });
+    
+    if (result.rows.length === 0) 
+      return res.json({ success: false, message: 'Invalid credentials' });
+
     const user = result.rows[0];
     const match = await bcrypt.compare(password, user.password_hash);
-    if (!match) return res.json({ success: false, message: 'Invalid credentials' });
+
+    if (!match) 
+      return res.json({ success: false, message: 'Invalid credentials' });
+
+    // Create session
     if (req && req.session) {
       req.session.userId = user.user_id;
       req.session.username = user.username;
     }
+    
     res.json({ success: true, message: 'Login successful!' });
   } catch (err) {
     console.error('Login error:', err);
@@ -102,18 +173,30 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// return session info
+/**
+ * GET /api/me
+ * Returns current session information
+ */
 router.get('/me', (req, res) => {
   if (req && req.session && req.session.userId) {
-    res.json({ loggedIn: true, user: { id: req.session.userId, username: req.session.username } });
+    res.json({ 
+      loggedIn: true, 
+      user: { 
+        id: req.session.userId, 
+        username: req.session.username } 
+    });
   } else {
     res.json({ loggedIn: false });
   }
 });
 
-// logout
+/**
+ * POST /api/logout
+ * Destroys user session and clears cookies
+ */
 router.post('/logout', (req, res) => {
   if (!req || !req.session) return res.json({ success: true });
+
   req.session.destroy(err => {
     if (err) {
       console.error('Logout error:', err);
@@ -124,23 +207,355 @@ router.post('/logout', (req, res) => {
   });
 });
 
+/**
+ * POST /api/delete-account
+ * Permanently deletes user account and associated data
+ */
+router.post('/delete-account', async (req, res) => {
+  if (!req || !req.session || !req.session.userId) {
+    return res.status(401).json({ success: false, message: 'Not authenticated' });
+  }
+  const userId = req.session.userId;
+  try {
+    await pool.query('DELETE FROM Web_User WHERE id = $1', [userId]);
+    req.session.destroy(err => {
+      if (err) {
+        console.error('Delete account - session destroy failed:', err);
+        return res.status(500).json({ success: false, message: 'Account deleted but session could not be cleared' });
+      }
+      res.clearCookie('connect.sid');
+      res.json({ success: true, message: 'Account deleted' });
+    });
+  } catch (err) {
+    console.error('Delete account error:', err);
+    res.status(500).json({ success: false, message: 'Delete failed' });
+  }
+});
 
-// Handle chat messages, handles both sessions and papers
-// If identifier is a UUID (session), handles it here. Otherwise calls next() 
-// to pass paper chats to server.js where the paper AI is implemented.
+/** FIX THIS, HAVE IT ESTABLISHED IN SCHEMA
+ * Initialize password_resets table on startup
+ */
+(async function ensurePasswordResetsTable() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS password_resets (
+        token TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        expires_at TIMESTAMPTZ NOT NULL
+      );
+    `);
+
+    // Ensure user_id column is TEXT type
+    await pool.query(`
+      DO $$
+      BEGIN
+        IF EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'password_resets' AND column_name = 'user_id' AND data_type <> 'text'
+        ) THEN
+          ALTER TABLE password_resets
+          ALTER COLUMN user_id TYPE TEXT USING user_id::text;
+        END IF;
+      END$$;
+    `);
+  } catch (err) {
+    console.error('Failed to ensure password_resets table:', err);
+  }
+})();
+
+/**
+ * POST /api/request-password-reset
+ * Generates reset token and sends email to user
+ */
+router.post('/request-password-reset', async (req, res) => {
+  try {
+    const { email } = req.body || {};
+    if (!email) return res.status(400).json({ error: 'email required' });
+
+    const userTable = await getUserTable();
+    const u = await pool.query(`SELECT user_id, email FROM ${userTable} WHERE email = $1 LIMIT 1`, [email]);
+
+    if (u.rowCount > 0) {
+      const user = u.rows[0];
+      const token = crypto.randomBytes(24).toString('hex');
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000); 
+
+      await pool.query(
+        'INSERT INTO password_resets (token, user_id, expires_at) VALUES ($1, $2, $3)',
+        [token, String(user.user_id), expiresAt]
+      );
+
+      const resetLink = `${req.protocol}://${req.get('host')}/reset.html?token=${encodeURIComponent(token)}`;
+
+      const tx = getMailer && getMailer();
+      if (tx) {
+        tx.sendMail({
+          from: process.env.SMTP_FROM || process.env.SMTP_USER,
+          to: user.email,
+          subject: 'Course Cupid — Password reset',
+          text: `Use this link to reset your password (valid 1 hour): ${resetLink}`,
+          html: `<p>Use this link to reset your password (valid 1 hour):</p><p><a href="${resetLink}">${resetLink}</a></p>`
+        }).catch(err => console.warn('Reset email send failed:', err.message));
+      } else {
+        console.warn('SMTP not configured — reset email not sent');
+      }
+    }
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('request-password-reset error:', err);
+    return res.status(500).json({ error: 'server error' });
+  }
+});
+
+/**
+ * POST /api/reset-password/:token
+ * Validates token and updates user password
+ */
+router.post('/reset-password/:token', async (req, res) => {
+  try {
+    const token = req.params.token;
+    const { password } = req.body || {};
+    if (!token || !password) return res.status(400).json({ error: 'token and password required' });
+
+    const r = await pool.query('SELECT user_id, expires_at FROM password_resets WHERE token = $1 LIMIT 1', [token]);
+    if (r.rowCount === 0) return res.status(400).json({ error: 'Invalid or expired token' });
+
+    const row = r.rows[0];
+
+    // Check if token has expired
+    if (new Date(row.expires_at) < new Date()) {
+      await pool.query('DELETE FROM password_resets WHERE token = $1', [token]);
+      return res.status(400).json({ error: 'Token expired' });
+    }
+
+    // Update password and delete token
+    const hashed = await bcrypt.hash(password, 10);
+    const userTable = await getUserTable();
+    await pool.query(`UPDATE ${userTable} SET password_hash = $1 WHERE user_id = $2`, [hashed, String(row.user_id)]);
+    await pool.query('DELETE FROM password_resets WHERE token = $1', [token]);
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('reset-password error:', err);
+    return res.status(500).json({ error: 'server error' });
+  }
+});
+
+/**
+ * POST /api/chat-sessions
+ * Creates a new Cupid chat session
+ */
+router.post('/chat-sessions', async (req, res) => {
+  try {
+    const session_ID = uuidv4();
+    const now = new Date();
+    const userId = req.session?.userId || null; // NULL for anonymous users
+    
+    const result = await pool.query(`
+      INSERT INTO Chat_Session (
+        session_id, user_id, paper_code, created_at, updated_at, starred
+      ) VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING session_id, user_id
+    `, [session_ID, userId, null, now, now, false]);
+
+    res.json({
+      session_id: result.rows[0].session_id,
+      is_anonymous: result.rows[0].user_id === null
+    });
+  } catch (error) {
+    console.error('Error creating chat session:', error);
+    res.status(500).json({ error: 'Failed to create chat session' });
+  }
+});
+
+/**
+ * GET /api/chat-sessions
+ * Lists chat sessions based on authentication status
+ * - Logged in: returns all sessions for user
+ * - Anonymous: returns only current session if provided in query
+ */
+router.get('/chat-sessions', async (req, res) => {
+  try {
+    const loggedInUserId = req.session?.userId || null;
+    const currentSessionId = req.query.currentSessionId || null; // Get from query param
+    
+    let query, params;
+    
+    if (loggedInUserId) {
+      // Logged in: show all Cupid sessions for this user (exclude paper sessions)
+      query = `
+        SELECT session_id, user_id, created_at, updated_at, title
+        FROM Chat_Session 
+        WHERE user_id = $1 AND paper_code IS NULL
+        ORDER BY updated_at DESC
+      `;
+      params = [loggedInUserId];
+    } else if (currentSessionId){
+      // Anonymous: show only the current session
+      query = `
+        SELECT session_id, user_id, created_at, updated_at, title
+        FROM Chat_Session 
+        WHERE session_id = $1
+      `;
+      params = [currentSessionId];
+    }else{
+      return res.json([]); // No user and no session - return empty
+    }
+    
+    const result = await pool.query(query, params);
+    
+    const sessions = result.rows.map(row => ({
+      session_id: row.session_id,
+      user_id: row.user_id,
+      created_at: row.created_at,
+      updated_at: row.updated_at,
+      title: row.title
+    }));
+    
+    res.json(sessions);
+  } catch (error) {
+    console.error('Error fetching chat sessions:', error);
+    res.status(500).json({ error: 'Failed to fetch chat sessions' });
+  }
+});
+
+/**
+ * GET /api/chat-sessions/:identifier
+ * Fetches a single chat session by ID - needed for page reloads
+ */
+router.get('/chat-sessions/:identifier', async (req, res) => {
+  try {
+    const { identifier } = req.params;
+    const userId = req.session?.userId || null;
+    
+    // Validate that identifier is a UUID format (not a paper code)
+    if (!isValidUUID(identifier)) {
+      return res.status(400).json({ error: 'Invalid session ID format' });
+    }
+    
+    // Build query based on authentication status
+    // Logged-in: verify ownership to prevent accessing others' chats
+    // Anonymous: allow access since they have the direct URL (should be improved with better auth later)
+    let query, params;
+    if (userId) {
+      query = 'SELECT session_id, user_id, created_at, updated_at, title FROM Chat_Session WHERE session_id = $1 AND user_id = $2';
+      params = [identifier, userId];
+    } else {
+      query = 'SELECT session_id, user_id, created_at, updated_at, title FROM Chat_Session WHERE session_id = $1';
+      params = [identifier];
+    }
+    
+    const result = await pool.query(query, params);
+    
+    // Return 404 if session doesn't exist or user doesn't have access
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
+    
+    // Return the session object for openCupidChat() to use
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error fetching chat session:', error);
+    res.status(500).json({ error: 'Failed to fetch chat session' });
+  }
+});
+
+/**
+ * PUT /api/chat-sessions/:id/title
+ * Updates the title of a Cupid chat session
+ */
+router.put('/chat-sessions/:id/title', async (req, res) => {
+  const { id } = req.params;
+  const { title } = req.body;
+
+  if (!title || title.trim().length === 0) {
+    return res.status(400).json({ error: 'Invalid title' });
+  }
+
+  try {
+    await pool.query(
+      `UPDATE Chat_Session SET title = $1, updated_at = NOW() WHERE session_id = $2`,
+      [title.trim(), id]
+    );
+    res.json({ success: true, title: title.trim() });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update chat title' });
+  }
+});
+
+/**
+ * DELETE /api/chat-sessions/:identifier
+ * Deletes a chat session and all associated messages
+ * Handles both Cupid sessions (UUID) and paper match sessions (paper code)
+ */
+router.delete('/chat-sessions/:identifier', async (req, res) => {
+  try {
+    const { identifier } = req.params;
+    const userId = req.session?.userId || null;
+
+    if (isValidUUID(identifier)){ // Delete a cupid chat session
+      // Delete a Cupid chat session
+      // First delete all messages, then the session (referential integrity)
+      await pool.query('DELETE FROM Chat_Message WHERE session_id = $1', [identifier]); 
+      const result = await pool.query('DELETE FROM Chat_Session WHERE session_id = $1 RETURNING session_id', [identifier]);
+
+      if (result.rowCount === 0) {
+        return res.status(404).json({ success: false, message: 'Session not found' });
+      }
+      
+      console.log(`Deleted Cupid session ${identifier} and its messages`);
+    }else{ 
+
+      // Delete a paper match chat session
+      // Find the session associated with this paper for this user
+      const sessionResult = await pool.query(
+        'SELECT session_id FROM Chat_Session WHERE user_id = $1 AND paper_code = $2',
+        [userId, identifier]
+      );
+
+      if (sessionResult.rows.length > 0){
+        const sessionId = sessionResult.rows[0].session_id;
+        
+        // Delete messages and session
+        await pool.query('DELETE FROM Chat_Message WHERE session_id = $1', [sessionId]);
+        await pool.query('DELETE FROM Chat_Session WHERE session_id = $1', [sessionId]);
+        
+        console.log(`Deleted paper session ${sessionId} for paper ${identifier}`);
+      }
+
+      // Delete the match record
+      await pool.query('DELETE FROM user_paper_matches WHERE user_id = $1 AND paper_code = $2;', [userId, identifier]);
+      console.log(`Deleted paper match ${identifier} for user ${userId}`);
+    }
+
+    res.json({ 
+      success: true, message: 'Session deleted successfully', identifier: identifier
+    });
+    
+  } catch (error) {
+    console.error('Error deleting session:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete session' });
+  }
+});
+
+/**
+ * POST /api/chat/:identifier
+ * Handles sending messages in chats
+ * - For Cupid sessions (UUID): handles here with placeholder AI
+ * - For paper chats: passes to server.js via next()
+ */
 router.post('/chat/:identifier', async (req, res, next) => {
   const identifier = req.params.identifier;
   const message = req.body.message;
-  
-  // Check if it's a session ID (UUID pattern)
-  const isSessionId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
 
-  if (!isSessionId) {
+  // Check if it's a Cupid session (UUID) or paper chat (paper code)
+  if (!isValidUUID(identifier)) {
     return next();// Not a session ID, pass to server.js to handle paper AI chat
   }
 
   try {
-
     // Validate session exists
     const sessionCheck = await pool.query(
       'SELECT session_id FROM Chat_Session WHERE session_id = $1', 
@@ -153,53 +568,41 @@ router.post('/chat/:identifier', async (req, res, next) => {
 
     const now = new Date();
 
-
-    //Save the user message
+    //Save the user message to database
     const userMessageId = uuidv4();
     await pool.query(`
       INSERT INTO Chat_Message (message_id, session_id, role, content, created_at, user_preferences)
       VALUES ($1, $2, $3, $4, $5, $6)
     `, [userMessageId, identifier, 'user', message, now, null]);
 
-
-    //Placeholder reply
+    // TODO: Replace with randomised responses
     const reply = "Hello! I'm Cupid! How can I help you?";
 
-
-    //Save the assistant reply
+    //Save assistant reply to the database
     const assistantMessageId = uuidv4();
     await pool.query(`
       INSERT INTO Chat_Message (message_id, session_id, role, content, created_at, user_preferences)
       VALUES ($1, $2, $3, $4, $5, $6)
     `, [assistantMessageId, identifier, 'assistant', reply, now, null]);
 
-
-    //Send reply
     return res.json({ reply: reply });
-
   } catch (error) {
     console.error("Chat error:", error);
     res.status(500).json({ error: "Failed to handle chat message" });
   }
-
 });
 
-
-
-
-
-// Handle session-based chat messages (match frontend expectations)
+/**
+ * GET /api/chat/:identifier/messages
+ * Retrieves message history for a chat session or paper
+ */
 router.get('/chat/:identifier/messages', async (req, res) => {
   try {
     const identifier = req.params.identifier;
     const userId = req.session?.userId || null;
-
     
-    // Check if it's a session ID (UUID pattern)
-    const isSessionId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
-    
-    if (isSessionId) {
-      // Validate session exists
+    if (isValidUUID(identifier)) {
+      // Cupid session - fetch messages directly
       const sessionCheck = await pool.query(
         'SELECT session_id FROM Chat_Session WHERE session_id = $1', 
         [identifier]
@@ -209,8 +612,6 @@ router.get('/chat/:identifier/messages', async (req, res) => {
         return res.status(404).json({ error: 'Session not found' });
       }
       
-
-      // Get messages for this session
       const messages = await pool.query(
         `SELECT message_id, session_id, role as sender, content, created_at, user_preferences
          FROM Chat_Message 
@@ -227,12 +628,9 @@ router.get('/chat/:identifier/messages', async (req, res) => {
         message_id: msg.message_id
       }));
 
-      // Return empty array for now, implement message storage later)
       return res.json(formattedMessages);
-
     } else {
-
-      // Paper code - get messages by finding the session for this paper
+      // Paper code - find the session for this paper and user
       const sessionResult = await pool.query(
         `SELECT session_id FROM Chat_Session 
          WHERE (user_id = $1 OR (user_id IS NULL AND $1 IS NULL)) AND paper_code = $2 
@@ -240,15 +638,12 @@ router.get('/chat/:identifier/messages', async (req, res) => {
         [userId, identifier]
       );
 
-      // It's a paper code don't validate as UUID, just return empty for now
-      // TODO: Implement paper message history from database
       if (sessionResult.rows.length === 0) {
-        return res.json([]);
+        return res.json([]); // No session yet - empty history
       }
 
       const sessionId = sessionResult.rows[0].session_id;
 
-      // Get messages for this session
       const messages = await pool.query(
         `SELECT message_id, session_id, role as sender, content, created_at, user_preferences
          FROM Chat_Message 
@@ -257,7 +652,6 @@ router.get('/chat/:identifier/messages', async (req, res) => {
         [sessionId]
       );
 
-      // Transform to match frontend expectations
       const formattedMessages = messages.rows.map(msg => ({
         sender: msg.sender, // 'user' or 'assistant'
         content: msg.content,
@@ -266,28 +660,25 @@ router.get('/chat/:identifier/messages', async (req, res) => {
       }));
       
       return res.json(formattedMessages);
-
     }
-    
   } catch (error) {
     console.error('Error loading messages:', error);
     res.status(500).json({ error: 'Failed to load messages' });
   }
 });
 
-
-
-
-
-// Handle session-based chat history (fallback route frontend tries)
+/**
+ * GET /api/chat/:identifier/history
+ * Fallback endpoint for message history (legacy support)
+ */
 router.get('/chat/:identifier/history', async (req, res) => {
   try {
     const identifier = req.params.identifier;
-    const isSessionId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
     const userId = req.session?.userId || null;
 
 
-    if (isSessionId) {
+    if (isValidUUID(identifier)) {
+      // Cupid session
       const sessionCheck = await pool.query(
         'SELECT session_id FROM Chat_Session WHERE session_id = $1', 
         [identifier]
@@ -296,7 +687,6 @@ router.get('/chat/:identifier/history', async (req, res) => {
       if (sessionCheck.rows.length === 0) {
         return res.status(404).json({ error: 'Session not found' });
       }
-
 
       const messages = await pool.query(
         `SELECT message_id, session_id, role as sender, content, created_at
@@ -306,17 +696,13 @@ router.get('/chat/:identifier/history', async (req, res) => {
         [identifier]
       );
 
-
-      
       return res.json(messages.rows.map(msg => ({
         sender: msg.sender,
         content: msg.content,
         created_at: msg.created_at
       })));
-
-
-    } else { //Paper code
-
+    } else { 
+      //Paper code
       const sessionResult = await pool.query(
         `SELECT session_id FROM Chat_Session 
          WHERE user_id = $1 AND paper_code = $2 
@@ -336,8 +722,6 @@ router.get('/chat/:identifier/history', async (req, res) => {
         [sessionResult.rows[0].session_id]
       );
 
-
-
       return res.json(msg => ({
         sender: msg.sender,
         content: msg.content,
@@ -350,14 +734,17 @@ router.get('/chat/:identifier/history', async (req, res) => {
   }
 });
 
-// Handle session-based first message
+/**
+ * POST /api/chat/:identifier/first
+ * Generates and stores the initial greeting message for a chat
+ */
 router.post('/chat/:identifier/first', async (req, res) => {
   try {
     const identifier = req.params.identifier;
-    const isSessionId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
     const userId = req.session?.userId || null;
 
-    if (isSessionId) {
+    if (isValidUUID(identifier)) {
+      // Cupid session
       const sessionCheck = await pool.query(
         'SELECT session_id FROM Chat_Session WHERE session_id = $1', 
         [identifier]
@@ -367,6 +754,7 @@ router.post('/chat/:identifier/first', async (req, res) => {
         return res.status(404).json({ error: 'Session not found' });
       }
 
+      //TODO GET RID OF HARD CODED MESSAGE
       const reply = "Hi there! This is a cupid chat";
 
       // Store the first message
@@ -390,8 +778,7 @@ router.post('/chat/:identifier/first', async (req, res) => {
       );
       
       if (sessionResult.rows.length === 0) {
-        // No first message needed, let server.js handle it
-        return res.json({ reply: "" });
+        return res.json({ reply: "" });// No session - let server.js handle
       }
       
       // Check if there are already messages
@@ -404,216 +791,11 @@ router.post('/chat/:identifier/first', async (req, res) => {
         return res.json({ reply: "" }); // Already has messages
       }
 
-      //Handle paper-based first messages
-      return res.json({ reply: "" });
+      return res.json({ reply: "" });// Let paper AI handle first message
     }
   } catch (error) {
     console.error('Error with first message:', error);
     res.status(500).json({ error: 'Failed to get first message' });
-  }
-});
-
-
-
-//DO NOT TOUCH Ensure session is being recorded into the databse
-router.post('/chat-sessions', async (req, res) => {
-  try {
-    const session_ID = uuidv4();
-    const now = new Date();
-
-    //chekc is user is logged in, if not, anon users get null
-    const userId = req.session?.userId || null; //whats our auth system?
-
-    
-    const result = await pool.query(`
-      INSERT INTO Chat_Session (
-        session_id, user_id, paper_code, created_at, updated_at, starred
-      ) VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING session_id, user_id
-    `, [session_ID, userId, null, now, now, false]); // null for anonymous users
-
-    res.json({
-      session_id: result.rows[0].session_id,
-      is_anonymous: result.rows[0].user_id === null
-    });
-  } catch (error) {
-    console.error('Error creating chat session:', error);
-    res.status(500).json({ error: 'Failed to create chat session' });
-  }
-});
-
-
-// Handles deleting a cupid chat session, and a paper match session 
-router.delete('/chat-sessions/:identifier', async (req, res) => {
-  try {
-    const { identifier } = req.params;
-
-    // See if user is logged in
-    const userId = req.session?.userId || null;
-
-    // Check if its a UUID chat session, or a Paper chat
-    const isSessionId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
-    
-    if (isSessionId){ // Delete a cupid chat session
-
-      //Delete the messages before the session
-      await pool.query('DELETE FROM Chat_Message WHERE session_id = $1', [identifier]); 
-      const result = await pool.query('DELETE FROM Chat_Session WHERE session_id = $1 RETURNING session_id', [identifier]);
-
-      //await pool.query('DELETE FROM Chat_Session WHERE session_id = $1', [identifier]);
-
-
-      if (result.rowCount === 0) {
-        return res.status(404).json({ success: false, message: 'Session not found' });
-      }
-      
-      console.log(`Deleted Cupid session ${identifier} and its messages`);
-    
-
-    }else{ // Delete a paper match chat session
-
-      // get chat session for specific user, for specific paper
-      const sessionResult = await pool.query(
-        'SELECT session_id FROM Chat_Session WHERE user_id = $1 AND paper_code = $2',
-        [userId, identifier]
-      );
-
-
-      if (sessionResult.rows.length > 0){
-        const sessionId = sessionResult.rows[0].session_id;
-        
-        // Delete messages for this session
-        await pool.query('DELETE FROM Chat_Message WHERE session_id = $1', [sessionId]);
-        
-        // Delete the session
-        await pool.query('DELETE FROM Chat_Session WHERE session_id = $1', [sessionId]);
-        
-        console.log(`Deleted paper session ${sessionId} for paper ${identifier}`);
-      }
-
-      // Delete the match
-      await pool.query('DELETE FROM user_paper_matches WHERE user_id = $1 AND paper_code = $2;', [userId, identifier]);
-      console.log(`Deleted paper match ${identifier} for user ${userId}`);
-    }
-
-    res.json({ 
-      success: true, message: 'Session deleted successfully', identifier: identifier
-    });
-    
-  } catch (error) {
-    console.error('Error deleting session:', error);
-    res.status(500).json({ success: false, message: 'Failed to delete session' });
-  }
-});
-
-
-
-// Gets chat sessions to display based on login status
-router.get('/chat-sessions', async (req, res) => {
-  try {
-    const loggedInUserId = req.session?.userId || null;
-    const currentSessionId = req.query.currentSessionId || null; // Get from query param
-    
-    let query, params;
-    
-    if (loggedInUserId) {
-      // Logged in: show all sessions for this user
-      query = `
-        SELECT session_id, user_id, created_at, updated_at, title
-        FROM Chat_Session 
-        WHERE user_id = $1 AND paper_code IS NULL
-        ORDER BY updated_at DESC
-      `;
-      params = [loggedInUserId];
-    } else if (currentSessionId){
-      // Not logged in but has a current session: show only that session
-      query = `
-        SELECT session_id, user_id, created_at, updated_at, title
-        FROM Chat_Session 
-        WHERE session_id = $1
-      `;
-      params = [currentSessionId];
-    }else{
-      // Return empty array
-      return res.json([]);
-    }
-    
-    const result = await pool.query(query, params);
-    
-    const sessions = result.rows.map(row => ({
-      session_id: row.session_id,
-      user_id: row.user_id,
-      created_at: row.created_at,
-      updated_at: row.updated_at,
-      title: row.title
-    }));
-    
-    res.json(sessions);
-  } catch (error) {
-    console.error('Error fetching chat sessions:', error);
-    res.status(500).json({ error: 'Failed to fetch chat sessions' });
-  }
-});
-
-// Get a single chat session by ID
-router.get('/chat-sessions/:identifier', async (req, res) => {
-  try {
-    const { identifier } = req.params;
-    const userId = req.session?.userId || null;
-    
-    // Check if it's a UUID (session ID)
-    const isSessionId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
-    
-    if (!isSessionId) {
-      return res.status(400).json({ error: 'Invalid session ID format' });
-    }
-    
-    // For logged-in users, verify they own session
-    // For anon users, allow access to any session through URL (should change later)
-    let query, params;
-    if (userId) {
-      query = 'SELECT session_id, user_id, created_at, updated_at, title FROM Chat_Session WHERE session_id = $1 AND user_id = $2';
-      params = [identifier, userId];
-    } else {
-      query = 'SELECT session_id, user_id, created_at, updated_at, title FROM Chat_Session WHERE session_id = $1';
-      params = [identifier];
-    }
-    
-    const result = await pool.query(query, params);
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Session not found' });
-    }
-    
-    // Return the session object for openCupidChat() to use
-    res.json(result.rows[0]);
-  } catch (error) {
-    console.error('Error fetching chat session:', error);
-    res.status(500).json({ error: 'Failed to fetch chat session' });
-  }
-});
-
-
-
-
-// Update chat title
-router.put('/chat-sessions/:id/title', async (req, res) => {
-  const { id } = req.params;
-  const { title } = req.body;
-
-  if (!title || title.trim().length === 0) {
-    return res.status(400).json({ error: 'Invalid title' });
-  }
-
-  try {
-    await pool.query(
-      `UPDATE Chat_Session SET title = $1, updated_at = NOW() WHERE session_id = $2`,
-      [title.trim(), id]
-    );
-    res.json({ success: true, title: title.trim() });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to update chat title' });
   }
 });
 
@@ -698,30 +880,7 @@ router.get('/papers', async (req, res) => {
   }
 });
 
-// Delete account
-router.post('/delete-account', async (req, res) => {
-  if (!req || !req.session || !req.session.userId) {
-    return res.status(401).json({ success: false, message: 'Not authenticated' });
-  }
-  const userId = req.session.userId;
-  try {
-    // remove user row 
-    await pool.query('DELETE FROM Web_User WHERE id = $1', [userId]);
 
-    // destroy session and clear cookie
-    req.session.destroy(err => {
-      if (err) {
-        console.error('Delete account - session destroy failed:', err);
-        return res.status(500).json({ success: false, message: 'Account deleted but session could not be cleared' });
-      }
-      res.clearCookie('connect.sid');
-      res.json({ success: true, message: 'Account deleted' });
-    });
-  } catch (err) {
-    console.error('Delete account error:', err);
-    res.status(500).json({ success: false, message: 'Delete failed' });
-  }
-});
 
 router.post('/match', async (req, res) => {
   try {
@@ -758,20 +917,7 @@ router.get('/my-matches', async (req, res) => {
   }
 });
 
-let _tx;
-function getMailer() {
-  if (_tx) return _tx;
-  if (!nodemailer) return null;
-  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
-  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) return null;
-  _tx = nodemailer.createTransport({
-    host: SMTP_HOST,
-    port: Number(SMTP_PORT || 587),
-    secure: Number(SMTP_PORT || 587) === 465,
-    auth: { user: SMTP_USER, pass: SMTP_PASS }
-  });
-  return _tx;
-}
+
 
 router.post('/contact', async (req, res) => {
   try {
@@ -814,120 +960,6 @@ router.post('/contact', async (req, res) => {
 // ensure both router and pool are exported for server.js to destructure
 module.exports = { router, pool };
 
-(async function ensurePasswordResetsTable() {
-  try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS password_resets (
-        token TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        expires_at TIMESTAMPTZ NOT NULL
-      );
-    `);
-    await pool.query(`
-      DO $$
-      BEGIN
-        IF EXISTS (
-          SELECT 1 FROM information_schema.columns
-          WHERE table_name = 'password_resets' AND column_name = 'user_id' AND data_type <> 'text'
-        ) THEN
-          ALTER TABLE password_resets
-          ALTER COLUMN user_id TYPE TEXT USING user_id::text;
-        END IF;
-      END$$;
-    `);
-  } catch (err) {
-    console.error('Failed to ensure password_resets table:', err);
-  }
-})();
 
-let RESOLVED_USER_TABLE;
-async function getUserTable() {
-  if (RESOLVED_USER_TABLE) return RESOLVED_USER_TABLE;
-  try {
-    const r = await pool.query(`
-      SELECT table_schema, table_name
-      FROM information_schema.tables
-      WHERE lower(table_name) = 'web_user'
-      ORDER BY CASE WHEN table_schema = current_schema() THEN 0 ELSE 1 END
-      LIMIT 1
-    `);
-    if (r.rowCount > 0) {
-      const { table_schema, table_name } = r.rows[0];
-      RESOLVED_USER_TABLE = `"${table_schema}"."${table_name}"`; 
-    } else {
-      RESOLVED_USER_TABLE = 'Web_User';
-    }
-  } catch {
-    RESOLVED_USER_TABLE = 'Web_User';
-  }
-  return RESOLVED_USER_TABLE;
-}
 
-router.post('/request-password-reset', async (req, res) => {
-  try {
-    const { email } = req.body || {};
-    if (!email) return res.status(400).json({ error: 'email required' });
 
-    const userTable = await getUserTable();
-    const u = await pool.query(`SELECT user_id, email FROM ${userTable} WHERE email = $1 LIMIT 1`, [email]);
-
-    if (u.rowCount > 0) {
-      const user = u.rows[0];
-      const token = crypto.randomBytes(24).toString('hex');
-      const expiresAt = new Date(Date.now() + 60 * 60 * 1000); 
-
-      await pool.query(
-        'INSERT INTO password_resets (token, user_id, expires_at) VALUES ($1, $2, $3)',
-        [token, String(user.user_id), expiresAt]
-      );
-
-      const resetLink = `${req.protocol}://${req.get('host')}/reset.html?token=${encodeURIComponent(token)}`;
-
-      const tx = getMailer && getMailer();
-      if (tx) {
-        tx.sendMail({
-          from: process.env.SMTP_FROM || process.env.SMTP_USER,
-          to: user.email,
-          subject: 'Course Cupid — Password reset',
-          text: `Use this link to reset your password (valid 1 hour): ${resetLink}`,
-          html: `<p>Use this link to reset your password (valid 1 hour):</p><p><a href="${resetLink}">${resetLink}</a></p>`
-        }).catch(err => console.warn('Reset email send failed:', err.message));
-      } else {
-        console.warn('SMTP not configured — reset email not sent');
-      }
-    }
-
-    return res.json({ success: true });
-  } catch (err) {
-    console.error('request-password-reset error:', err);
-    return res.status(500).json({ error: 'server error' });
-  }
-});
-
-// Apply new password using token
-router.post('/reset-password/:token', async (req, res) => {
-  try {
-    const token = req.params.token;
-    const { password } = req.body || {};
-    if (!token || !password) return res.status(400).json({ error: 'token and password required' });
-
-    const r = await pool.query('SELECT user_id, expires_at FROM password_resets WHERE token = $1 LIMIT 1', [token]);
-    if (r.rowCount === 0) return res.status(400).json({ error: 'Invalid or expired token' });
-
-    const row = r.rows[0];
-    if (new Date(row.expires_at) < new Date()) {
-      await pool.query('DELETE FROM password_resets WHERE token = $1', [token]);
-      return res.status(400).json({ error: 'Token expired' });
-    }
-
-    const hashed = await bcrypt.hash(password, 10);
-    const userTable = await getUserTable();
-    await pool.query(`UPDATE ${userTable} SET password_hash = $1 WHERE user_id = $2`, [hashed, String(row.user_id)]);
-    await pool.query('DELETE FROM password_resets WHERE token = $1', [token]);
-
-    return res.json({ success: true });
-  } catch (err) {
-    console.error('reset-password error:', err);
-    return res.status(500).json({ error: 'server error' });
-  }
-});

@@ -1,4 +1,4 @@
-
+dotenv
 scikit-learn
 numpy
 google.genai
